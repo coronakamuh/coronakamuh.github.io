@@ -9,7 +9,7 @@ export const buttonVariants = cva(
       variant: {
         primary: 'bg-pena text-white hover:bg-pena-tua',
         outline:
-          'border border-garis bg-lembar-tegas text-tinta hover:border-pena hover:text-pena',
+          'border border-garis bg-lembar text-tinta hover:border-pena hover:text-pena',
         ghost: 'text-tinta hover:bg-garis-halus',
       },
       size: {

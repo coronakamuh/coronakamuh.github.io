@@ -5,7 +5,7 @@ import { site } from '@/config/site'
 
 export function SiteFooter() {
   return (
-    <footer className="mt-20">
+    <footer className="mt-24">
       <Separator />
       <Container className="flex flex-col gap-3 py-8 text-sm text-tinta-redup sm:flex-row sm:items-center sm:justify-between">
         <p>

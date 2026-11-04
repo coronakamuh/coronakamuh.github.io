@@ -1,27 +1,19 @@
 import { Container } from '@/components/layout/container'
-import { Button } from '@/components/ui/button'
-import { LedgerSheet } from '@/pages/home/ledger-sheet'
+import { site } from '@/config/site'
 
 export function Hero() {
   return (
-    <section className="pt-10 pb-16 sm:pt-16 lg:pt-20">
-      <Container className="grid gap-14 lg:grid-cols-[minmax(0,1fr)_26rem] lg:items-center lg:gap-16">
-        <div>
-          <h1 className="font-display text-[2.5rem] leading-[1.05] font-semibold tracking-tight text-balance sm:text-6xl">
-            Stok dan penjualan, tercatat rapi.
-          </h1>
-          <p className="mt-5 max-w-md text-lg leading-relaxed text-tinta-redup">
-            Dhouse Digital membantu mencatat penjualan, mengelola barang dan stok, mencatat mutasi,
-            serta menyusun laporan.
-          </p>
-          <div className="mt-8">
-            <Button asChild>
-              <a href="#modul">Lihat modul</a>
-            </Button>
-          </div>
-        </div>
-
-        <LedgerSheet />
+    <section className="pt-14 pb-12 sm:pt-24">
+      <Container>
+        <p className="text-sm text-tinta-redup">
+          Tahap {site.stage.number} · {site.stage.label}
+        </p>
+        <h1 className="mt-4 max-w-xl text-4xl leading-tight font-semibold tracking-tight text-balance sm:text-5xl">
+          Stok dan penjualan, tercatat rapi.
+        </h1>
+        <p className="mt-5 max-w-md leading-relaxed text-tinta-redup">
+          Mencatat penjualan, mengelola barang dan stok, mencatat mutasi, dan menyusun laporan.
+        </p>
       </Container>
     </section>
   )

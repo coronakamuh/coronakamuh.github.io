@@ -4,10 +4,10 @@ import { site } from '@/config/site'
 
 export function SiteHeader() {
   return (
-    <header className="border-b border-garis-halus">
+    <header className="border-b border-garis">
       <Container as="div" className="flex h-16 items-center gap-3">
         <LogoMark className="size-8 text-pena" />
-        <span className="font-display text-lg font-semibold tracking-tight">{site.name}</span>
+        <span className="text-lg font-semibold tracking-tight">{site.name}</span>
       </Container>
     </header>
   )

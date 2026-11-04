@@ -13,8 +13,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@fontsource-variable/bricolage-grotesque": "^5.2.0",
-    "@fontsource-variable/instrument-sans": "^5.2.0",
     "@radix-ui/react-separator": "^1.1.0",
     "@radix-ui/react-slot": "^1.2.0",
     "class-variance-authority": "^0.7.1",
