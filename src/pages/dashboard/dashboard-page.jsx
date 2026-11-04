@@ -30,7 +30,7 @@ export function DashboardPage() {
     <>
       <PageHeader title="Dashboard" description="Ringkasan stok dan penjualan." />
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3 lg:grid-cols-4">
         <StatCard label="Total Barang" icon={Package} />
         <StatCard label="Total Stok" icon={Boxes} />
         <StatCard label="Omzet Hari Ini" icon={Banknote} />

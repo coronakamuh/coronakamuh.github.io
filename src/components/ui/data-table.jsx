@@ -2,52 +2,77 @@ import { cn } from '@/lib/cn'
 import { EmptyState } from '@/components/ui/empty-state'
 
 /**
- * Tabel yang aman untuk layar kecil: lebar minimum tetap dan digulir ke samping
- * di dalam kartunya sendiri, sehingga tata letak halaman tidak ikut rusak.
+ * Tabel yang tidak pernah digeser ke samping.
+ * Mengikuti lebar kartunya sendiri (container query):
+ * - sempit (HP, atau kolom kecil di sebelah formulir): tiap baris jadi kartu bertumpuk,
+ *   satu pasang "label: isi" per baris.
+ * - lebar: tabel biasa.
  * columns: [{ key, label, align?: 'right', render?: (row) => node }]
  */
 export function DataTable({ columns, rows, empty, caption }) {
   return (
-    <div>
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[34rem] border-collapse text-sm">
-          <caption className="sr-only">{caption}</caption>
-          <thead>
-            <tr className="border-y border-garis bg-garis-halus/60 text-tinta-redup">
+    <div className="@container">
+      {/* Tabel: hanya bila kartu cukup lebar */}
+      <table className="hidden w-full table-fixed border-collapse text-sm @xl:table">
+        <caption className="sr-only">{caption}</caption>
+        <thead>
+          <tr className="border-y border-garis bg-garis-halus/60 text-tinta-redup">
+            {columns.map((column) => (
+              <th
+                key={column.key}
+                scope="col"
+                className={cn(
+                  'px-5 py-2.5 text-left font-medium',
+                  column.align === 'right' && 'text-right',
+                )}
+              >
+                {column.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, index) => (
+            <tr key={row.id ?? index} className="border-b border-garis-halus last:border-b-0">
               {columns.map((column) => (
-                <th
+                <td
                   key={column.key}
-                  scope="col"
                   className={cn(
-                    'px-4 py-2.5 text-left font-medium whitespace-nowrap sm:px-5',
-                    column.align === 'right' && 'text-right',
+                    'px-5 py-3 break-words',
+                    column.align === 'right' && 'text-right tabular-nums',
                   )}
                 >
-                  {column.label}
-                </th>
+                  {column.render ? column.render(row) : row[column.key]}
+                </td>
               ))}
             </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, index) => (
-              <tr key={row.id ?? index} className="border-b border-garis-halus last:border-b-0">
-                {columns.map((column) => (
-                  <td
-                    key={column.key}
-                    className={cn(
-                      'px-4 py-3 sm:px-5',
-                      column.align === 'right' && 'text-right tabular-nums',
-                    )}
-                  >
+          ))}
+        </tbody>
+      </table>
+
+      {/* Kartu: saat kartu sempit */}
+      {rows.length > 0 ? (
+        <ul aria-label={caption} className="divide-y divide-garis-halus border-t border-garis @xl:hidden">
+          {rows.map((row, index) => (
+            <li key={row.id ?? index} className="flex flex-col gap-1.5 px-4 py-3 text-sm">
+              {columns.map((column) => (
+                <div key={column.key} className="flex items-baseline justify-between gap-4">
+                  <span className="shrink-0 text-tinta-redup">{column.label}</span>
+                  <span className="min-w-0 text-right break-words tabular-nums">
                     {column.render ? column.render(row) : row[column.key]}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      {rows.length === 0 ? <EmptyState {...empty} /> : null}
+                  </span>
+                </div>
+              ))}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
+      {rows.length === 0 ? (
+        <div className="border-t border-garis">
+          <EmptyState {...empty} />
+        </div>
+      ) : null}
     </div>
   )
 }

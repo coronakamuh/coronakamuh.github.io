@@ -61,7 +61,7 @@ export function StokPage() {
         }
       />
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3 sm:grid-cols-3">
         <StatCard label="Total Barang" icon={Package} />
         <StatCard label="Total Stok" icon={Boxes} />
         <StatCard label="Barang Minus" icon={AlertTriangle} tone="danger" className="col-span-2 sm:col-span-1" />
@@ -125,7 +125,7 @@ export function StokPage() {
           <Field label="Nama barang" htmlFor="nama-barang">
             <Input id="nama-barang" required />
           </Field>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3">
             <Field label="Kode" htmlFor="kode-barang">
               <Input id="kode-barang" />
             </Field>

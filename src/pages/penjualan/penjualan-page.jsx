@@ -53,7 +53,7 @@ export function PenjualanPage() {
                 disabled={itemOptions.length === 0}
               />
             </Field>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3">
               <Field label="Jumlah" htmlFor="jumlah-jual">
                 <Input id="jumlah-jual" type="number" inputMode="numeric" min="1" placeholder="0" required />
               </Field>
