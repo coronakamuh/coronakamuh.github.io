@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardHeader } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/data-table'
 import { Modal } from '@/components/ui/dialog'
-import { Field, Input, Select } from '@/components/ui/field'
+import { Field, Input } from '@/components/ui/field'
+import { Select } from '@/components/ui/select'
 import { StatCard } from '@/components/ui/stat-card'
 
 const stockColumns = [
@@ -20,6 +21,7 @@ const stockColumns = [
 // Belum ada database. Daftar dan pilihan brand dibiarkan kosong.
 const items = []
 const brands = []
+const brandOptions = [{ value: '', label: 'Semua brand' }, ...brands.map((name) => ({ value: name, label: name }))]
 
 export function StokPage() {
   const [addOpen, setAddOpen] = useState(false)
@@ -96,14 +98,7 @@ export function StokPage() {
               onChange={(event) => setQuery(event.target.value)}
             />
           </div>
-          <Select aria-label="Filter brand" value={brand} onChange={(event) => setBrand(event.target.value)}>
-            <option value="">Semua brand</option>
-            {brands.map((name) => (
-              <option key={name} value={name}>
-                {name}
-              </option>
-            ))}
-          </Select>
+          <Select aria-label="Filter brand" value={brand} onValueChange={setBrand} options={brandOptions} />
         </div>
         <DataTable
           caption="Tabel stok barang"

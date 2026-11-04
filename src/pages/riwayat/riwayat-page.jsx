@@ -3,7 +3,9 @@ import { History } from 'lucide-react'
 import { PageHeader } from '@/components/layout/page-header'
 import { Card, CardHeader } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/data-table'
-import { Field, Input, Select } from '@/components/ui/field'
+import { DatePicker } from '@/components/ui/date-picker'
+import { Field } from '@/components/ui/field'
+import { Select } from '@/components/ui/select'
 
 const historyColumns = [
   { key: 'date', label: 'Tanggal' },
@@ -41,19 +43,13 @@ export function RiwayatPage() {
         <CardHeader title="Riwayat Mutasi" />
         <div className="grid gap-3 px-4 pb-4 sm:grid-cols-3 sm:px-5 sm:pb-5">
           <Field label="Dari tanggal" htmlFor="riwayat-dari">
-            <Input id="riwayat-dari" type="date" value={from} max={to || undefined} onChange={(e) => setFrom(e.target.value)} />
+            <DatePicker id="riwayat-dari" value={from} onChange={setFrom} max={to || undefined} />
           </Field>
           <Field label="Sampai tanggal" htmlFor="riwayat-sampai">
-            <Input id="riwayat-sampai" type="date" value={to} min={from || undefined} onChange={(e) => setTo(e.target.value)} />
+            <DatePicker id="riwayat-sampai" value={to} onChange={setTo} min={from || undefined} />
           </Field>
           <Field label="Jenis mutasi" htmlFor="riwayat-jenis">
-            <Select id="riwayat-jenis" value={type} onChange={(e) => setType(e.target.value)}>
-              {typeOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </Select>
+            <Select id="riwayat-jenis" value={type} onValueChange={setType} options={typeOptions} />
           </Field>
         </div>
         <DataTable

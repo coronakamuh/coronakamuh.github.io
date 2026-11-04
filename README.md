@@ -28,11 +28,11 @@ src/
     charts/    grafik (bar-chart)
     layout/    kerangka aplikasi (app-shell, sidebar-nav, page-header, container)
     ui/        komponen dasar (button, card, stat-card, field, data-table,
-               empty-state, segmented, dialog, separator)
+               empty-state, segmented, dialog, select, date-picker, separator)
   config/      informasi aplikasi (site) dan menu (navigation)
   features/    modul bisnis, satu folder per modul (masih kosong)
   hooks/       custom hook (masih kosong)
-  lib/         fungsi bantu (cn, use-hash-route)
+  lib/         fungsi bantu (cn, date, use-hash-route)
   pages/       satu folder per halaman: dashboard, penjualan, stok, riwayat, pengaturan
   services/    koneksi ke layanan luar seperti Supabase (masih kosong)
   styles/      gaya global dan token desain Tailwind
