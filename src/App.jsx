@@ -1,21 +1,30 @@
-import { SiteHeader } from '@/components/layout/site-header'
-import { SiteFooter } from '@/components/layout/site-footer'
-import { HomePage } from '@/pages/home/home-page'
+import { Toaster } from 'sonner'
+import { AppShell } from '@/components/layout/app-shell'
+import { useHashRoute } from '@/lib/use-hash-route'
+import { DashboardPage } from '@/pages/dashboard/dashboard-page'
+import { PenjualanPage } from '@/pages/penjualan/penjualan-page'
+import { PengaturanPage } from '@/pages/pengaturan/pengaturan-page'
+import { RiwayatPage } from '@/pages/riwayat/riwayat-page'
+import { StokPage } from '@/pages/stok/stok-page'
+
+const pages = {
+  dashboard: DashboardPage,
+  penjualan: PenjualanPage,
+  stok: StokPage,
+  riwayat: RiwayatPage,
+  pengaturan: PengaturanPage,
+}
 
 export default function App() {
+  const route = useHashRoute()
+  const Page = pages[route]
+
   return (
-    <div className="flex min-h-svh flex-col">
-      <a
-        href="#utama"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-sm focus:bg-pena focus:px-3 focus:py-2 focus:text-sm focus:text-white"
-      >
-        Lompat ke konten
-      </a>
-      <SiteHeader />
-      <main id="utama" className="flex-1">
-        <HomePage />
-      </main>
-      <SiteFooter />
-    </div>
+    <>
+      <AppShell route={route}>
+        <Page />
+      </AppShell>
+      <Toaster position="top-center" closeButton />
+    </>
   )
 }
