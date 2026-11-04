@@ -2,11 +2,11 @@
 
 Dhouse Digital: aplikasi Inventory & Sales Management untuk pencatatan penjualan, pengelolaan barang, stok, mutasi barang, dan laporan.
 
-Status: **Tahap 1, fondasi project.** Belum ada fitur bisnis dan belum ada database.
+Status: **Tahap 2, antarmuka dan navigasi.** Semua halaman masih kosong (empty state). Belum ada database dan belum ada fitur bisnis yang berfungsi.
 
 ## Teknologi
 
-React 19, Vite, JavaScript, Tailwind CSS v4, Radix UI, Lucide React. Supabase akan ditambahkan di tahap selanjutnya.
+React 19, Vite, JavaScript, Tailwind CSS v4, Radix UI, Lucide React, Sonner (toast). Supabase akan ditambahkan di tahap selanjutnya.
 
 ## Menjalankan di komputer sendiri
 
@@ -25,16 +25,20 @@ npm run preview  # coba hasil build
 src/
   components/
     brand/     lambang dan identitas
-    layout/    kerangka halaman (header, footer, container)
-    ui/        komponen dasar (button, separator)
-  config/      informasi aplikasi dan daftar modul
+    charts/    grafik (bar-chart)
+    layout/    kerangka aplikasi (app-shell, sidebar-nav, page-header, container)
+    ui/        komponen dasar (button, card, stat-card, field, data-table,
+               empty-state, segmented, dialog, separator)
+  config/      informasi aplikasi (site) dan menu (navigation)
   features/    modul bisnis, satu folder per modul (masih kosong)
   hooks/       custom hook (masih kosong)
-  lib/         fungsi bantu
-  pages/       halaman, satu folder per halaman
+  lib/         fungsi bantu (cn, use-hash-route)
+  pages/       satu folder per halaman: dashboard, penjualan, stok, riwayat, pengaturan
   services/    koneksi ke layanan luar seperti Supabase (masih kosong)
   styles/      gaya global dan token desain Tailwind
 ```
+
+Alamat halaman memakai hash (`#/dashboard`, `#/penjualan`, `#/stok`, `#/riwayat`, `#/pengaturan`) agar berjalan di GitHub Pages tanpa pengaturan server.
 
 ## Deployment
 
