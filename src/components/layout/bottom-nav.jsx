@@ -21,7 +21,7 @@ export function BottomNav({ route }) {
                 aria-label={label}
                 aria-current={active ? 'page' : undefined}
                 className={cn(
-                  'flex h-16 flex-col items-center justify-center gap-1 text-[11px] transition-colors',
+                  'flex h-16 flex-col items-center justify-center gap-1 text-[10px] transition-colors',
                   active ? 'font-medium text-pena' : 'text-tinta-redup',
                 )}
               >

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AlertTriangle, Boxes, FileSpreadsheet, FileText, Package, Plus, Search } from 'lucide-react'
+import { TriangleAlert, Boxes, FileSpreadsheet, FileText, Package, Plus, Search } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
@@ -64,7 +64,7 @@ export function StokPage() {
       <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3 sm:grid-cols-3">
         <StatCard label="Total Barang" icon={Package} />
         <StatCard label="Total Stok" icon={Boxes} />
-        <StatCard label="Barang Minus" icon={AlertTriangle} tone="danger" className="col-span-2 sm:col-span-1" />
+        <StatCard label="Barang Minus" icon={TriangleAlert} tone="danger" className="col-span-2 sm:col-span-1" />
       </div>
 
       <Card className="mt-6">

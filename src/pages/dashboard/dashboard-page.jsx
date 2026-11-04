@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AlertTriangle, Banknote, Boxes, Package, Tags } from 'lucide-react'
+import { TriangleAlert, Banknote, Boxes, Package, Tags } from 'lucide-react'
 import { BarChart } from '@/components/charts/bar-chart'
 import { PageHeader } from '@/components/layout/page-header'
 import { Card, CardBody, CardHeader } from '@/components/ui/card'
@@ -34,7 +34,7 @@ export function DashboardPage() {
         <StatCard label="Total Barang" icon={Package} />
         <StatCard label="Total Stok" icon={Boxes} />
         <StatCard label="Omzet Hari Ini" icon={Banknote} />
-        <StatCard label="Barang Minus" icon={AlertTriangle} tone="danger" />
+        <StatCard label="Barang Minus" icon={TriangleAlert} tone="danger" />
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
@@ -79,7 +79,7 @@ export function DashboardPage() {
           columns={minusColumns}
           rows={minusItems}
           empty={{
-            icon: AlertTriangle,
+            icon: TriangleAlert,
             title: 'Tidak ada barang minus',
             description: 'Barang yang stoknya minus akan tercantum di sini.',
           }}

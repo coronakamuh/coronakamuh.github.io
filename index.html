@@ -10,6 +10,37 @@
     />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>Dhouse Digital</title>
+    <script>
+      // Bila aplikasi gagal tampil, tulis pesan error di layar (bukan layar kosong).
+      (function () {
+        var msgs = []
+        function render() {
+          var root = document.getElementById('root')
+          if (root && root.childNodes.length) return
+          var box = document.getElementById('diag')
+          if (!box) {
+            box = document.createElement('pre')
+            box.id = 'diag'
+            box.style.cssText = 'white-space:pre-wrap;word-break:break-word;padding:16px;margin:0;font:13px/1.5 monospace;color:#b42318'
+            document.body.appendChild(box)
+          }
+          box.textContent = 'Dhouse Digital gagal tampil.\n\n' + msgs.join('\n')
+        }
+        window.addEventListener('error', function (e) {
+          var t = e.target
+          msgs.push(t && (t.src || t.href) ? 'Gagal memuat: ' + (t.src || t.href) : 'Error: ' + e.message + (e.filename ? ' (' + e.filename + ':' + e.lineno + ')' : ''))
+          setTimeout(render, 50)
+        }, true)
+        window.addEventListener('unhandledrejection', function (e) {
+          msgs.push('Error: ' + ((e.reason && e.reason.message) || e.reason))
+          setTimeout(render, 50)
+        })
+        setTimeout(function () {
+          if (!msgs.length) msgs.push('Tidak ada pesan error.')
+          render()
+        }, 4000)
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -3,7 +3,7 @@ import { cn } from '@/lib/cn'
 export const controlClass =
   'h-10 w-full min-w-0 rounded-md border border-garis bg-lembar px-3 text-base text-tinta placeholder:text-tinta-redup disabled:cursor-not-allowed disabled:bg-garis-halus disabled:text-tinta-redup sm:text-sm'
 
-/** Label + isian. Ukuran teks 16px di HP agar layar tidak membesar sendiri saat mengetik. */
+/** Label + isian. Catatan: iPhone memperbesar layar saat mengetik di isian bertulisan kurang dari 16px. */
 export function Field({ label, htmlFor, hint, className, children }) {
   return (
     <div className={cn('flex min-w-0 flex-col gap-1.5', className)}>

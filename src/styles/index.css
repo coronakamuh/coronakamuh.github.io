@@ -4,6 +4,17 @@
 @theme {
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
+  /* Semua ukuran teks dikurangi 1px dari bawaan Tailwind (xs 12→11, sm 14→13, base 16→15, dst). */
+  --text-xs: 0.6875rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-lg: 1.0625rem;
+  --text-xl: 1.1875rem;
+  --text-2xl: 1.4375rem;
+  --text-3xl: 1.8125rem;
+  --text-4xl: 2.1875rem;
+  --text-5xl: 2.9375rem;
+
   --color-lembar: #ffffff;
   --color-tinta: #111827;
   --color-tinta-redup: #6b7280;
@@ -12,6 +23,7 @@
   --color-garis: #e5e7eb;
   --color-garis-halus: #f0f1f3;
   --color-bahaya: #b42318;
+
 }
 
 @layer base {
