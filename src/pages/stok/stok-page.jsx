@@ -1,23 +1,25 @@
 import { useEffect, useMemo, useState } from 'react'
-import { FileSpreadsheet, FileText, Package, Plus, Search, TriangleAlert, Boxes } from 'lucide-react'
-import { toast } from 'sonner'
+import { Download, Package, Plus, Search, TriangleAlert, Boxes } from 'lucide-react'
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/data-table'
-import { Modal } from '@/components/ui/dialog'
-import { Field, Input } from '@/components/ui/field'
+import { Input } from '@/components/ui/field'
 import { ErrorNotice } from '@/components/ui/notice'
 import { Pager } from '@/components/ui/pager'
 import { Select } from '@/components/ui/select'
 import { StatCard } from '@/components/ui/stat-card'
 import { useAsync } from '@/hooks/use-async'
+import { BarangDialog } from '@/features/stok/barang-dialog'
+import { MutasiDialog } from '@/features/stok/mutasi-dialog'
+import { downloadCsv } from '@/lib/export'
 import { formatAngka, formatRupiah } from '@/lib/format'
+import { todayISO } from '@/lib/date'
 import { getStockData } from '@/services/queries'
 
 const PAGE_SIZE = 50
 
-const stockColumns = [
+const baseColumns = [
   { key: 'name', label: 'Barang' },
   { key: 'brand', label: 'Brand' },
   {
@@ -29,9 +31,16 @@ const stockColumns = [
   { key: 'price', label: 'Harga terakhir', align: 'right', render: (row) => (row.price === null ? '—' : formatRupiah(row.price)) },
 ]
 
+const csvColumns = [
+  { label: 'Barang', value: (row) => row.name },
+  { label: 'Brand', value: (row) => row.brand },
+  { label: 'Stok', value: (row) => row.stock },
+  { label: 'Harga terakhir', value: (row) => row.price ?? '' },
+]
+
 export function StokPage() {
   const { data, error, loading, reload } = useAsync(getStockData, [])
-  const [addOpen, setAddOpen] = useState(false)
+  const [dialog, setDialog] = useState(null) // { kind: 'tambah' | 'ubah' | 'mutasi', item? }
   const [query, setQuery] = useState('')
   const [brand, setBrand] = useState('')
   const [page, setPage] = useState(1)
@@ -50,14 +59,27 @@ export function StokPage() {
   const minusCount = items.filter((item) => item.stock < 0).length
   const brandOptions = [{ value: '', label: 'Semua brand' }, ...(data?.brandNames ?? []).map((name) => ({ value: name, label: name }))]
 
-  function handleExport(format) {
-    toast.info(`Ekspor ${format} belum diaktifkan`, { description: 'Ekspor dikerjakan pada tahap berikutnya.' })
-  }
+  const columns = [
+    ...baseColumns,
+    {
+      key: 'actions',
+      label: 'Aksi',
+      align: 'right',
+      render: (row) => (
+        <span className="inline-flex gap-1">
+          <Button variant="outline" size="sm" onClick={() => setDialog({ kind: 'mutasi', item: row })}>
+            Mutasi
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => setDialog({ kind: 'ubah', item: row })}>
+            Ubah
+          </Button>
+        </span>
+      ),
+    },
+  ]
 
-  function handleAdd(event) {
-    event.preventDefault()
-    toast.info('Belum bisa disimpan', { description: 'Tahap ini mode baca saja. Penambahan barang diaktifkan pada tahap berikutnya.' })
-    setAddOpen(false)
+  function handleExport() {
+    downloadCsv(`stok-barang-${todayISO()}.csv`, csvColumns, filtered)
   }
 
   return (
@@ -66,7 +88,7 @@ export function StokPage() {
         title="Stok Barang"
         description="Daftar barang dan jumlah stoknya."
         actions={
-          <Button onClick={() => setAddOpen(true)}>
+          <Button onClick={() => setDialog({ kind: 'tambah' })}>
             <Plus />
             Tambah Barang
           </Button>
@@ -97,16 +119,10 @@ export function StokPage() {
           title="Tabel Stok"
           description={data ? `${formatAngka(filtered.length)} dari ${formatAngka(items.length)} barang.` : undefined}
           action={
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => handleExport('PDF')}>
-                <FileText />
-                PDF
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => handleExport('Excel')}>
-                <FileSpreadsheet />
-                Excel
-              </Button>
-            </div>
+            <Button variant="outline" size="sm" onClick={handleExport} disabled={filtered.length === 0}>
+              <Download />
+              Ekspor CSV
+            </Button>
           }
         />
         <div className="grid gap-3 px-4 pb-4 sm:grid-cols-[minmax(0,1fr)_14rem] sm:px-5 sm:pb-5">
@@ -118,7 +134,7 @@ export function StokPage() {
         </div>
         <DataTable
           caption="Tabel stok barang"
-          columns={stockColumns}
+          columns={columns}
           rows={pageRows}
           empty={{
             icon: Package,
@@ -129,20 +145,15 @@ export function StokPage() {
         <Pager page={page} pageSize={PAGE_SIZE} total={filtered.length} onPageChange={setPage} />
       </Card>
 
-      <Modal open={addOpen} onOpenChange={setAddOpen} title="Tambah Barang" description="Tahap ini mode baca saja. Penyimpanan diaktifkan pada tahap berikutnya.">
-        <form onSubmit={handleAdd} className="flex flex-col gap-4">
-          <Field label="Nama barang" htmlFor="nama-barang">
-            <Input id="nama-barang" required />
-          </Field>
-          <Field label="Brand" htmlFor="brand-barang">
-            <Select id="brand-barang" value="" onValueChange={() => {}} options={brandOptions.slice(1)} placeholder="Pilih brand" />
-          </Field>
-          <Field label="Stok awal" htmlFor="stok-barang">
-            <Input id="stok-barang" type="number" inputMode="numeric" placeholder="0" required />
-          </Field>
-          <Button type="submit">Simpan Barang</Button>
-        </form>
-      </Modal>
+      <BarangDialog
+        open={dialog?.kind === 'tambah' || dialog?.kind === 'ubah'}
+        item={dialog?.kind === 'ubah' ? dialog.item : null}
+        brands={data?.brands ?? []}
+        existingNames={items.map((item) => item.name)}
+        onOpenChange={(open) => !open && setDialog(null)}
+        onDone={reload}
+      />
+      <MutasiDialog item={dialog?.kind === 'mutasi' ? dialog.item : null} onOpenChange={(open) => !open && setDialog(null)} onDone={reload} />
     </>
   )
 }

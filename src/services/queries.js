@@ -1,4 +1,4 @@
-// Lapisan data BACA SAJA. Tidak ada insert, update, atau delete di file ini.
+// Lapisan data BACA SAJA. Tidak ada insert, update, atau delete di file ini (penulisan ada di sales.js, movements.js, items.js, brands.js).
 // Nama tabel dan kolom mengikuti database yang sudah ada (hasil audit tahap 3).
 import { addDaysISO, monthRange, shortDayMonth, todayISO } from '@/lib/date'
 import { supabase } from '@/services/supabase'
@@ -6,7 +6,7 @@ import { supabase } from '@/services/supabase'
 const PAGE_SIZE = 1000 // batas baris per permintaan di Supabase
 
 /** Ambil semua baris dengan berhenti-lanjut per 1000 baris. `build` harus membuat query baru dan terurut stabil. */
-async function fetchAll(build) {
+export async function fetchAll(build) {
   const rows = []
   for (let from = 0; ; from += PAGE_SIZE) {
     const { data, error } = await build().range(from, from + PAGE_SIZE - 1)
@@ -16,7 +16,7 @@ async function fetchAll(build) {
   }
 }
 
-const unwrap = ({ data, error }) => {
+export const unwrap = ({ data, error }) => {
   if (error) throw error
   return data
 }
@@ -50,11 +50,14 @@ export async function getStockData() {
     getLastPrices(),
   ])
   const brandName = new Map(brands.map((brand) => [brand.id, brand.name]))
+  const brandActive = new Map(brands.map((brand) => [brand.id, brand.active]))
   const stockOf = new Map(stock.map((row) => [row.id, Number(row.stok)]))
   const items = barang
     .map((row) => ({
       id: row.id,
       name: row.nama,
+      brandId: row.brand_id,
+      brandActive: brandActive.get(row.brand_id) === true,
       brand: brandName.get(row.brand_id) ?? '—',
       stock: stockOf.get(row.id) ?? 0,
       price: prices.get(row.id) ?? null,
@@ -63,7 +66,7 @@ export async function getStockData() {
   const brandNames = [...new Set(items.map((item) => item.brand).filter((name) => name !== '—'))].sort((a, b) =>
     a.localeCompare(b, 'id'),
   )
-  return { items, brandNames }
+  return { items, brandNames, brands }
 }
 
 /** Jumlah penjualan (qty × harga) per hari, dari tanggal `since` sampai hari ini. */
@@ -128,12 +131,14 @@ export async function getDashboard() {
 
   const monthTotals = new Map((summary.brand_sales ?? []).map((row) => [row.brand, Number(row.total)]))
   const targetOf = new Map(targets.map((row) => [row.brand, row.target]))
-  const brandPerformance = brands
-    .filter((brand) => brand.active)
-    .map((brand) => ({
-      name: brand.name,
-      total: monthTotals.get(brand.name) ?? 0,
-      target: targetOf.get(brand.name) ?? null,
+  // Brand aktif, ditambah brand nonaktif (atau tanpa brand) yang masih punya penjualan bulan ini.
+  const names = new Set(brands.filter((brand) => brand.active).map((brand) => brand.name))
+  for (const name of monthTotals.keys()) names.add(name)
+  const brandPerformance = [...names]
+    .map((name) => ({
+      name,
+      total: monthTotals.get(name) ?? 0,
+      target: targetOf.get(name) ?? null,
     }))
     .sort((a, b) => b.total - a.total || a.name.localeCompare(b.name, 'id'))
 
@@ -153,11 +158,20 @@ export async function getTargets() {
   return data.map((row) => ({ brand: row.brand, target: row.target === null ? null : Number(row.target) }))
 }
 
+/** Target untuk layar Pengaturan: satu baris per brand aktif (target kosong = belum diatur). */
+export async function getTargetRows() {
+  const [brands, targets] = await Promise.all([getBrands(), getTargets()])
+  const targetOf = new Map(targets.map((row) => [row.brand, row.target]))
+  return brands
+    .filter((brand) => brand.active)
+    .map((brand) => ({ id: brand.id, brand: brand.name, target: targetOf.get(brand.name) ?? null }))
+}
+
 export async function getSalesPage({ page, pageSize }) {
   const from = (page - 1) * pageSize
   const { data, error, count } = await supabase
     .from('penjualan')
-    .select('id, tanggal_pembelian, brand, qty, harga, barang(nama)', { count: 'exact' })
+    .select('id, tanggal_pembelian, brand, qty, harga, barang_id, barang(nama)', { count: 'exact' })
     .order('tanggal_pembelian', { ascending: false })
     .order('id', { ascending: false })
     .range(from, from + pageSize - 1)
@@ -167,9 +181,11 @@ export async function getSalesPage({ page, pageSize }) {
     rows: data.map((row) => ({
       id: row.id,
       date: row.tanggal_pembelian,
+      barangId: row.barang_id,
       item: row.barang?.nama ?? '—',
       brand: row.brand,
       qty: Number(row.qty),
+      price: Number(row.harga),
       total: Number(row.qty) * Number(row.harga),
     })),
   }

@@ -2,7 +2,7 @@
 
 Dhouse Digital: aplikasi Inventory & Sales Management untuk pencatatan penjualan, pengelolaan barang, stok, mutasi barang, dan laporan.
 
-Status: **Tahap 4, tersambung ke Supabase dalam mode baca saja.** Login (username atau email), Dashboard, Stok Barang, Riwayat In/Out, daftar Penjualan, dan target brand membaca data asli. Menyimpan, mengubah, dan ekspor belum aktif.
+Status: **fitur tulis aktif** sesuai pemetaan database. Penjualan (catat dan ubah), barang masuk/keluar/adjust, tambah dan ubah barang, serta target brand disimpan lewat fungsi database yang sudah ada. Tidak ada hapus penjualan, tidak ada hapus barang. Ekspor memakai CSV.
 
 ## Teknologi
 
@@ -30,11 +30,11 @@ src/
     ui/        komponen dasar (button, card, stat-card, field, data-table,
                empty-state, segmented, dialog, select, date-picker, separator)
   config/      informasi aplikasi (site) dan menu (navigation)
-  features/    modul bisnis, satu folder per modul (masih kosong)
-  hooks/       custom hook (use-async)
-  lib/         fungsi bantu (cn, date, format, auth-context, use-hash-route)
+  hooks/       custom hook (use-async, use-mutation)
+  lib/         fungsi bantu (cn, date, format, stock, validation, export, auth-context, use-hash-route)
   pages/       satu folder per halaman: dashboard, penjualan, stok, riwayat, pengaturan
-  services/    Supabase: klien, login, dan query baca saja (queries.js)
+  services/    Supabase: klien, login, query baca (queries.js, stock.js) dan penulisan (sales, movements, items, brands)
+  features/    formulir dan dialog per modul (penjualan, stok, pengaturan)
   styles/      gaya global dan token desain Tailwind
 ```
 
@@ -43,3 +43,9 @@ Alamat halaman memakai hash (`#/dashboard`, `#/penjualan`, `#/stok`, `#/riwayat`
 ## Deployment
 
 Setiap push menjalankan build lewat GitHub Actions (`.github/workflows/deploy.yml`). Push ke branch `main` juga memublikasikan situs ke GitHub Pages.
+## Aturan data (ringkas)
+
+- Database tidak diubah oleh repo ini; semua penulisan lewat RPC `catat_penjualan_atomic`, `edit_penjualan_atomic` (6 argumen), `catat_transaksi_stok_atomic`, dan insert/update/upsert biasa untuk `barang` dan `target_penjualan_brand`.
+- Stok dihitung dengan rumus bertanggal yang sama seperti database (`src/lib/stock.js`); stok negatif berarti kekurangan pre-order.
+- Tanggal memakai WIB; tanggal masa depan ditolak aplikasi.
+- Pemetaan lengkap: dokumen "Pemetaan Database ke Fitur" (Claude Doc).
