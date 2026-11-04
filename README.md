@@ -26,7 +26,7 @@ src/
   components/
     brand/     lambang dan identitas
     charts/    grafik (bar-chart)
-    layout/    kerangka aplikasi (app-shell, sidebar-nav, page-header, container)
+    layout/    kerangka aplikasi (app-shell, sidebar-nav, bottom-nav, page-header, container)
     ui/        komponen dasar (button, card, stat-card, field, data-table,
                empty-state, segmented, dialog, select, date-picker, separator)
   config/      informasi aplikasi (site) dan menu (navigation)

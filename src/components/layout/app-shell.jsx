@@ -1,19 +1,14 @@
-import { useState } from 'react'
-import { Menu } from 'lucide-react'
 import { LogoMark } from '@/components/brand/logo-mark'
+import { BottomNav } from '@/components/layout/bottom-nav'
 import { SidebarNav } from '@/components/layout/sidebar-nav'
-import { Button } from '@/components/ui/button'
-import { Drawer } from '@/components/ui/dialog'
 import { site } from '@/config/site'
 
 /**
  * Kerangka aplikasi.
  * Desktop (lg ke atas): sidebar tetap di kiri.
- * HP: bilah atas dengan tombol menu yang membuka sidebar sebagai panel geser.
+ * HP: bilah atas berisi nama aplikasi, dan menu berada di bilah bawah.
  */
 export function AppShell({ route, children }) {
-  const [menuOpen, setMenuOpen] = useState(false)
-
   return (
     <div className="min-h-svh lg:grid lg:grid-cols-[15rem_minmax(0,1fr)]">
       <a
@@ -30,22 +25,18 @@ export function AppShell({ route, children }) {
       </aside>
 
       <div className="flex min-w-0 flex-col">
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-garis bg-lembar px-3 lg:hidden">
-          <Button variant="ghost" size="icon" aria-label="Buka menu" onClick={() => setMenuOpen(true)}>
-            <Menu />
-          </Button>
+        <header className="flex h-14 items-center gap-2.5 border-b border-garis bg-lembar px-4 lg:hidden">
           <LogoMark className="size-6 text-pena" />
           <span className="font-semibold tracking-tight">{site.name}</span>
         </header>
 
-        <main id="utama" className="flex-1 px-4 py-6 sm:px-8 lg:py-10">
+        {/* pb-28: ruang agar isi paling bawah tidak tertutup bilah menu di HP */}
+        <main id="utama" className="flex-1 px-4 pt-6 pb-28 sm:px-8 lg:py-10">
           <div className="mx-auto w-full max-w-6xl">{children}</div>
         </main>
       </div>
 
-      <Drawer open={menuOpen} onOpenChange={setMenuOpen} title="Menu utama">
-        <SidebarNav route={route} onNavigate={() => setMenuOpen(false)} />
-      </Drawer>
+      <BottomNav route={route} />
     </div>
   )
 }

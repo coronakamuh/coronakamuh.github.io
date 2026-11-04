@@ -30,21 +30,3 @@ export function Modal({ open, onOpenChange, title, description, children }) {
     </DialogPrimitive.Root>
   )
 }
-
-/** Panel yang meluncur dari kiri (untuk menu di HP). */
-export function Drawer({ open, onOpenChange, title, children }) {
-  return (
-    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
-      <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className={overlayClass} />
-        <DialogPrimitive.Content
-          aria-describedby={undefined}
-          className="fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] overflow-y-auto bg-lembar shadow-xl"
-        >
-          <DialogPrimitive.Title className="sr-only">{title}</DialogPrimitive.Title>
-          {children}
-        </DialogPrimitive.Content>
-      </DialogPrimitive.Portal>
-    </DialogPrimitive.Root>
-  )
-}

@@ -3,8 +3,8 @@ import { navItems } from '@/config/navigation'
 import { site } from '@/config/site'
 import { cn } from '@/lib/cn'
 
-/** Isi sidebar. Dipakai dua kali: tetap di desktop, dan di dalam panel geser pada HP. */
-export function SidebarNav({ route, onNavigate }) {
+/** Sidebar desktop. Di HP, menu pindah ke bilah bawah (lihat bottom-nav.jsx). */
+export function SidebarNav({ route }) {
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-14 items-center gap-3 px-5 lg:h-16">
@@ -20,7 +20,6 @@ export function SidebarNav({ route, onNavigate }) {
               <li key={id}>
                 <a
                   href={`#/${id}`}
-                  onClick={onNavigate}
                   aria-current={active ? 'page' : undefined}
                   className={cn(
                     'flex h-11 items-center gap-3 rounded-md px-3 text-sm transition-colors',
