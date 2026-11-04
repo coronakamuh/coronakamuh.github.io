@@ -1,7 +1,10 @@
+import { LogOut } from 'lucide-react'
 import { LogoMark } from '@/components/brand/logo-mark'
 import { BottomNav } from '@/components/layout/bottom-nav'
 import { SidebarNav } from '@/components/layout/sidebar-nav'
+import { Button } from '@/components/ui/button'
 import { site } from '@/config/site'
+import { useAuth } from '@/lib/auth-context'
 
 /**
  * Kerangka aplikasi.
@@ -9,6 +12,7 @@ import { site } from '@/config/site'
  * HP: bilah atas berisi nama aplikasi, dan menu berada di bilah bawah.
  */
 export function AppShell({ route, children }) {
+  const { signOut } = useAuth()
   return (
     <div className="min-h-svh lg:grid lg:grid-cols-[15rem_minmax(0,1fr)]">
       <a
@@ -25,9 +29,12 @@ export function AppShell({ route, children }) {
       </aside>
 
       <div className="flex min-w-0 flex-col">
-        <header className="flex h-14 items-center gap-2.5 border-b border-garis bg-lembar px-4 lg:hidden">
+        <header className="flex h-14 items-center gap-2.5 border-b border-garis bg-lembar pr-2 pl-4 lg:hidden">
           <LogoMark className="size-6 text-pena" />
           <span className="font-semibold tracking-tight">{site.name}</span>
+          <Button variant="ghost" size="icon" className="ml-auto" aria-label="Keluar" onClick={signOut}>
+            <LogOut />
+          </Button>
         </header>
 
         {/* pb-28: ruang agar isi paling bawah tidak tertutup bilah menu di HP */}

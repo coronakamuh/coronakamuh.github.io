@@ -1,10 +1,13 @@
+import { LogOut } from 'lucide-react'
 import { LogoMark } from '@/components/brand/logo-mark'
 import { navItems } from '@/config/navigation'
 import { site } from '@/config/site'
+import { useAuth } from '@/lib/auth-context'
 import { cn } from '@/lib/cn'
 
 /** Sidebar desktop. Di HP, menu pindah ke bilah bawah (lihat bottom-nav.jsx). */
 export function SidebarNav({ route }) {
+  const { signOut } = useAuth()
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-14 items-center gap-3 px-5 lg:h-16">
@@ -37,9 +40,16 @@ export function SidebarNav({ route }) {
         </ul>
       </nav>
 
-      <p className="px-5 py-4 text-xs text-tinta-redup">
-        Tahap {site.stage.number} · {site.stage.label}
-      </p>
+      <div className="border-t border-garis px-3 py-3">
+        <button
+          type="button"
+          onClick={signOut}
+          className="flex h-11 w-full items-center gap-3 rounded-md px-3 text-sm text-tinta-redup transition-colors hover:bg-garis-halus/70 hover:text-tinta"
+        >
+          <LogOut className="size-[18px] shrink-0" aria-hidden="true" />
+          Keluar
+        </button>
+      </div>
     </div>
   )
 }

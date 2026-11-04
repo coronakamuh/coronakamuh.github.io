@@ -40,3 +40,28 @@ export function monthGrid(year, month) {
   const offset = (new Date(year, month, 1).getDay() + 6) % 7
   return Array.from({ length: 42 }, (_, index) => new Date(year, month, 1 - offset + index))
 }
+
+/** Tanggal hari ini di Jakarta (WIB) sebagai "YYYY-MM-DD", tidak bergantung zona waktu perangkat. */
+export function todayISO() {
+  return new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Jakarta' }).format(new Date())
+}
+
+/** Tambah (atau kurangi) hari pada teks tanggal "YYYY-MM-DD". */
+export function addDaysISO(text, days) {
+  const date = new Date(`${text}T00:00:00Z`)
+  date.setUTCDate(date.getUTCDate() + days)
+  return date.toISOString().slice(0, 10)
+}
+
+/** Awal bulan ini dan awal bulan berikutnya (batas atas tidak termasuk) untuk tanggal tertentu. */
+export function monthRange(text) {
+  const [year, month] = text.split('-').map(Number)
+  const next = month === 12 ? `${year + 1}-01-01` : `${year}-${pad(month + 1)}-01`
+  return { start: `${year}-${pad(month)}-01`, next }
+}
+
+/** "2026-11-04" menjadi "4/11". */
+export function shortDayMonth(text) {
+  const [, month, day] = text.split('-').map(Number)
+  return `${day}/${month}`
+}

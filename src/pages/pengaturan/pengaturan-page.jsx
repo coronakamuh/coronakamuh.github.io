@@ -1,18 +1,29 @@
-import { Save, Tags, UserRound } from 'lucide-react'
+import { LogOut, Save, Tags } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardBody, CardHeader } from '@/components/ui/card'
-import { EmptyState } from '@/components/ui/empty-state'
+import { DataTable } from '@/components/ui/data-table'
 import { Field, Input } from '@/components/ui/field'
+import { ErrorNotice } from '@/components/ui/notice'
+import { useAsync } from '@/hooks/use-async'
 import { site } from '@/config/site'
+import { useAuth } from '@/lib/auth-context'
+import { formatRupiah } from '@/lib/format'
+import { getTargets } from '@/services/queries'
+
+const targetColumns = [
+  { key: 'brand', label: 'Brand' },
+  { key: 'target', label: 'Target penjualan', align: 'right', render: (row) => (row.target === null ? 'Belum diatur' : formatRupiah(row.target)) },
+]
 
 export function PengaturanPage() {
+  const { email, profile, signOut } = useAuth()
+  const { data, error, loading, reload } = useAsync(getTargets, [])
+
   function handleSave(event) {
     event.preventDefault()
-    toast.info('Belum bisa disimpan', {
-      description: 'Penyimpanan pengaturan tersedia setelah database disambungkan.',
-    })
+    toast.info('Belum bisa disimpan', { description: 'Tahap ini mode baca saja. Penyimpanan pengaturan diaktifkan pada tahap berikutnya.' })
   }
 
   return (
@@ -26,9 +37,6 @@ export function PengaturanPage() {
             <Field label="Nama aplikasi" htmlFor="nama-aplikasi">
               <Input id="nama-aplikasi" defaultValue={site.name} />
             </Field>
-            <Field label="Nama usaha" htmlFor="nama-usaha">
-              <Input id="nama-usaha" placeholder="Belum diisi" />
-            </Field>
             <div>
               <Button type="submit">
                 <Save />
@@ -39,24 +47,37 @@ export function PengaturanPage() {
         </Card>
 
         <Card>
-          <CardHeader title="Target Penjualan Brand" description="Target per brand untuk memantau performa." />
-          <CardBody>
-            <EmptyState
-              icon={Tags}
-              title="Belum ada brand"
-              description="Brand muncul di sini setelah barang ditambahkan. Target bisa diatur per brand."
-            />
-          </CardBody>
+          <CardHeader title="Target Penjualan Brand" description="Target per brand (hanya dibaca pada tahap ini)." />
+          {error ? (
+            <CardBody>
+              <ErrorNotice error={error} onRetry={reload} />
+            </CardBody>
+          ) : null}
+          <DataTable
+            caption="Target penjualan per brand"
+            columns={targetColumns}
+            rows={data ?? []}
+            empty={{ icon: Tags, title: loading ? 'Memuat data' : 'Belum ada target', description: loading ? '' : 'Target per brand belum diatur di database.' }}
+          />
         </Card>
 
         <Card>
-          <CardHeader title="Pengaturan Akun" description="Data akun yang dipakai untuk masuk." />
-          <CardBody>
-            <EmptyState
-              icon={UserRound}
-              title="Akun belum tersedia"
-              description="Pengaturan akun aktif setelah fitur masuk (login) ditambahkan."
-            />
+          <CardHeader title="Pengaturan Akun" description="Akun yang sedang masuk." />
+          <CardBody className="flex flex-col gap-4">
+            <dl className="grid gap-3 text-sm sm:grid-cols-[8rem_minmax(0,1fr)]">
+              <dt className="text-tinta-redup">Email</dt>
+              <dd className="min-w-0 break-words">{email}</dd>
+              <dt className="text-tinta-redup">Username</dt>
+              <dd>{profile?.username || '—'}</dd>
+              <dt className="text-tinta-redup">Peran</dt>
+              <dd>Admin</dd>
+            </dl>
+            <div>
+              <Button variant="outline" onClick={signOut}>
+                <LogOut />
+                Keluar
+              </Button>
+            </div>
           </CardBody>
         </Card>
       </div>
