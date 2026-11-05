@@ -24,7 +24,12 @@ export function friendlyError(error) {
     return new AppError('Barang ini belum punya brand aktif, jadi penjualan ditolak.', 'brand')
   }
   const stale = message.match(/Stok berubah menjadi ([\d.,-]+)/i)
-  if (stale) return new AppError(`Stok berubah menjadi ${stale[1]} karena ada transaksi lain. Data sudah dimuat ulang, periksa lagi lalu simpan.`, 'stale')
+  if (stale) {
+    const value = stale[1].replace(/[.,]+$/, '') // titik penutup kalimat ikut tertangkap
+    const failure = new AppError(`Stok di database ${value}, berbeda dari yang tampil. Angka sudah diperbarui, periksa lagi lalu simpan.`, 'stale')
+    failure.stock = Number(value)
+    return failure
+  }
   if (/Stok sudah sesuai/i.test(message)) return new AppError('Stok sudah sesuai, tidak ada yang disesuaikan.', 'noop')
   if (/row-level security|permission denied/i.test(message)) return new AppError('Akun ini tidak punya izin untuk menyimpan.', 'denied')
   if (/Failed to fetch|NetworkError|network/i.test(message)) return new AppError('Tidak bisa terhubung. Periksa internet lalu coba lagi.', 'network')

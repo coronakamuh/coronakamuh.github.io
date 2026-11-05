@@ -214,7 +214,8 @@ export async function getSalesSummary({ from, to, brand }) {
 // Tipe mutasi di database: masuk, laku, adjust, adjust_masuk, adjust_keluar.
 const typeGroups = {
   masuk: ['masuk'],
-  keluar: ['laku'],
+  terjual: ['laku'], // + penjualan_id terisi
+  keluar: ['laku'], // + penjualan_id kosong (keluar manual)
   koreksi: ['adjust', 'adjust_masuk', 'adjust_keluar'],
 }
 
@@ -237,10 +238,12 @@ export function describeMovement(row) {
 export async function getMovementsPage({ page, pageSize, from, to, group }) {
   let query = supabase
     .from('transaksi')
-    .select('id, tanggal, type, qty, penjualan_id, barang(nama)', { count: 'exact' })
+    .select('id, tanggal, type, qty, penjualan_id, barang_id, barang(nama)', { count: 'exact' })
   if (from) query = query.gte('tanggal', from)
   if (to) query = query.lte('tanggal', to)
   if (group && typeGroups[group]) query = query.in('type', typeGroups[group])
+  if (group === 'terjual') query = query.not('penjualan_id', 'is', null)
+  if (group === 'keluar') query = query.is('penjualan_id', null)
   const start = (page - 1) * pageSize
   const { data, error, count } = await query
     .order('tanggal', { ascending: false })
@@ -254,11 +257,44 @@ export async function getMovementsPage({ page, pageSize, from, to, group }) {
       return {
         id: row.id,
         date: row.tanggal,
+        barangId: row.barang_id,
         item: row.barang?.nama ?? '—',
         label: movement.label,
         delta: movement.delta,
         note: row.penjualan_id ? `Penjualan #${row.penjualan_id}` : '—',
       }
     }),
+  }
+}
+
+/** Detail satu catatan mutasi (baca saja), termasuk penjualan terkait dan stok barang saat ini. */
+export async function getMovementDetail(id) {
+  const rows = unwrap(
+    await supabase.from('transaksi').select('id, tanggal, type, qty, penjualan_id, created_at, barang_id, barang(nama, brand(nama))').eq('id', id).limit(1),
+  )
+  const row = rows[0]
+  if (!row) throw new Error('Catatan tidak ditemukan')
+  const [sale, stockRows] = await Promise.all([
+    row.penjualan_id
+      ? supabase.from('penjualan').select('id, tanggal_pembelian, brand, qty, harga').eq('id', row.penjualan_id).limit(1)
+      : Promise.resolve({ data: [], error: null }),
+    supabase.from('v_stock').select('stok').eq('id', row.barang_id).limit(1),
+  ])
+  const movement = describeMovement({ ...row, qty: Number(row.qty) })
+  const penjualan = unwrap(sale)[0]
+  return {
+    id: row.id,
+    date: row.tanggal,
+    createdAt: row.created_at,
+    type: row.type,
+    label: movement.label,
+    delta: movement.delta,
+    barangId: row.barang_id,
+    item: row.barang?.nama ?? '—',
+    brand: row.barang?.brand?.nama ?? '—',
+    currentStock: unwrap(stockRows)[0] ? Number(unwrap(stockRows)[0].stok) : null,
+    sale: penjualan
+      ? { id: penjualan.id, date: penjualan.tanggal_pembelian, brand: penjualan.brand, qty: Number(penjualan.qty), price: Number(penjualan.harga) }
+      : null,
   }
 }

@@ -78,3 +78,12 @@ Setiap push menjalankan build lewat GitHub Actions (`.github/workflows/deploy.ym
 - Tombol simpan dikunci selama proses berjalan (klik ganda hanya mengirim satu permintaan).
 - Sebelum simpan, form menampilkan perkiraan stok dan kebutuhan PO (hanya untuk tanggal hari ini); angka resmi dihitung database saat menyimpan.
 - Daftar: kolom Tanggal, Nama Barang, Qty, Harga, Total, Brand, Aksi; filter rentang tanggal dan brand; ringkasan (jumlah penjualan, unit, nilai) mengikuti filter.
+
+## Mutasi stok (masuk, keluar, adjust) dan Riwayat In/Out
+
+- Satu-satunya jalur tulis: fungsi database `catat_transaksi_stok_atomic` (jenis `masuk`, `laku` untuk keluar, `adjust`). Tidak ada sistem adjust kedua dan tidak ada tulis langsung ke `transaksi`.
+- Stok yang tampil di form selalu dari database, tidak dihitung di frontend: hari ini dari `v_stock`; tanggal lampau dari penolakan fungsi di atas bila diberi stok harapan yang mustahil (fungsi membandingkan stok sebelum menulis, jadi pemanggilan itu tidak pernah menulis).
+- Adjust: isi **stok sebenarnya**; database menyimpan selisih bertanda (+/-), jadi mendukung penambahan dan pengurangan. Stok yang sudah sama ditolak.
+- Bila stok berubah saat form terbuka, database menolak, angka terbaru ditampilkan, dan pengguna menyimpan ulang.
+- Keluar manual boleh membuat stok minus; minus = kekurangan PO (`max(0, -stok)`).
+- Riwayat In/Out: filter tanggal dan jenis (masuk, terjual, keluar manual, koreksi), detail catatan, serta tombol Catat Mutasi yang memakai dialog yang sama dengan halaman Stok Barang.

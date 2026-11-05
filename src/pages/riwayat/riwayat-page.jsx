@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { History } from 'lucide-react'
+import { History, Plus } from 'lucide-react'
 import { PageHeader } from '@/components/layout/page-header'
+import { Button } from '@/components/ui/button'
 import { Card, CardHeader } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/data-table'
 import { DatePicker } from '@/components/ui/date-picker'
@@ -11,13 +12,23 @@ import { Select } from '@/components/ui/select'
 import { useAsync } from '@/hooks/use-async'
 import { formatAngka } from '@/lib/format'
 import { formatDisplay } from '@/lib/date'
-import { getMovementsPage } from '@/services/queries'
+import { DetailMutasiDialog } from '@/features/riwayat/detail-mutasi-dialog'
+import { MutasiDialog } from '@/features/stok/mutasi-dialog'
+import { getMovementsPage, getStockData } from '@/services/queries'
 
 const PAGE_SIZE = 20
 
-const historyColumns = [
+const makeColumns = (onDetail) => [
   { key: 'date', label: 'Tanggal', render: (row) => formatDisplay(row.date) },
-  { key: 'item', label: 'Barang' },
+  {
+    key: 'item',
+    label: 'Barang',
+    render: (row) => (
+      <button type="button" className="text-left font-medium underline-offset-2 hover:underline" onClick={() => onDetail(row.id)}>
+        {row.item}
+      </button>
+    ),
+  },
   { key: 'label', label: 'Jenis' },
   {
     key: 'delta',
@@ -36,7 +47,8 @@ const historyColumns = [
 const typeOptions = [
   { value: '', label: 'Semua jenis' },
   { value: 'masuk', label: 'Barang masuk' },
-  { value: 'keluar', label: 'Barang keluar (termasuk terjual)' },
+  { value: 'terjual', label: 'Terjual (dari penjualan)' },
+  { value: 'keluar', label: 'Barang keluar (manual)' },
   { value: 'koreksi', label: 'Koreksi stok' },
 ]
 
@@ -49,6 +61,10 @@ export function RiwayatPage() {
     () => getMovementsPage({ page, pageSize: PAGE_SIZE, from, to, group }),
     [page, from, to, group],
   )
+  const stock = useAsync(() => getStockData(), [])
+  const [detailId, setDetailId] = useState(null)
+  const [catat, setCatat] = useState(false)
+  const columns = makeColumns(setDetailId)
   const waiting = loading && !data
   const filtering = Boolean(from || to || group)
 
@@ -56,7 +72,16 @@ export function RiwayatPage() {
 
   return (
     <>
-      <PageHeader title="Riwayat In/Out" description="Catatan barang masuk dan keluar." />
+      <PageHeader
+        title="Riwayat In/Out"
+        description="Catatan barang masuk, keluar, dan penyesuaian stok."
+        actions={
+          <Button onClick={() => setCatat(true)} disabled={!stock.data}>
+            <Plus />
+            Catat Mutasi
+          </Button>
+        }
+      />
 
       <Card>
         <CardHeader title="Riwayat Mutasi" description={data ? `${formatAngka(data.total)} catatan.` : undefined} />
@@ -78,7 +103,7 @@ export function RiwayatPage() {
         ) : null}
         <DataTable
           caption="Riwayat barang masuk dan keluar"
-          columns={historyColumns}
+          columns={columns}
           rows={data ? data.rows : []}
           empty={{
             icon: History,
@@ -88,6 +113,16 @@ export function RiwayatPage() {
         />
         <Pager page={page} pageSize={PAGE_SIZE} total={data?.total ?? 0} onPageChange={setPage} />
       </Card>
+    <DetailMutasiDialog id={detailId} onOpenChange={(open) => !open && setDetailId(null)} />
+      <MutasiDialog
+        open={catat}
+        items={stock.data?.items}
+        onOpenChange={setCatat}
+        onDone={() => {
+          reload()
+          stock.reload()
+        }}
+      />
     </>
   )
 }
