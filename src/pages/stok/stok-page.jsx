@@ -18,9 +18,10 @@ import { buildPdf } from '@/lib/export-pdf'
 import { buildXlsx } from '@/lib/export-xlsx'
 import { formatAngka, formatRupiah } from '@/lib/format'
 import { todayISO } from '@/lib/date'
+import { usePageSize } from '@/lib/preferences'
 import { getStockData } from '@/services/queries'
 
-const PAGE_SIZE = 50
+const DEFAULT_PAGE_SIZE = 50
 
 const need = (row) => Math.max(0, -row.stock)
 
@@ -45,6 +46,7 @@ const exportColumns = [
 ]
 
 export function StokPage() {
+  const PAGE_SIZE = usePageSize(DEFAULT_PAGE_SIZE)
   const { data, error, loading, reload } = useAsync(getStockData, [])
   const [dialog, setDialog] = useState(null) // { kind: 'tambah' | 'ubah' | 'mutasi' | 'detail', item? }
   const [query, setQuery] = useState('')
@@ -52,7 +54,7 @@ export function StokPage() {
   const [page, setPage] = useState(1)
   const waiting = loading && !data
 
-  useEffect(() => setPage(1), [query, brand])
+  useEffect(() => setPage(1), [query, brand, PAGE_SIZE])
 
   const items = data?.items ?? []
   const filtered = useMemo(() => {

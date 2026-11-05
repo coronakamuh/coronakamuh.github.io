@@ -93,3 +93,11 @@ Setiap push menjalankan build lewat GitHub Actions (`.github/workflows/deploy.ym
 - Semua angka dari database: Total Barang dan Total Stok dari fungsi `get_dashboard_summary`; Barang Minus dan daftarnya dari `v_stock`; omzet dari `penjualan` (jumlah × harga per `tanggal_pembelian`, bukan dari `transaksi` yang tidak punya harga); Performa Brand dari fungsi yang sama dan target dari `target_penjualan_brand` (brand tanpa target ditulis "Target belum diatur").
 - Grafik: garis dengan ruas lurus, tanpa titik di tiap tanggal (titik hanya muncul pada tanggal yang disorot). **Minggu** = 7 hari terakhir termasuk hari ini; **Bulan** = bulan berjalan per hari, tanggal 1 sampai hari ini (periode yang sama dengan Performa Brand). Tanggal dan "hari ini" memakai zona WIB.
 - Diperbarui setiap halaman dibuka, saat jendela kembali aktif (paling sering tiap 30 detik), dan lewat tombol Perbarui.
+
+## Pengaturan dan ekspor
+
+- Pengaturan: Identitas (keterangan tetap), Profil Pengguna (email, username, peran, masuk terakhir dalam WIB), Preferensi Tampilan, Target Penjualan Brand, Pengaturan Akun (ganti password), Sesi (Keluar), dan Koneksi Database.
+- Preferensi tampilan (ukuran teks Normal/Besar, baris per halaman Bawaan/25/50/100) disimpan di browser perangkat ini (`localStorage`, kunci `dhouse.prefs`), bukan di database. Nilai rusak otomatis kembali ke bawaan.
+- Ganti password memakai Supabase Auth yang ada: password saat ini diperiksa dengan masuk ulang, lalu `updateUser`. Akun yang sama dipakai aplikasi lama, jadi password barunya berlaku di sana juga. Minimal 8 karakter.
+- Ekspor Excel dan PDF tersedia di Stok Barang dan Penjualan. Keduanya memuat semua baris sesuai pencarian dan filter yang aktif (bukan hanya halaman yang tampil), dan PDF mencantumkan filternya. Penjualan memakai pembacaan bertahap untuk semua halaman.
+- Toast Sonner tampil 3 detik.

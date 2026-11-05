@@ -65,3 +65,15 @@ export function shortDayMonth(text) {
   const [, month, day] = text.split('-').map(Number)
   return `${day}/${month}`
 }
+
+/** Contoh: "6 Nov 2026, 05.18" (WIB). Untuk waktu dari server (ISO). Kosong bila tidak valid. */
+export function formatDateTime(iso) {
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) return ''
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Jakarta', day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
+      .formatToParts(date)
+      .map((part) => [part.type, part.value]),
+  )
+  return `${Number(parts.day)} ${monthNames[Number(parts.month) - 1].slice(0, 3)} ${parts.year}, ${parts.hour}.${parts.minute}`
+}

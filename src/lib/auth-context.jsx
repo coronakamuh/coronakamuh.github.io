@@ -86,7 +86,7 @@ export function AuthProvider({ children }) {
 
   const recheck = useCallback(() => setRetry((n) => n + 1), [])
   const value = useMemo(
-    () => ({ status, notice, email: session?.user?.email ?? '', profile: admin.profile, signIn, signOut: exit, recheck }),
+    () => ({ status, notice, email: session?.user?.email ?? '', lastSignIn: session?.user?.last_sign_in_at ?? '', profile: admin.profile, signIn, signOut: exit, recheck }),
     [status, notice, session, admin.profile, recheck, exit],
   )
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

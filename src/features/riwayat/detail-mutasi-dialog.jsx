@@ -1,3 +1,4 @@
+import { formatDateTime } from '@/lib/date'
 import { Modal } from '@/components/ui/dialog'
 import { ErrorNotice } from '@/components/ui/notice'
 import { useAsync } from '@/hooks/use-async'
@@ -56,7 +57,7 @@ function Body({ id }) {
           <p className="mt-1 text-tinta-redup">Ubah lewat halaman Penjualan agar stok tetap sesuai.</p>
         </div>
       ) : null}
-      <p className="text-xs text-tinta-redup">Dicatat {new Date(data.createdAt).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}</p>
+      <p className="text-xs text-tinta-redup">Dicatat {formatDateTime(data.createdAt)}</p>
     </div>
   )
 }

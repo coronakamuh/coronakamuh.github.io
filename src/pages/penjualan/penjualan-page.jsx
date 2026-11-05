@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Receipt, X } from 'lucide-react'
+import { Download, FileText, Receipt, X } from 'lucide-react'
+import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader } from '@/components/ui/card'
@@ -14,11 +15,14 @@ import { PenjualanForm } from '@/features/penjualan/penjualan-form'
 import { useAsync } from '@/hooks/use-async'
 import { formatAngka, formatRupiah } from '@/lib/format'
 import { formatDisplay, todayISO } from '@/lib/date'
-import { getSalesPage, getSalesSummary, getStockData } from '@/services/queries'
+import { usePageSize } from '@/lib/preferences'
+import { exportSalesExcel, exportSalesPdf } from '@/features/penjualan/export-penjualan'
+import { getSalesExport, getSalesPage, getSalesSummary, getStockData } from '@/services/queries'
 
-const PAGE_SIZE = 20
+const DEFAULT_PAGE_SIZE = 20
 
 export function PenjualanPage() {
+  const PAGE_SIZE = usePageSize(DEFAULT_PAGE_SIZE)
   const [page, setPage] = useState(1)
   const [editing, setEditing] = useState(null)
   const [from, setFrom] = useState('')
@@ -26,9 +30,25 @@ export function PenjualanPage() {
   const [brand, setBrand] = useState('')
   const rangeError = from && to && from > to ? 'Tanggal "Dari" tidak boleh setelah "Sampai".' : ''
   const filter = rangeError ? { from: '', to: '', brand } : { from, to, brand }
-  const sales = useAsync(() => getSalesPage({ page, pageSize: PAGE_SIZE, ...filter }), [page, filter.from, filter.to, filter.brand])
+  const sales = useAsync(() => getSalesPage({ page, pageSize: PAGE_SIZE, ...filter }), [page, filter.from, filter.to, filter.brand, PAGE_SIZE])
   const summary = useAsync(() => getSalesSummary(filter), [filter.from, filter.to, filter.brand])
-  useEffect(() => setPage(1), [from, to, brand])
+  useEffect(() => setPage(1), [from, to, brand, PAGE_SIZE])
+
+  const [exporting, setExporting] = useState('')
+  async function handleExport(kind) {
+    if (exporting) return
+    setExporting(kind)
+    try {
+      const rows = await getSalesExport(filter) // semua halaman sesuai filter yang sedang dipakai
+      if (rows.length === 0) toast.info('Tidak ada penjualan untuk diekspor')
+      else if (kind === 'xlsx') exportSalesExcel(rows, filter)
+      else exportSalesPdf(rows, filter)
+    } catch (failure) {
+      toast.error('Ekspor gagal', { description: failure.message })
+    } finally {
+      setExporting('')
+    }
+  }
   const stock = useAsync(getStockData, [])
   const items = stock.data?.items ?? []
   const waiting = sales.loading && !sales.data
@@ -73,7 +93,7 @@ export function PenjualanPage() {
           />
           {stock.error ? (
             <div className="px-4 pb-4 sm:px-5">
-              <ErrorNotice error={stock.error} onRetry={stock.reload} />
+              <ErrorNotice error={stock.error} onRetry={refresh} />
             </div>
           ) : (
             <PenjualanForm items={items} onSaved={refresh} />
@@ -81,7 +101,20 @@ export function PenjualanPage() {
         </Card>
 
         <Card>
-          <CardHeader title="Penjualan Terbaru" 
+          <CardHeader
+            title="Penjualan Terbaru"
+            action={
+              <span className="inline-flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => handleExport('xlsx')} disabled={Boolean(exporting) || Boolean(rangeError) || sales.data?.total === 0}>
+                  <Download />
+                  {exporting === 'xlsx' ? 'Menyiapkan…' : 'Excel'}
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => handleExport('pdf')} disabled={Boolean(exporting) || Boolean(rangeError) || sales.data?.total === 0}>
+                  <FileText />
+                  {exporting === 'pdf' ? 'Menyiapkan…' : 'PDF'}
+                </Button>
+              </span>
+            }
             description={
               summary.data
                 ? `${formatAngka(summary.data.count)} penjualan · ${formatAngka(summary.data.units)} unit · ${formatRupiah(summary.data.revenue)}${filtered ? ' (sesuai filter)' : ''}`
@@ -106,7 +139,7 @@ export function PenjualanPage() {
           {rangeError ? <p role="alert" className="px-4 pb-3 text-sm text-bahaya sm:px-5">{rangeError}</p> : null}
           {sales.error ? (
             <div className="px-4 pb-4 sm:px-5">
-              <ErrorNotice error={sales.error} onRetry={sales.reload} />
+              <ErrorNotice error={sales.error} onRetry={refresh} />
             </div>
           ) : null}
           <DataTable

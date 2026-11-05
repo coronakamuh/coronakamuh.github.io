@@ -14,9 +14,10 @@ import { formatAngka } from '@/lib/format'
 import { formatDisplay } from '@/lib/date'
 import { DetailMutasiDialog } from '@/features/riwayat/detail-mutasi-dialog'
 import { MutasiDialog } from '@/features/stok/mutasi-dialog'
+import { usePageSize } from '@/lib/preferences'
 import { getMovementsPage, getStockData } from '@/services/queries'
 
-const PAGE_SIZE = 20
+const DEFAULT_PAGE_SIZE = 20
 
 const makeColumns = (onDetail) => [
   { key: 'date', label: 'Tanggal', render: (row) => formatDisplay(row.date) },
@@ -53,13 +54,14 @@ const typeOptions = [
 ]
 
 export function RiwayatPage() {
+  const PAGE_SIZE = usePageSize(DEFAULT_PAGE_SIZE)
   const [from, setFrom] = useState('')
   const [to, setTo] = useState('')
   const [group, setGroup] = useState('')
   const [page, setPage] = useState(1)
   const { data, error, loading, reload } = useAsync(
     () => getMovementsPage({ page, pageSize: PAGE_SIZE, from, to, group }),
-    [page, from, to, group],
+    [page, from, to, group, PAGE_SIZE],
   )
   const stock = useAsync(() => getStockData(), [])
   const [detailId, setDetailId] = useState(null)

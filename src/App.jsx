@@ -1,4 +1,5 @@
 import { Toaster } from 'sonner'
+import { PreferencesProvider } from '@/lib/preferences'
 import { configProblem } from '@/config/supabase'
 import { AppShell } from '@/components/layout/app-shell'
 import { AuthProvider, useAuth } from '@/lib/auth-context'
@@ -49,9 +50,11 @@ function Gate() {
 export default function App() {
   if (configProblem) return <ConfigErrorScreen problem={configProblem} />
   return (
-    <AuthProvider>
-      <Gate />
-      <Toaster position="top-center" closeButton />
-    </AuthProvider>
+    <PreferencesProvider>
+      <AuthProvider>
+        <Gate />
+        <Toaster position="top-center" closeButton duration={3000} />
+      </AuthProvider>
+    </PreferencesProvider>
   )
 }

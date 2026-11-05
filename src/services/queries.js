@@ -184,6 +184,24 @@ export async function getSalesPage({ page, pageSize, from, to, brand }) {
   }
 }
 
+/** Semua penjualan sesuai filter (semua halaman) untuk ekspor, terbaru dulu. */
+export async function getSalesExport({ from, to, brand }) {
+  const rows = await fetchAll(() =>
+    filterSales(supabase.from('penjualan').select('id, tanggal_pembelian, brand, qty, harga, barang(nama)'), { from, to, brand }).order('id', { ascending: false }),
+  )
+  return rows
+    .map((row) => ({
+      id: row.id,
+      date: row.tanggal_pembelian,
+      item: row.barang?.nama ?? '—',
+      brand: row.brand,
+      qty: Number(row.qty),
+      price: Number(row.harga),
+      total: Number(row.qty) * Number(row.harga),
+    }))
+    .sort((a, b) => (a.date === b.date ? b.id - a.id : a.date < b.date ? 1 : -1))
+}
+
 /** Jumlah transaksi, unit, dan nilai penjualan untuk filter yang sama (semua halaman). */
 export async function getSalesSummary({ from, to, brand }) {
   const rows = await fetchAll(() => filterSales(supabase.from('penjualan').select('id, qty, harga'), { from, to, brand }).order('id'))

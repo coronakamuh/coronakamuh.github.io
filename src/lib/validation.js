@@ -53,3 +53,14 @@ export function parseTarget(text) {
   if (n === null || n > 1_000_000_000_000) return { value: null, error: 'Target harus angka bulat 0 sampai 1.000.000.000.000.' }
   return { value: n, error: null }
 }
+
+/** Ganti password: kembalikan pesan galat atau null. Batas atas 72 karakter mengikuti batas bcrypt di Supabase Auth. */
+export function validatePasswordChange({ current, next, confirm }) {
+  if (!current) return 'Isi password saat ini.'
+  if (!next) return 'Isi password baru.'
+  if (next.length < 8) return 'Password baru minimal 8 karakter.'
+  if (next.length > 72) return 'Password baru maksimal 72 karakter.'
+  if (next === current) return 'Password baru harus berbeda dari password saat ini.'
+  if (next !== confirm) return 'Konfirmasi password tidak sama.'
+  return null
+}

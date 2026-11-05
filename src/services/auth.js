@@ -63,3 +63,27 @@ export async function fetchAdminProfile() {
   if (error) throw friendlyError(error)
   return data?.[0] ?? null
 }
+
+/**
+ * Ganti password akun yang sedang masuk (Supabase Auth existing, tanpa sistem kedua).
+ * Password saat ini diperiksa dulu dengan masuk ulang; sesi tetap milik akun yang sama.
+ * Akun yang sama dipakai aplikasi lama, jadi password barunya berlaku di sana juga.
+ */
+export async function changePassword({ email, current, next }) {
+  const { error: verify } = await supabase.auth.signInWithPassword({ email, password: current })
+  if (verify) {
+    if (verify.status === 0 || verify.name === 'AuthRetryableFetchError' || /fetch|network/i.test(verify.message)) {
+      throw new Error('Tidak bisa terhubung. Periksa koneksi internet.')
+    }
+    if (verify.status === 429) throw new Error('Terlalu banyak percobaan. Coba lagi beberapa menit lagi.')
+    throw new Error('Password saat ini salah.')
+  }
+  const { error } = await supabase.auth.updateUser({ password: next })
+  if (error) {
+    if (error.code === 'same_password') throw new Error('Password baru harus berbeda dari password saat ini.')
+    if (error.code === 'weak_password') throw new Error('Password baru terlalu lemah. Pakai campuran huruf dan angka yang lebih panjang.')
+    if (error.status === 429) throw new Error('Terlalu banyak percobaan. Coba lagi beberapa menit lagi.')
+    throw friendlyError(error)
+  }
+  return true
+}
