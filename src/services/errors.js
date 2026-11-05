@@ -6,8 +6,20 @@ export class AppError extends Error {
   }
 }
 
+export const SESSION_EVENT = 'dhouse:session-expired'
+
+/** Token login sudah kedaluwarsa atau tidak valid (PostgREST: PGRST301 / "JWT expired"). */
+export function isSessionError(error) {
+  return error?.code === 'PGRST301' || error?.status === 401 || /JWT expired|invalid JWT|JWT is expired/i.test(error?.message ?? '')
+}
+
 export function friendlyError(error) {
   const message = error?.message ?? 'Terjadi kesalahan.'
+  if (isSessionError(error)) {
+    // Memberi tahu AuthProvider agar menyegarkan sesi, atau mengembalikan ke layar masuk bila gagal.
+    if (typeof window !== 'undefined') window.dispatchEvent(new Event(SESSION_EVENT))
+    return new AppError('Sesi login berakhir. Memeriksa ulang sesi Anda; bila diminta, masuk lagi.', 'session')
+  }
   if (/belum memiliki brand aktif/i.test(message)) {
     return new AppError('Barang ini belum punya brand aktif, jadi penjualan ditolak.', 'brand')
   }

@@ -7,7 +7,7 @@ import { useAuth } from '@/lib/auth-context'
 import { site } from '@/config/site'
 
 export function LoginPage() {
-  const { signIn } = useAuth()
+  const { signIn, notice } = useAuth()
   const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)
@@ -33,6 +33,12 @@ export function LoginPage() {
       </div>
       <h1 className="mt-8 text-2xl font-semibold tracking-tight">Masuk</h1>
       <p className="mt-1 text-sm text-tinta-redup">Gunakan akun admin yang sama dengan aplikasi lama.</p>
+
+      {notice ? (
+        <p role="status" className="mt-4 rounded-md border border-garis bg-garis-halus p-3 text-sm">
+          {notice}
+        </p>
+      ) : null}
 
       <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
         <Field label="Username atau email" htmlFor="login-id">

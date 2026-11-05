@@ -55,3 +55,11 @@ Setiap push menjalankan build lewat GitHub Actions (`.github/workflows/deploy.ym
 - `VITE_SUPABASE_URL` dan `VITE_SUPABASE_PUBLISHABLE_KEY` dibaca Vite. Untuk build di GitHub Actions nilainya ada di `.env.production`; untuk komputer sendiri salin `.env.example` menjadi `.env.local`.
 - Kedua nilai itu publik (kunci publishable memang untuk browser); data dilindungi RLS. Kunci `service_role` atau `secret` tidak boleh ada di repo; konfigurasi yang berisi kunci seperti itu ditolak saat aplikasi dibuka (`src/config/supabase-check.js`).
 - Pengaturan, bagian "Koneksi Database", menjalankan uji koneksi baca saja (menghitung baris tiap sumber data).
+
+## Autentikasi
+
+- Memakai Supabase Auth yang sudah ada (email + password); tidak ada sistem Auth kedua. Login dengan username lewat edge function `login-username` (sama seperti aplikasi lama), atau langsung dengan email.
+- Hak akses: hanya email yang terdaftar di tabel `app_admins` (dicek RLS di database). Akun lain yang berhasil masuk hanya melihat layar "bukan admin".
+- Seluruh halaman dilindungi di `App.jsx` (`Gate`); tanpa login hanya layar Masuk yang tampil dan tidak ada data yang diminta.
+- Sesi disimpan oleh Supabase (localStorage) dan disegarkan otomatis. Bila sesi berakhir, aplikasi kembali ke layar Masuk dengan pesan; bila data ditolak karena token kedaluwarsa, sesi disegarkan dulu.
+- Keluar memakai `scope: 'local'`: hanya perangkat ini yang keluar, aplikasi lama dan perangkat lain tidak ikut terputus.

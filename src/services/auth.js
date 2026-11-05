@@ -1,4 +1,5 @@
 import { supabaseConfig } from '@/config/supabase'
+import { friendlyError } from '@/services/errors'
 import { supabase } from '@/services/supabase'
 
 const usernamePattern = /^[a-z0-9]{2,32}$/
@@ -13,7 +14,13 @@ export async function signIn(identifier, password) {
 
   if (id.includes('@')) {
     const { error } = await supabase.auth.signInWithPassword({ email: id, password })
-    if (error) throw new Error('Email atau password salah.')
+    if (error) {
+      if (error.status === 0 || error.name === 'AuthRetryableFetchError' || /fetch|network/i.test(error.message)) {
+        throw new Error('Tidak bisa terhubung. Periksa koneksi internet.')
+      }
+      if (error.status === 429) throw new Error('Terlalu banyak percobaan. Coba lagi beberapa menit lagi.')
+      throw new Error('Email atau password salah.')
+    }
     return
   }
 
@@ -42,13 +49,17 @@ export async function signIn(identifier, password) {
   if (error) throw new Error('Login belum bisa diproses.')
 }
 
+/**
+ * Keluar hanya dari perangkat ini (scope 'local'). Bawaan Supabase ('global') mencabut sesi
+ * di SEMUA perangkat, termasuk aplikasi lama yang memakai akun yang sama.
+ */
 export async function signOut() {
-  await supabase.auth.signOut()
+  await supabase.auth.signOut({ scope: 'local' })
 }
 
 /** Baris admin milik akun yang sedang masuk (RLS hanya mengembalikan baris miliknya). Null bila bukan admin. */
 export async function fetchAdminProfile() {
   const { data, error } = await supabase.from('app_admins').select('email, username').limit(1)
-  if (error) throw error
+  if (error) throw friendlyError(error)
   return data?.[0] ?? null
 }

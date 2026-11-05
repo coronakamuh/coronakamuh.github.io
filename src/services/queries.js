@@ -1,6 +1,7 @@
 // Lapisan data BACA SAJA. Tidak ada insert, update, atau delete di file ini (penulisan ada di sales.js, movements.js, items.js, brands.js).
 // Nama tabel dan kolom mengikuti database yang sudah ada (hasil audit tahap 3).
 import { addDaysISO, monthRange, shortDayMonth, todayISO } from '@/lib/date'
+import { friendlyError } from '@/services/errors'
 import { supabase } from '@/services/supabase'
 
 const PAGE_SIZE = 1000 // batas baris per permintaan di Supabase
@@ -10,14 +11,14 @@ export async function fetchAll(build) {
   const rows = []
   for (let from = 0; ; from += PAGE_SIZE) {
     const { data, error } = await build().range(from, from + PAGE_SIZE - 1)
-    if (error) throw error
+    if (error) throw friendlyError(error)
     rows.push(...data)
     if (data.length < PAGE_SIZE) return rows
   }
 }
 
 export const unwrap = ({ data, error }) => {
-  if (error) throw error
+  if (error) throw friendlyError(error)
   return data
 }
 
@@ -175,7 +176,7 @@ export async function getSalesPage({ page, pageSize }) {
     .order('tanggal_pembelian', { ascending: false })
     .order('id', { ascending: false })
     .range(from, from + pageSize - 1)
-  if (error) throw error
+  if (error) throw friendlyError(error)
   return {
     total: count ?? 0,
     rows: data.map((row) => ({
@@ -226,7 +227,7 @@ export async function getMovementsPage({ page, pageSize, from, to, group }) {
     .order('tanggal', { ascending: false })
     .order('id', { ascending: false })
     .range(start, start + pageSize - 1)
-  if (error) throw error
+  if (error) throw friendlyError(error)
   return {
     total: count ?? 0,
     rows: data.map((row) => {
