@@ -1,7 +1,8 @@
-import { useState } from 'react'
-import { Banknote, Boxes, Package, Tags, TriangleAlert } from 'lucide-react'
-import { BarChart } from '@/components/charts/bar-chart'
+import { useEffect, useState } from 'react'
+import { Banknote, Boxes, Package, RefreshCw, Tags, TriangleAlert } from 'lucide-react'
+import { LineChart } from '@/components/charts/line-chart'
 import { PageHeader } from '@/components/layout/page-header'
+import { Button } from '@/components/ui/button'
 import { Card, CardBody, CardHeader } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/data-table'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -22,7 +23,12 @@ const minusColumns = [
   { key: 'name', label: 'Barang' },
   { key: 'brand', label: 'Brand' },
   { key: 'stock', label: 'Stok', align: 'right', render: (row) => <span className="text-bahaya">{formatAngka(row.stock)}</span> },
+  { key: 'need', label: 'Kebutuhan PO', align: 'right', render: (row) => `${formatAngka(row.need)} unit` },
 ]
+
+const REFRESH_AFTER_MS = 30_000
+
+const clock = (date) => date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' })
 
 function BrandRow({ brand }) {
   const hasTarget = brand.target !== null && brand.target > 0
@@ -53,12 +59,40 @@ export function DashboardPage() {
   const [period, setPeriod] = useState('minggu')
   const { data, error, loading, reload } = useAsync(getDashboard, [])
   const waiting = loading && !data
+  const [updatedAt, setUpdatedAt] = useState(null)
+  useEffect(() => {
+    if (data) setUpdatedAt(new Date())
+  }, [data])
+
+  // Perbarui otomatis saat tab/jendela kembali aktif (mis. setelah mencatat penjualan di tab lain atau di aplikasi lama).
+  useEffect(() => {
+    let last = Date.now()
+    const refresh = () => {
+      if (document.visibilityState === 'hidden' || Date.now() - last < REFRESH_AFTER_MS) return
+      last = Date.now()
+      reload()
+    }
+    document.addEventListener('visibilitychange', refresh)
+    window.addEventListener('focus', refresh)
+    return () => {
+      document.removeEventListener('visibilitychange', refresh)
+      window.removeEventListener('focus', refresh)
+    }
+  }, [reload])
+  const series = data ? data.sales[period] : []
+  const periodTotal = series.reduce((total, point) => total + point.value, 0)
 
   return (
     <>
       <PageHeader
         title="Dashboard"
         description={data ? `Ringkasan stok dan penjualan, ${formatDisplay(data.today)}.` : 'Ringkasan stok dan penjualan.'}
+        actions={
+          <Button variant="outline" size="sm" onClick={reload} disabled={loading}>
+            <RefreshCw className={loading ? 'animate-spin' : undefined} />
+            {loading ? 'Memuat…' : updatedAt ? `Perbarui · ${clock(updatedAt)}` : 'Perbarui'}
+          </Button>
+        }
       />
 
       {error ? (
@@ -84,12 +118,13 @@ export function DashboardPage() {
         <Card className="lg:col-span-2">
           <CardHeader
             title="Ringkasan Penjualan"
-            description={period === 'minggu' ? 'Per hari, 7 hari terakhir.' : 'Per pekan, 4 pekan terakhir (tanggal = awal pekan).'}
+            description={`${period === 'minggu' ? 'Per hari, 7 hari terakhir.' : 'Per hari, bulan ini.'}${data ? ` Total ${formatRupiah(periodTotal)}.` : ''}`}
             action={<Segmented label="Periode grafik" value={period} onValueChange={setPeriod} options={periodOptions} />}
           />
           <CardBody>
-            <BarChart
-              data={data ? data.sales[period] : []}
+            <LineChart
+              label={`Penjualan per hari, ${period === 'minggu' ? '7 hari terakhir' : 'bulan ini'}`}
+              data={series}
               formatValue={formatRupiah}
               emptyTitle={waiting ? 'Memuat data' : 'Belum ada penjualan'}
               emptyDescription={waiting ? '' : `Belum ada penjualan pada periode ${period} ini.`}
@@ -114,7 +149,14 @@ export function DashboardPage() {
       </div>
 
       <Card className="mt-6">
-        <CardHeader title="Daftar Barang Minus" description="Barang dengan stok di bawah nol (kekurangan pre-order)." />
+        <CardHeader
+          title="Daftar Barang Minus"
+          description={
+            data && data.minusItems.length > 0
+              ? `${formatAngka(data.minusItems.length)} barang, total kebutuhan PO ${formatAngka(data.minusItems.reduce((total, row) => total + row.need, 0))} unit.`
+              : 'Barang dengan stok di bawah nol (kekurangan pre-order).'
+          }
+        />
         <DataTable
           caption="Daftar barang minus"
           columns={minusColumns}

@@ -1,6 +1,7 @@
 // Lapisan data BACA SAJA. Tidak ada insert, update, atau delete di file ini (penulisan ada di sales.js, movements.js, items.js, brands.js).
 // Nama tabel dan kolom mengikuti database yang sudah ada (hasil audit tahap 3).
-import { addDaysISO, monthRange, shortDayMonth, todayISO } from '@/lib/date'
+import { bucketSales } from '@/lib/series'
+import { addDaysISO, monthRange, todayISO } from '@/lib/date'
 import { friendlyError } from '@/services/errors'
 import { supabase } from '@/services/supabase'
 
@@ -81,25 +82,6 @@ async function getSalesSince(since) {
   )
 }
 
-/** Susun data grafik: 7 hari terakhir (minggu) dan 4 pekan terakhir (bulan). */
-export function bucketSales(rows, today) {
-  const perDay = new Map()
-  for (const row of rows) {
-    perDay.set(row.tanggal_pembelian, (perDay.get(row.tanggal_pembelian) ?? 0) + Number(row.qty) * Number(row.harga))
-  }
-  const minggu = Array.from({ length: 7 }, (_, index) => {
-    const day = addDaysISO(today, index - 6)
-    return { label: shortDayMonth(day), value: perDay.get(day) ?? 0 }
-  })
-  const bulan = Array.from({ length: 4 }, (_, index) => {
-    const start = addDaysISO(today, -27 + index * 7)
-    let total = 0
-    for (let offset = 0; offset < 7; offset += 1) total += perDay.get(addDaysISO(start, offset)) ?? 0
-    return { label: shortDayMonth(start), value: total }
-  })
-  return { minggu, bulan }
-}
-
 export async function getDashboard() {
   const today = todayISO()
   const { start, next } = monthRange(today)
@@ -109,7 +91,7 @@ export async function getDashboard() {
       .rpc('get_dashboard_summary', { p_today: today, p_month_start: start, p_month_end: next })
       .then(unwrap),
     supabase.from('penjualan').select('qty, harga').eq('tanggal_pembelian', today).then(unwrap),
-    getSalesSince(addDaysISO(today, -27)),
+    getSalesSince(start < addDaysISO(today, -6) ? start : addDaysISO(today, -6)),
     supabase.from('v_stock').select('id, nama, stok').lt('stok', 0).order('stok').then(unwrap),
     getBrands(),
     getTargets(),
@@ -127,6 +109,7 @@ export async function getDashboard() {
       name: row.nama,
       brand: brandOf.get(row.id) ?? '—',
       stock: Number(row.stok),
+      need: -Number(row.stok),
     }))
   }
 

@@ -87,3 +87,9 @@ Setiap push menjalankan build lewat GitHub Actions (`.github/workflows/deploy.ym
 - Bila stok berubah saat form terbuka, database menolak, angka terbaru ditampilkan, dan pengguna menyimpan ulang.
 - Keluar manual boleh membuat stok minus; minus = kekurangan PO (`max(0, -stok)`).
 - Riwayat In/Out: filter tanggal dan jenis (masuk, terjual, keluar manual, koreksi), detail catatan, serta tombol Catat Mutasi yang memakai dialog yang sama dengan halaman Stok Barang.
+
+## Dashboard
+
+- Semua angka dari database: Total Barang dan Total Stok dari fungsi `get_dashboard_summary`; Barang Minus dan daftarnya dari `v_stock`; omzet dari `penjualan` (jumlah × harga per `tanggal_pembelian`, bukan dari `transaksi` yang tidak punya harga); Performa Brand dari fungsi yang sama dan target dari `target_penjualan_brand` (brand tanpa target ditulis "Target belum diatur").
+- Grafik: garis dengan ruas lurus, tanpa titik di tiap tanggal (titik hanya muncul pada tanggal yang disorot). **Minggu** = 7 hari terakhir termasuk hari ini; **Bulan** = bulan berjalan per hari, tanggal 1 sampai hari ini (periode yang sama dengan Performa Brand). Tanggal dan "hari ini" memakai zona WIB.
+- Diperbarui setiap halaman dibuka, saat jendela kembali aktif (paling sering tiap 30 detik), dan lewat tombol Perbarui.
