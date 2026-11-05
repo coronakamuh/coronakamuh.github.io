@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardBody, CardHeader } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorNotice } from '@/components/ui/notice'
+import { UjiKoneksi } from '@/features/pengaturan/uji-koneksi'
 import { TargetEditor } from '@/features/pengaturan/target-editor'
 import { useAsync } from '@/hooks/use-async'
 import { useAuth } from '@/lib/auth-context'
@@ -30,6 +31,11 @@ export function PengaturanPage() {
           ) : !error ? (
             <EmptyState icon={Tags} title={loading ? 'Memuat data' : 'Belum ada brand aktif'} />
           ) : null}
+        </Card>
+
+        <Card>
+          <CardHeader title="Koneksi Database" description="Memeriksa bahwa data bisa dibaca. Hanya membaca, tidak mengubah apa pun." />
+          <UjiKoneksi />
         </Card>
 
         <Card>

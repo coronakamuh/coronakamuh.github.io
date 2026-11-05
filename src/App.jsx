@@ -1,9 +1,10 @@
 import { Toaster } from 'sonner'
+import { configProblem } from '@/config/supabase'
 import { AppShell } from '@/components/layout/app-shell'
 import { AuthProvider, useAuth } from '@/lib/auth-context'
 import { useHashRoute } from '@/lib/use-hash-route'
 import { DashboardPage } from '@/pages/dashboard/dashboard-page'
-import { AccessErrorScreen, NotAdminScreen, SplashScreen } from '@/pages/login/access-screens'
+import { AccessErrorScreen, ConfigErrorScreen, NotAdminScreen, SplashScreen } from '@/pages/login/access-screens'
 import { LoginPage } from '@/pages/login/login-page'
 import { PenjualanPage } from '@/pages/penjualan/penjualan-page'
 import { PengaturanPage } from '@/pages/pengaturan/pengaturan-page'
@@ -46,6 +47,7 @@ function Gate() {
 }
 
 export default function App() {
+  if (configProblem) return <ConfigErrorScreen problem={configProblem} />
   return (
     <AuthProvider>
       <Gate />

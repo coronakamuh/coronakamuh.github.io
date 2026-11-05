@@ -49,3 +49,9 @@ Setiap push menjalankan build lewat GitHub Actions (`.github/workflows/deploy.ym
 - Stok dihitung dengan rumus bertanggal yang sama seperti database (`src/lib/stock.js`); stok negatif berarti kekurangan pre-order.
 - Tanggal memakai WIB; tanggal masa depan ditolak aplikasi.
 - Pemetaan lengkap: dokumen "Pemetaan Database ke Fitur" (Claude Doc).
+
+## Konfigurasi Supabase (environment variable)
+
+- `VITE_SUPABASE_URL` dan `VITE_SUPABASE_PUBLISHABLE_KEY` dibaca Vite. Untuk build di GitHub Actions nilainya ada di `.env.production`; untuk komputer sendiri salin `.env.example` menjadi `.env.local`.
+- Kedua nilai itu publik (kunci publishable memang untuk browser); data dilindungi RLS. Kunci `service_role` atau `secret` tidak boleh ada di repo; konfigurasi yang berisi kunci seperti itu ditolak saat aplikasi dibuka (`src/config/supabase-check.js`).
+- Pengaturan, bagian "Koneksi Database", menjalankan uji koneksi baca saja (menghitung baris tiap sumber data).

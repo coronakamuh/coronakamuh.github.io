@@ -57,3 +57,12 @@ export function AccessErrorScreen() {
     </Centered>
   )
 }
+
+/** Alamat atau kunci Supabase bermasalah (misalnya kosong atau kunci rahasia). Klien tidak dibuat. */
+export function ConfigErrorScreen({ problem }) {
+  return (
+    <Centered>
+      <EmptyState icon={ShieldAlert} title="Konfigurasi Supabase bermasalah" description={problem} />
+    </Centered>
+  )
+}
