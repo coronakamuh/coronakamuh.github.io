@@ -168,14 +168,23 @@ export async function getTargetRows() {
     .map((brand) => ({ id: brand.id, brand: brand.name, target: targetOf.get(brand.name) ?? null }))
 }
 
-export async function getSalesPage({ page, pageSize }) {
-  const from = (page - 1) * pageSize
-  const { data, error, count } = await supabase
-    .from('penjualan')
-    .select('id, tanggal_pembelian, brand, qty, harga, barang_id, barang(nama)', { count: 'exact' })
+function filterSales(query, { from, to, brand }) {
+  let next = query
+  if (from) next = next.gte('tanggal_pembelian', from)
+  if (to) next = next.lte('tanggal_pembelian', to)
+  if (brand) next = next.eq('brand', brand)
+  return next
+}
+
+export async function getSalesPage({ page, pageSize, from, to, brand }) {
+  const start = (page - 1) * pageSize
+  const { data, error, count } = await filterSales(
+    supabase.from('penjualan').select('id, tanggal_pembelian, brand, qty, harga, barang_id, barang(nama)', { count: 'exact' }),
+    { from, to, brand },
+  )
     .order('tanggal_pembelian', { ascending: false })
     .order('id', { ascending: false })
-    .range(from, from + pageSize - 1)
+    .range(start, start + pageSize - 1)
   if (error) throw friendlyError(error)
   return {
     total: count ?? 0,
@@ -189,6 +198,16 @@ export async function getSalesPage({ page, pageSize }) {
       price: Number(row.harga),
       total: Number(row.qty) * Number(row.harga),
     })),
+  }
+}
+
+/** Jumlah transaksi, unit, dan nilai penjualan untuk filter yang sama (semua halaman). */
+export async function getSalesSummary({ from, to, brand }) {
+  const rows = await fetchAll(() => filterSales(supabase.from('penjualan').select('id, qty, harga'), { from, to, brand }).order('id'))
+  return {
+    count: rows.length,
+    units: rows.reduce((total, row) => total + Number(row.qty), 0),
+    revenue: rows.reduce((total, row) => total + Number(row.qty) * Number(row.harga), 0),
   }
 }
 

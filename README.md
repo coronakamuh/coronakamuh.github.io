@@ -71,3 +71,10 @@ Setiap push menjalankan build lewat GitHub Actions (`.github/workflows/deploy.ym
 - Detail barang membaca `barang`, `v_stock`, dan `transaksi` (20 mutasi terbaru). Bila hitungan ulang dengan tanggal mulai berbeda dari `v_stock`, peringatan ditampilkan; angka database tetap dipakai.
 - Tambah barang: nama (maks. 150 karakter, tidak boleh kembar), brand, stok awal. Ubah barang: nama dan brand saja. Stok awal tidak bisa diubah dan barang tidak bisa dihapus; koreksi stok lewat Mutasi atau Adjust.
 - Ekspor PDF dan Excel memuat semua baris sesuai pencarian dan filter brand yang aktif (bukan hanya halaman yang tampil).
+
+## Modul Penjualan
+
+- Simpan dan koreksi hanya lewat fungsi database `catat_penjualan_atomic` dan `edit_penjualan_atomic` (6 argumen bernama). Satu penjualan = satu transaksi `laku`; koreksi mengubah transaksi yang sama, jadi stok tidak terpotong dua kali. Aplikasi tidak menulis langsung ke `transaksi` atau `barang`.
+- Tombol simpan dikunci selama proses berjalan (klik ganda hanya mengirim satu permintaan).
+- Sebelum simpan, form menampilkan perkiraan stok dan kebutuhan PO (hanya untuk tanggal hari ini); angka resmi dihitung database saat menyimpan.
+- Daftar: kolom Tanggal, Nama Barang, Qty, Harga, Total, Brand, Aksi; filter rentang tanggal dan brand; ringkasan (jumlah penjualan, unit, nilai) mengikuti filter.
