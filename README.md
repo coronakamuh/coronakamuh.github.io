@@ -2,7 +2,7 @@
 
 Dhouse Digital: aplikasi Inventory & Sales Management untuk pencatatan penjualan, pengelolaan barang, stok, mutasi barang, dan laporan.
 
-Status: **fitur tulis aktif** sesuai pemetaan database. Penjualan (catat dan ubah), barang masuk/keluar/adjust, tambah dan ubah barang, serta target brand disimpan lewat fungsi database yang sudah ada. Tidak ada hapus penjualan, tidak ada hapus barang. Ekspor memakai CSV.
+Status: **fitur tulis aktif** sesuai pemetaan database. Penjualan (catat dan ubah), barang masuk/keluar/adjust, tambah dan ubah barang, serta target brand disimpan lewat fungsi database yang sudah ada. Tidak ada hapus penjualan, tidak ada hapus barang. Halaman Stok Barang punya detail barang, kebutuhan PO, serta ekspor PDF dan Excel (dibuat di browser, tanpa pustaka tambahan).
 
 ## Teknologi
 
@@ -63,3 +63,11 @@ Setiap push menjalankan build lewat GitHub Actions (`.github/workflows/deploy.ym
 - Seluruh halaman dilindungi di `App.jsx` (`Gate`); tanpa login hanya layar Masuk yang tampil dan tidak ada data yang diminta.
 - Sesi disimpan oleh Supabase (localStorage) dan disegarkan otomatis. Bila sesi berakhir, aplikasi kembali ke layar Masuk dengan pesan; bila data ditolak karena token kedaluwarsa, sesi disegarkan dulu.
 - Keluar memakai `scope: 'local'`: hanya perangkat ini yang keluar, aplikasi lama dan perangkat lain tidak ikut terputus.
+
+## Modul Stok Barang
+
+- Stok yang tampil berasal dari view `v_stock` (satu-satunya sumber stok; tidak ada sumber stok kedua).
+- Stok minus ditampilkan apa adanya. Kebutuhan PO = `max(0, -stok)`; dihitung dari data yang ada, tidak disimpan.
+- Detail barang membaca `barang`, `v_stock`, dan `transaksi` (20 mutasi terbaru). Bila hitungan ulang dengan tanggal mulai berbeda dari `v_stock`, peringatan ditampilkan; angka database tetap dipakai.
+- Tambah barang: nama (maks. 150 karakter, tidak boleh kembar), brand, stok awal. Ubah barang: nama dan brand saja. Stok awal tidak bisa diubah dan barang tidak bisa dihapus; koreksi stok lewat Mutasi atau Adjust.
+- Ekspor PDF dan Excel memuat semua baris sesuai pencarian dan filter brand yang aktif (bukan hanya halaman yang tampil).

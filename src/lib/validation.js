@@ -37,6 +37,7 @@ export function validateMovement({ mode, qty, tanggal, stock }, today) {
 export function validateItem({ nama, stokAwal, brandId, askStock }, existingNames, ownName) {
   const name = nama.trim()
   if (!name) return 'Nama barang wajib diisi.'
+  if (name.length > 150) return 'Nama barang maksimal 150 karakter.'
   const clash = existingNames.some((n) => n.toLowerCase() === name.toLowerCase() && n.toLowerCase() !== (ownName ?? '').toLowerCase())
   if (clash) return 'Sudah ada barang dengan nama itu.'
   if (!brandId) return 'Pilih brand.'

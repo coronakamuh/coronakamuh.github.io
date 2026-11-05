@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Download, Package, Plus, Search, TriangleAlert, Boxes } from 'lucide-react'
+import { Download, FileText, Package, Plus, Search, TriangleAlert, Boxes, ShoppingCart } from 'lucide-react'
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader } from '@/components/ui/card'
@@ -11,16 +11,20 @@ import { Select } from '@/components/ui/select'
 import { StatCard } from '@/components/ui/stat-card'
 import { useAsync } from '@/hooks/use-async'
 import { BarangDialog } from '@/features/stok/barang-dialog'
+import { DetailBarangDialog } from '@/features/stok/detail-barang-dialog'
 import { MutasiDialog } from '@/features/stok/mutasi-dialog'
-import { downloadCsv } from '@/lib/export'
+import { downloadFile } from '@/lib/download'
+import { buildPdf } from '@/lib/export-pdf'
+import { buildXlsx } from '@/lib/export-xlsx'
 import { formatAngka, formatRupiah } from '@/lib/format'
 import { todayISO } from '@/lib/date'
 import { getStockData } from '@/services/queries'
 
 const PAGE_SIZE = 50
 
+const need = (row) => Math.max(0, -row.stock)
+
 const baseColumns = [
-  { key: 'name', label: 'Barang' },
   { key: 'brand', label: 'Brand' },
   {
     key: 'stock',
@@ -28,19 +32,21 @@ const baseColumns = [
     align: 'right',
     render: (row) => <span className={row.stock < 0 ? 'text-bahaya' : undefined}>{formatAngka(row.stock)}</span>,
   },
+  { key: 'need', label: 'Kebutuhan PO', align: 'right', render: (row) => (need(row) > 0 ? formatAngka(need(row)) : '—') },
   { key: 'price', label: 'Harga terakhir', align: 'right', render: (row) => (row.price === null ? '—' : formatRupiah(row.price)) },
 ]
 
-const csvColumns = [
-  { label: 'Barang', value: (row) => row.name },
-  { label: 'Brand', value: (row) => row.brand },
-  { label: 'Stok', value: (row) => row.stock },
-  { label: 'Harga terakhir', value: (row) => row.price ?? '' },
+const exportColumns = [
+  { label: 'Barang', width: 44, pdf: 230, value: (row) => row.name },
+  { label: 'Brand', width: 18, pdf: 90, value: (row) => row.brand },
+  { label: 'Stok', width: 10, pdf: 50, type: 'number', align: 'right', value: (row) => row.stock },
+  { label: 'Kebutuhan PO', width: 14, pdf: 70, type: 'number', align: 'right', value: need },
+  { label: 'Harga terakhir', width: 16, pdf: 90, type: 'rupiah', align: 'right', value: (row) => row.price },
 ]
 
 export function StokPage() {
   const { data, error, loading, reload } = useAsync(getStockData, [])
-  const [dialog, setDialog] = useState(null) // { kind: 'tambah' | 'ubah' | 'mutasi', item? }
+  const [dialog, setDialog] = useState(null) // { kind: 'tambah' | 'ubah' | 'mutasi' | 'detail', item? }
   const [query, setQuery] = useState('')
   const [brand, setBrand] = useState('')
   const [page, setPage] = useState(1)
@@ -57,9 +63,19 @@ export function StokPage() {
 
   const totalStock = items.reduce((total, item) => total + Math.max(item.stock, 0), 0)
   const minusCount = items.filter((item) => item.stock < 0).length
+  const poTotal = items.reduce((total, item) => total + need(item), 0)
   const brandOptions = [{ value: '', label: 'Semua brand' }, ...(data?.brandNames ?? []).map((name) => ({ value: name, label: name }))]
 
   const columns = [
+    {
+      key: 'name',
+      label: 'Barang',
+      render: (row) => (
+        <button type="button" className="text-left font-medium underline-offset-2 hover:underline" onClick={() => setDialog({ kind: 'detail', item: row })}>
+          {row.name}
+        </button>
+      ),
+    },
     ...baseColumns,
     {
       key: 'actions',
@@ -78,8 +94,39 @@ export function StokPage() {
     },
   ]
 
-  function handleExport() {
-    downloadCsv(`stok-barang-${todayISO()}.csv`, csvColumns, filtered)
+  function filterNote() {
+    const parts = []
+    if (brand) parts.push(`Brand: ${brand}`)
+    if (query.trim()) parts.push(`Cari: "${query.trim()}"`)
+    return parts.length ? parts.join(' · ') : 'Semua barang'
+  }
+
+  function exportExcel() {
+    const bytes = buildXlsx({
+      sheetName: 'Stok Barang',
+      rows: filtered,
+      columns: exportColumns.map((c) => ({ label: c.label, width: c.width, type: c.type, value: c.value })),
+    })
+    downloadFile(`stok-barang-${todayISO()}.xlsx`, bytes, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+  }
+
+  function exportPdf() {
+    const bytes = buildPdf({
+      title: 'Stok Barang',
+      subtitle: `Dhouse Digital · ${todayISO()} · ${filterNote()}`,
+      summary: [
+        `${formatAngka(filtered.length)} barang · Total stok ${formatAngka(filtered.reduce((t, r) => t + Math.max(r.stock, 0), 0))} · ${formatAngka(filtered.filter((r) => r.stock < 0).length)} barang minus · Kebutuhan PO ${formatAngka(filtered.reduce((t, r) => t + need(r), 0))} unit`,
+      ],
+      footer: 'Dhouse Digital',
+      rows: filtered,
+      columns: exportColumns.map((c) => ({
+        label: c.label,
+        width: c.pdf,
+        align: c.align,
+        value: (row) => (c.type === 'rupiah' ? (row.price === null ? '-' : formatRupiah(row.price)) : c.type === 'number' ? String(c.value(row)) : c.value(row) ?? ''),
+      })),
+    })
+    downloadFile(`stok-barang-${todayISO()}.pdf`, bytes, 'application/pdf')
   }
 
   return (
@@ -101,7 +148,7 @@ export function StokPage() {
         </div>
       ) : null}
 
-      <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3 sm:grid-cols-4">
         <StatCard label="Total Barang" icon={Package} value={waiting ? '…' : data ? formatAngka(items.length) : undefined} hint="Barang terdaftar" />
         <StatCard label="Total Stok" icon={Boxes} value={waiting ? '…' : data ? formatAngka(totalStock) : undefined} hint="Unit, tanpa stok minus" />
         <StatCard
@@ -110,8 +157,8 @@ export function StokPage() {
           tone="danger"
           value={waiting ? '…' : data ? formatAngka(minusCount) : undefined}
           hint="Stok di bawah nol"
-          className="col-span-2 sm:col-span-1"
         />
+        <StatCard label="Kebutuhan PO" icon={ShoppingCart} value={waiting ? '…' : data ? formatAngka(poTotal) : undefined} hint="Unit untuk menutup stok minus" />
       </div>
 
       <Card className="mt-6">
@@ -119,10 +166,16 @@ export function StokPage() {
           title="Tabel Stok"
           description={data ? `${formatAngka(filtered.length)} dari ${formatAngka(items.length)} barang.` : undefined}
           action={
-            <Button variant="outline" size="sm" onClick={handleExport} disabled={filtered.length === 0}>
-              <Download />
-              Ekspor CSV
-            </Button>
+            <span className="inline-flex gap-2">
+              <Button variant="outline" size="sm" onClick={exportExcel} disabled={filtered.length === 0}>
+                <Download />
+                Excel
+              </Button>
+              <Button variant="outline" size="sm" onClick={exportPdf} disabled={filtered.length === 0}>
+                <FileText />
+                PDF
+              </Button>
+            </span>
           }
         />
         <div className="grid gap-3 px-4 pb-4 sm:grid-cols-[minmax(0,1fr)_14rem] sm:px-5 sm:pb-5">
@@ -152,6 +205,12 @@ export function StokPage() {
         existingNames={items.map((item) => item.name)}
         onOpenChange={(open) => !open && setDialog(null)}
         onDone={reload}
+      />
+      <DetailBarangDialog
+        item={dialog?.kind === 'detail' ? dialog.item : null}
+        onOpenChange={(open) => !open && setDialog(null)}
+        onMutasi={(item) => setDialog({ kind: 'mutasi', item })}
+        onUbah={(item) => setDialog({ kind: 'ubah', item })}
       />
       <MutasiDialog item={dialog?.kind === 'mutasi' ? dialog.item : null} onOpenChange={(open) => !open && setDialog(null)} onDone={reload} />
     </>
