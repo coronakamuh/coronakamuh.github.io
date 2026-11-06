@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardHeader } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/data-table'
 import { DatePicker } from '@/components/ui/date-picker'
-import { Field } from '@/components/ui/field'
 import { ErrorNotice } from '@/components/ui/notice'
 import { Pager } from '@/components/ui/pager'
 import { Select } from '@/components/ui/select'
@@ -121,17 +120,14 @@ export function PenjualanPage() {
                 : undefined
             }
           />
-          <div className="grid gap-3 px-4 pb-4 sm:grid-cols-[repeat(2,minmax(0,1fr))_minmax(0,1fr)_auto] sm:items-end sm:px-5">
-            <Field label="Dari tanggal" htmlFor="filter-dari">
-              <DatePicker id="filter-dari" value={from} onChange={setFrom} max={todayISO()} />
-            </Field>
-            <Field label="Sampai tanggal" htmlFor="filter-sampai">
-              <DatePicker id="filter-sampai" value={to} onChange={setTo} max={todayISO()} />
-            </Field>
-            <Field label="Brand" htmlFor="filter-brand">
-              <Select id="filter-brand" aria-label="Filter brand" value={brand} onValueChange={setBrand} options={brandOptions} />
-            </Field>
-            <Button variant="ghost" onClick={() => { setFrom(''); setTo(''); setBrand('') }} disabled={!filtered}>
+          <div className="filter-bar">
+            <div className="filter-dates">
+              <DatePicker id="filter-dari" aria-label="Dari tanggal" placeholder="Dari" value={from} onChange={setFrom} max={todayISO()} />
+              <span aria-hidden="true">—</span>
+              <DatePicker id="filter-sampai" aria-label="Sampai tanggal" placeholder="Sampai" value={to} onChange={setTo} max={todayISO()} />
+            </div>
+            <Select id="filter-brand" aria-label="Filter brand" value={brand} onValueChange={setBrand} options={brandOptions} />
+            <Button variant="ghost" size="sm" className="filter-reset" onClick={() => { setFrom(''); setTo(''); setBrand('') }} disabled={!filtered}>
               <X />
               Reset
             </Button>

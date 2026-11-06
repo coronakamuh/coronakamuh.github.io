@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardHeader } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/data-table'
 import { DatePicker } from '@/components/ui/date-picker'
-import { Field } from '@/components/ui/field'
 import { ErrorNotice } from '@/components/ui/notice'
 import { Pager } from '@/components/ui/pager'
 import { Select } from '@/components/ui/select'
@@ -87,16 +86,13 @@ export function RiwayatPage() {
 
       <Card>
         <CardHeader title="Riwayat Mutasi" description={data ? `${formatAngka(data.total)} catatan.` : undefined} />
-        <div className="grid gap-3 px-4 pb-4 sm:grid-cols-3 sm:px-5 sm:pb-5">
-          <Field label="Dari tanggal" htmlFor="riwayat-dari">
-            <DatePicker id="riwayat-dari" value={from} onChange={setFrom} max={to || undefined} />
-          </Field>
-          <Field label="Sampai tanggal" htmlFor="riwayat-sampai">
-            <DatePicker id="riwayat-sampai" value={to} onChange={setTo} min={from || undefined} />
-          </Field>
-          <Field label="Jenis mutasi" htmlFor="riwayat-jenis">
-            <Select id="riwayat-jenis" value={group} onValueChange={setGroup} options={typeOptions} />
-          </Field>
+        <div className="filter-bar">
+          <div className="filter-dates">
+            <DatePicker id="riwayat-dari" aria-label="Dari tanggal" placeholder="Dari" value={from} onChange={setFrom} max={to || undefined} />
+            <span aria-hidden="true">—</span>
+            <DatePicker id="riwayat-sampai" aria-label="Sampai tanggal" placeholder="Sampai" value={to} onChange={setTo} min={from || undefined} />
+          </div>
+          <Select id="riwayat-jenis" aria-label="Jenis mutasi" value={group} onValueChange={setGroup} options={typeOptions} />
         </div>
         {error ? (
           <div className="px-4 pb-4 sm:px-5">

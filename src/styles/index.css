@@ -44,3 +44,58 @@
     outline-offset: 3px;
   }
 }
+
+/* Baris filter yang ringkas: satu baris di layar lebar, membungkus rapi di layar sempit.
+   Ditulis di luar @layer agar menimpa tinggi bawaan kontrol (h-10) hanya di dalam baris filter. */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 1rem 1rem;
+}
+.filter-bar > * {
+  min-width: 0;
+}
+.filter-bar :is(button, input) {
+  height: 2.25rem;
+}
+.filter-bar button {
+  padding-inline: 0.625rem;
+}
+.filter-dates {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  flex: 1 1 100%;
+}
+.filter-dates > button {
+  flex: 1 1 0;
+}
+.filter-dates > span {
+  color: var(--color-tinta-redup);
+}
+.filter-bar > button,
+.filter-bar > .filter-grow {
+  flex: 1 1 9rem;
+}
+.filter-bar > .filter-reset {
+  flex: 0 0 auto;
+}
+@media (min-width: 40rem) {
+  .filter-bar {
+    padding: 0 1.25rem 1.25rem;
+  }
+  .filter-dates {
+    flex: 0 0 auto;
+  }
+  .filter-dates > button {
+    flex: 0 0 9.5rem;
+  }
+  .filter-bar > button {
+    flex: 0 1 11rem;
+  }
+  .filter-bar > .filter-grow {
+    flex: 1 1 14rem;
+  }
+}
