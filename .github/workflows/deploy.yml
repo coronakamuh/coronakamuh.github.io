@@ -7,6 +7,13 @@ name: Build dan deploy
 on:
   push:
   workflow_dispatch:
+  # Bila Settings > Pages > Source masih "Deploy from a branch", GitHub ikut menjalankan
+  # "pages build and deployment" yang men-deploy file sumber. Deploy ulang setelah itu selesai
+  # agar yang tampil selalu hasil build (dist).
+  workflow_run:
+    workflows: ["pages build and deployment"]
+    types: [completed]
+    branches: [main]
 
 permissions:
   contents: read
@@ -14,8 +21,8 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages-${{ github.ref }}
-  cancel-in-progress: true
+  group: pages-deploy-${{ github.ref_name }}
+  cancel-in-progress: false
 
 jobs:
   build:
