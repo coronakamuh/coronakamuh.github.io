@@ -79,7 +79,7 @@ export function zipStore(files) {
 
 // eslint-disable-next-line no-control-regex
 const ILLEGAL = /[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g
-const escapeXml = (text) =>
+export const escapeXml = (text) =>
   String(text ?? '')
     .replace(ILLEGAL, '')
     .replace(/&/g, '&amp;')
@@ -87,7 +87,7 @@ const escapeXml = (text) =>
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
 
-function columnName(index) {
+export function columnName(index) {
   let name = ''
   for (let n = index + 1; n > 0; n = Math.floor((n - 1) / 26)) name = String.fromCharCode(65 + ((n - 1) % 26)) + name
   return name

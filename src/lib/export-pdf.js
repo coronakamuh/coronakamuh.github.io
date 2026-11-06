@@ -34,7 +34,7 @@ function toLatin1(text) {
   return out
 }
 
-const escapePdf = (text) => toLatin1(text).replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)')
+export const escapePdf = (text) => toLatin1(text).replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)')
 
 /** Memecah teks menjadi paling banyak `maxLines` baris sesuai lebar; sisanya dipotong dengan "...". */
 export function wrapText(text, width, size, maxLines, bold = false) {
@@ -156,6 +156,12 @@ export function buildPdf({ title, subtitle, summary = [], columns, rows, footer 
     pageOps.push(textOp(label, PAGE.margin, PAGE.margin - 6, 8, false, '0.45 0.45 0.45'))
   })
 
+  return assemblePdf(pages)
+}
+
+/** Merakit PDF dari halaman-halaman: tiap halaman berupa array perintah gambar (operator PDF). */
+export function assemblePdf(pages) {
+  const total = pages.length
   // Susun objek PDF: 1 katalog, 2 daftar halaman, 3 Helvetica, 4 Helvetica-Bold, lalu (halaman, isi) berpasangan.
   const objects = []
   const add = (body) => objects.push(body)
