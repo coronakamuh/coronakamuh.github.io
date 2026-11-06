@@ -5,6 +5,7 @@ import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardBody, CardHeader } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/data-table'
+import { NamaBarang } from '@/components/ui/nama-barang'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorNotice } from '@/components/ui/notice'
 import { Segmented } from '@/components/ui/segmented'
@@ -20,7 +21,7 @@ const periodOptions = [
 ]
 
 const minusColumns = [
-  { key: 'name', label: 'Barang' },
+  { key: 'name', label: 'Barang', render: (row) => <NamaBarang name={row.name} /> },
   { key: 'brand', label: 'Brand' },
   { key: 'stock', label: 'Stok', align: 'right', render: (row) => <span className="text-bahaya">{formatAngka(row.stock)}</span> },
   { key: 'need', label: 'Kebutuhan PO', align: 'right', render: (row) => `${formatAngka(row.need)} unit` },
@@ -34,7 +35,7 @@ function BrandRow({ brand }) {
   const hasTarget = brand.target !== null && brand.target > 0
   const percent = hasTarget ? Math.min(100, Math.round((brand.total / brand.target) * 100)) : 0
   return (
-    <li className="py-3">
+    <li className="py-2">
       <div className="flex items-baseline justify-between gap-3 text-sm">
         <span className="min-w-0 truncate font-medium">{brand.name}</span>
         <span className="shrink-0 tabular-nums">{formatRupiah(brand.total)}</span>

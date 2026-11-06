@@ -1,7 +1,9 @@
 name: Build dan deploy
 
 # Setiap push menjalankan build untuk memastikan aplikasi tidak error.
-# Deploy ke GitHub Pages hanya berjalan untuk branch main.
+# Deploy ke GitHub Pages hanya berjalan untuk branch main, dan hanya bila build berhasil.
+# Yang diunggah adalah folder dist (hasil build), bukan file sumber.
+# Pengaturan repository: Settings > Pages > Source harus "GitHub Actions".
 on:
   push:
   workflow_dispatch:
@@ -25,11 +27,19 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install dependensi
-        run: npm install --no-audit --no-fund
+      - name: Install dependensi (sesuai package-lock.json)
+        run: npm ci --no-audit --no-fund
 
       - name: Build
         run: npm run build
+
+      - name: Periksa hasil build
+        run: |
+          test -f dist/index.html
+          ls dist/assets/*.js >/dev/null
+          if grep -q "/src/main.jsx" dist/index.html; then
+            echo "dist/index.html masih menunjuk ke file sumber."; exit 1
+          fi
 
       - name: Siapkan hasil build untuk GitHub Pages
         if: github.ref == 'refs/heads/main'

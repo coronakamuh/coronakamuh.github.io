@@ -5,6 +5,7 @@ import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/data-table'
+import { NamaBarang } from '@/components/ui/nama-barang'
 import { DatePicker } from '@/components/ui/date-picker'
 import { ErrorNotice } from '@/components/ui/notice'
 import { Pager } from '@/components/ui/pager'
@@ -57,7 +58,7 @@ export function PenjualanPage() {
 
   const columns = [
     { key: 'date', label: 'Tanggal', render: (row) => <span className="whitespace-nowrap">{formatDisplay(row.date)}</span> },
-    { key: 'item', label: 'Nama Barang' },
+    { key: 'item', label: 'Nama Barang', render: (row) => <NamaBarang name={row.item} /> },
     { key: 'qty', label: 'Qty', align: 'right', render: (row) => formatAngka(row.qty) },
     { key: 'price', label: 'Harga', align: 'right', render: (row) => <span className="whitespace-nowrap">{formatRupiah(row.price)}</span> },
     { key: 'total', label: 'Total', align: 'right', render: (row) => <span className="whitespace-nowrap">{formatRupiah(row.total)}</span> },

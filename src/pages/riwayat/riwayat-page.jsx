@@ -4,6 +4,7 @@ import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/data-table'
+import { NamaBarang } from '@/components/ui/nama-barang'
 import { DatePicker } from '@/components/ui/date-picker'
 import { ErrorNotice } from '@/components/ui/notice'
 import { Pager } from '@/components/ui/pager'
@@ -25,7 +26,7 @@ const makeColumns = (onDetail) => [
     label: 'Barang',
     render: (row) => (
       <button type="button" className="text-left font-medium underline-offset-2 hover:underline" onClick={() => onDetail(row.id)}>
-        {row.item}
+        <NamaBarang name={row.item} />
       </button>
     ),
   },

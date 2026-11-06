@@ -99,3 +99,13 @@
     flex: 1 1 14rem;
   }
 }
+
+/* Tabel dan daftar: tombol di dalam sel dibuat ringkas agar baris tidak membengkak. */
+.data-table :is(td, li) button {
+  height: auto;
+  min-height: 1.625rem;
+  padding-block: 0.125rem;
+}
+.data-table :is(td, li) button:not([class*="underline"]) {
+  padding-inline: 0.5rem;
+}

@@ -11,7 +11,7 @@ import { EmptyState } from '@/components/ui/empty-state'
  */
 export function DataTable({ columns, rows, empty, caption }) {
   return (
-    <div className="@container">
+    <div className="data-table @container">
       {/* Tabel: hanya bila kartu cukup lebar */}
       <table className="hidden w-full table-fixed border-collapse text-sm @xl:table">
         <caption className="sr-only">{caption}</caption>
@@ -22,7 +22,7 @@ export function DataTable({ columns, rows, empty, caption }) {
                 key={column.key}
                 scope="col"
                 className={cn(
-                  'px-5 py-2.5 text-left font-medium',
+                  'px-4 py-1.5 text-left text-xs font-medium',
                   column.align === 'right' && 'text-right',
                 )}
               >
@@ -38,7 +38,7 @@ export function DataTable({ columns, rows, empty, caption }) {
                 <td
                   key={column.key}
                   className={cn(
-                    'px-5 py-3 break-words',
+                    'px-4 py-1 leading-snug break-words',
                     column.align === 'right' && 'text-right tabular-nums',
                   )}
                 >
@@ -54,9 +54,9 @@ export function DataTable({ columns, rows, empty, caption }) {
       {rows.length > 0 ? (
         <ul aria-label={caption} className="divide-y divide-garis-halus border-t border-garis @xl:hidden">
           {rows.map((row, index) => (
-            <li key={row.id ?? index} className="flex flex-col gap-1.5 px-4 py-3 text-sm">
+            <li key={row.id ?? index} className="flex flex-col gap-0.5 px-4 py-2 text-sm leading-snug">
               {columns.map((column) => (
-                <div key={column.key} className="flex items-baseline justify-between gap-4">
+                <div key={column.key} className="flex items-baseline justify-between gap-3">
                   <span className="shrink-0 text-tinta-redup">{column.label}</span>
                   <span className="min-w-0 text-right break-words tabular-nums">
                     {column.render ? column.render(row) : row[column.key]}

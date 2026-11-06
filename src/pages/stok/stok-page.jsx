@@ -4,6 +4,7 @@ import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/data-table'
+import { NamaBarang } from '@/components/ui/nama-barang'
 import { Input } from '@/components/ui/field'
 import { ErrorNotice } from '@/components/ui/notice'
 import { Pager } from '@/components/ui/pager'
@@ -74,7 +75,7 @@ export function StokPage() {
       label: 'Barang',
       render: (row) => (
         <button type="button" className="text-left font-medium underline-offset-2 hover:underline" onClick={() => setDialog({ kind: 'detail', item: row })}>
-          {row.name}
+          <NamaBarang name={row.name} />
         </button>
       ),
     },
