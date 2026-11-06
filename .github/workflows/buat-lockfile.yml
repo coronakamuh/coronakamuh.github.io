@@ -1,0 +1,36 @@
+name: Buat lockfile
+
+# Dijalankan manual sekali (atau saat dependensi berubah) untuk membuat package-lock.json.
+# Hanya menyentuh package-lock.json; tidak men-deploy apa pun.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  lockfile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Buat package-lock.json
+        run: npm install --package-lock-only --no-audit --no-fund
+
+      - name: Simpan ke main
+        run: |
+          if git diff --quiet -- package-lock.json && [ -f package-lock.json ] && git ls-files --error-unmatch package-lock.json >/dev/null 2>&1; then
+            echo "Lockfile sudah terbaru."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package-lock.json
+          git commit -m "Tambah package-lock.json"
+          git push origin HEAD:main
