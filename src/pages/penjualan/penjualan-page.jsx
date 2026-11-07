@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Download, FileText, Receipt, X } from 'lucide-react'
+import { Download, FileText, Pencil, Receipt, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
@@ -68,8 +68,8 @@ export function PenjualanPage() {
       label: 'Aksi',
       align: 'right',
       render: (row) => (
-        <Button variant="ghost" size="sm" onClick={() => setEditing(row)} disabled={items.length === 0}>
-          Ubah
+        <Button variant="ghost" size="sm" onClick={() => setEditing(row)} disabled={items.length === 0} aria-label="Ubah penjualan" title="Ubah penjualan">
+          <Pencil size={15} />
         </Button>
       ),
     },
