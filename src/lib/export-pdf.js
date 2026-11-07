@@ -160,7 +160,7 @@ export function buildPdf({ title, subtitle, summary = [], columns, rows, footer 
 }
 
 /** Merakit PDF dari halaman-halaman: tiap halaman berupa array perintah gambar (operator PDF). */
-export function assemblePdf(pages) {
+export function assemblePdf(pages, size = { w: PAGE.w, h: PAGE.h }) {
   const total = pages.length
   // Susun objek PDF: 1 katalog, 2 daftar halaman, 3 Helvetica, 4 Helvetica-Bold, lalu (halaman, isi) berpasangan.
   const objects = []
@@ -171,7 +171,7 @@ export function assemblePdf(pages) {
   add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>')
   pages.forEach((pageOps, i) => {
     add(
-      `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PAGE.w} ${PAGE.h}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${6 + i * 2} 0 R >>`,
+      `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${size.w} ${size.h}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${6 + i * 2} 0 R >>`,
     )
     const stream = pageOps.join('\n')
     add({ stream })

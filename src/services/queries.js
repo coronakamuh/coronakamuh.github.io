@@ -71,6 +71,25 @@ export async function getStockData() {
   return { items, brandNames, brands }
 }
 
+/** Bahan rekap stok harian: semua barang (dengan nama brand) dan semua transaksi stok. Hanya baca. */
+export async function getRecapSource() {
+  const [barang, movements, brands] = await Promise.all([
+    fetchAll(() => supabase.from('barang').select('id, nama, brand_id, stok_awal, tanggal_mulai, created_at').order('id')),
+    fetchAll(() => supabase.from('transaksi').select('id, barang_id, tanggal, type, qty').order('id')),
+    getBrands(),
+  ])
+  const brandName = new Map(brands.map((brand) => [brand.id, brand.name]))
+  const items = barang.map((row) => ({
+    id: row.id,
+    name: row.nama,
+    brand: brandName.get(row.brand_id) ?? '',
+    stok_awal: row.stok_awal,
+    tanggal_mulai: row.tanggal_mulai,
+    created_at: row.created_at,
+  }))
+  return { items, movements }
+}
+
 /** Jumlah penjualan (qty × harga) per hari, dari tanggal `since` sampai hari ini. */
 async function getSalesSince(since) {
   return fetchAll(() =>

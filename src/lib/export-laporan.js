@@ -15,7 +15,7 @@ const argb = (hex) => `FF${String(hex).replace('#', '').toUpperCase()}`
  * merges: ['A1:C1', ...] ; widths: lebar kolom (karakter).
  * Sel tanpa nilai tetap digambar bila punya gaya (agar warna dan garis sel gabungan utuh).
  */
-export function buildReportXlsx({ sheetName = 'Laporan', widths, rows, merges = [] }) {
+export function buildReportXlsx({ sheetName = 'Laporan', widths, rows, merges = [], printTitleRows = 0, pageSetup = {} }) {
   const fonts = []
   const fills = []
   const xfs = []
@@ -39,8 +39,17 @@ export function buildReportXlsx({ sheetName = 'Laporan', widths, rows, merges = 
       const cells = row.cells
         .map((cell, c) => {
           const ref = `${columnName(c)}${r + 1}`
-          const hasValue = cell.v !== '' && cell.v !== null && cell.v !== undefined
+          const hasValue = cell.runs ? cell.runs.length > 0 : cell.v !== '' && cell.v !== null && cell.v !== undefined
           const s = cell.s ? ` s="${xfFor(cell.s)}"` : ''
+          if (cell.runs) {
+            const runs = cell.runs
+              .map((run) => {
+                const props = `${run.b ? '<b/>' : ''}${run.sup ? '<vertAlign val="superscript"/>' : ''}<sz val="${run.sz ?? 8}"/><color rgb="${argb(run.color ?? '35262C')}"/><rFont val="Calibri"/>`
+                return `<r><rPr>${props}</rPr><t xml:space="preserve">${escapeXml(run.t)}</t></r>`
+              })
+              .join('')
+            return `<c r="${ref}"${s} t="inlineStr"><is>${runs}</is></c>`
+          }
           if (!hasValue) return cell.s ? `<c r="${ref}"${s}/>` : ''
           if (typeof cell.v === 'number') return `<c r="${ref}"${s}><v>${cell.v}</v></c>`
           return `<c r="${ref}"${s} t="inlineStr"><is><t xml:space="preserve">${escapeXml(cell.v)}</t></is></c>`
@@ -60,7 +69,7 @@ export function buildReportXlsx({ sheetName = 'Laporan', widths, rows, merges = 
     '<sheetViews><sheetView showGridLines="0" workbookViewId="0"/></sheetViews>' +
     `<cols>${cols}</cols><sheetData>${sheetRows}</sheetData>${mergeXml}` +
     '<pageMargins left="0.4" right="0.4" top="0.5" bottom="0.5" header="0.3" footer="0.3"/>' +
-    '<pageSetup paperSize="9" orientation="landscape" fitToWidth="1" fitToHeight="0"/></worksheet>'
+    `<pageSetup paperSize="9" orientation="landscape" fitToWidth="1" fitToHeight="${pageSetup.fitToHeight ?? 0}"/></worksheet>`
 
   const fontXml = [
     '<font><sz val="11"/><name val="Calibri"/></font>',
@@ -121,7 +130,9 @@ export function buildReportXlsx({ sheetName = 'Laporan', widths, rows, merges = 
       name: 'xl/workbook.xml',
       data: xml(
         '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' +
-          `<sheets><sheet name="${safeName}" sheetId="1" r:id="rId1"/></sheets></workbook>`,
+          `<sheets><sheet name="${safeName}" sheetId="1" r:id="rId1"/></sheets>` +
+          (printTitleRows ? `<definedNames><definedName name="_xlnm.Print_Titles" localSheetId="0">'${safeName}'!$1:$${printTitleRows}</definedName></definedNames>` : '') +
+          '</workbook>',
       ),
     },
     {
@@ -255,5 +266,99 @@ export function buildReportPdf({ title, subtitle, groups, grandTotalText, dailyT
   }
   function dayHeight(day) {
     return day.items.map(rowHeight).reduce((a, b) => a + b, 0)
+  }
+}
+
+/**
+ * Rekap stok PDF landscape A4: kolom nama + satu kolom per hari.
+ * groups: [{ brand, rows: [{ name, cells: [{ main, sup, black }] }] }]
+ */
+export function buildRecapPdf({ headLabel, dayLabels, groups, countText, legend }) {
+  const W = 841.89
+  const H = 595.28
+  const M = 10 * MM
+  const NAME_W = 150
+  const DAY_W = (W - M * 2 - NAME_W) / dayLabels.length
+  const ROW = 10.6
+  const HEAD = 13
+  const F = 6.6
+  const pages = []
+  let ops = []
+  let y = 0
+  const top = (v) => H - v
+  const fnt = (bold) => (bold ? 'F2' : 'F1')
+  const text = (value, x, baseline, { bold = false, color = COLOR.text, size = F } = {}) =>
+    `BT /${fnt(bold)} ${size} Tf ${rgb(color)} rg ${x.toFixed(2)} ${top(baseline).toFixed(2)} Td (${escapePdf(value)}) Tj ET`
+  const cell = (x, yy, w, h, fill) =>
+    `${fill ? `${rgb(fill)} rg ${x.toFixed(2)} ${top(yy + h).toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} re f ` : ''}0.85 0.85 0.85 RG 0.3 w ${x.toFixed(2)} ${top(yy + h).toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} re S`
+  const centered = (value, x, w, yy, h, opts) => {
+    const width = textWidth(value, opts?.size ?? F, opts?.bold)
+    ops.push(text(value, x + (w - width) / 2, yy + h / 2 + (opts?.size ?? F) * 0.35, opts))
+  }
+  const newPage = () => {
+    ops = []
+    pages.push(ops)
+    y = M
+    ops.push(cell(M, y, NAME_W, HEAD, '000000'))
+    centered(headLabel, M, NAME_W, y, HEAD, { bold: true, color: 'FFFFFF' })
+    dayLabels.forEach((label, i) => {
+      ops.push(cell(M + NAME_W + i * DAY_W, y, DAY_W, HEAD, '000000'))
+      centered(label, M + NAME_W + i * DAY_W, DAY_W, y, HEAD, { bold: true, color: 'FFFFFF', size: 6 })
+    })
+    y += HEAD
+  }
+  const ensure = (h) => {
+    if (y + h > H - M) newPage()
+  }
+  const band = (label, fill, color, bold) => {
+    ensure(ROW)
+    ops.push(cell(M, y, W - M * 2, ROW, fill))
+    centered(label, M, W - M * 2, y, ROW, { bold, color, size: bold ? 7.4 : 6 })
+    y += ROW
+  }
+  newPage()
+  for (const group of groups) {
+    ensure(ROW * 2)
+    band(group.brand.toUpperCase(), '808080', 'FFFFFF', true)
+    for (const row of group.rows) {
+      ensure(ROW)
+      ops.push(cell(M, y, NAME_W, ROW))
+      const name = fitText(row.name, NAME_W - 5, F)
+      ops.push(text(name, M + 2.5, y + ROW / 2 + F * 0.35))
+      row.cells.forEach((c, i) => {
+        const x = M + NAME_W + i * DAY_W
+        ops.push(cell(x, y, DAY_W, ROW, c.black ? '000000' : null))
+        const color = c.black ? 'FFFFFF' : COLOR.text
+        const mainSize = F + 0.4
+        const mainW = textWidth(c.main, mainSize, c.black)
+        const supW = c.sup ? textWidth(c.sup, 4.4, false) : 0
+        let tx = x + (DAY_W - mainW - supW) / 2
+        const base = y + ROW / 2 + mainSize * 0.35
+        if (c.sup && !c.black && c.main === '0') {
+          // stok minus: angka kecil di depan, 0 di belakang
+          ops.push(text(c.sup, tx, base - 2.3, { size: 4.4, color: COLOR.text }))
+          ops.push(text(c.main, tx + supW, base, { size: mainSize, color }))
+        } else {
+          ops.push(text(c.main, tx, base, { size: mainSize, bold: c.black, color }))
+          if (c.sup) ops.push(text(c.sup, tx + mainW, base - 2.3, { size: 4.4, color }))
+        }
+      })
+      y += ROW
+    }
+  }
+  ensure(ROW * 2)
+  ops.push(cell(M, y, W - M * 2, ROW, 'E5E7EB'))
+  ops.push(text(countText, M + 3, y + ROW / 2 + F * 0.35, { bold: true }))
+  y += ROW
+  const legendLines = wrapText(legend, W - M * 2 - 6, 6.2, 3, false)
+  if (y + 3 + legendLines.length * 8 > H - M + 6) newPage()
+  legendLines.forEach((line, i) => ops.push(text(line, M + 3, y + 9 + i * 8, { size: 6.2, color: '4B5563' })))
+  return assemblePdf(pages, { w: W, h: H })
+
+  function fitText(value, maxWidth, size) {
+    if (textWidth(value, size, false) <= maxWidth) return value
+    let out = value
+    while (out.length > 1 && textWidth(`${out}...`, size, false) > maxWidth) out = out.slice(0, -1)
+    return `${out.trimEnd()}...`
   }
 }

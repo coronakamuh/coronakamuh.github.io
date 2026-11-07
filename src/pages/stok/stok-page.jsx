@@ -10,7 +10,10 @@ import { ErrorNotice } from '@/components/ui/notice'
 import { Pager } from '@/components/ui/pager'
 import { Select } from '@/components/ui/select'
 import { StatCard } from '@/components/ui/stat-card'
+import { toast } from 'sonner'
 import { useAsync } from '@/hooks/use-async'
+import { useMutation } from '@/hooks/use-mutation'
+import { exportRecapExcel, exportRecapPdf, loadRecap } from '@/features/stok/export-rekap'
 import { BarangDialog } from '@/features/stok/barang-dialog'
 import { DetailBarangDialog } from '@/features/stok/detail-barang-dialog'
 import { MutasiDialog } from '@/features/stok/mutasi-dialog'
@@ -132,6 +135,20 @@ export function StokPage() {
     downloadFile(`stok-barang-${todayISO()}.pdf`, bytes, 'application/pdf')
   }
 
+  const { run: runRecap, pending: recapPending } = useMutation(async (format) => {
+    try {
+      const recap = await loadRecap()
+      if (!recap) {
+        toast.info('Tidak ada barang dengan stok pada periode ini')
+        return
+      }
+      if (format === 'pdf') exportRecapPdf(recap)
+      else exportRecapExcel(recap)
+    } catch (failure) {
+      toast.error('Rekap stok gagal dibuat', { description: failure.message })
+    }
+  })
+
   return (
     <>
       <PageHeader
@@ -169,7 +186,7 @@ export function StokPage() {
           title="Tabel Stok"
           description={data ? `${formatAngka(filtered.length)} dari ${formatAngka(items.length)} barang.` : undefined}
           action={
-            <span className="inline-flex gap-2">
+            <span className="inline-flex flex-wrap justify-end gap-2">
               <Button variant="outline" size="sm" onClick={exportExcel} disabled={filtered.length === 0}>
                 <Download />
                 Excel
@@ -177,6 +194,14 @@ export function StokPage() {
               <Button variant="outline" size="sm" onClick={exportPdf} disabled={filtered.length === 0}>
                 <FileText />
                 PDF
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => runRecap('xlsx')} disabled={recapPending} title="Rekap stok harian, 30 hari terakhir">
+                <Download />
+                Rekap Excel
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => runRecap('pdf')} disabled={recapPending} title="Rekap stok harian, 30 hari terakhir">
+                <FileText />
+                Rekap PDF
               </Button>
             </span>
           }
