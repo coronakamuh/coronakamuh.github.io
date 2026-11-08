@@ -11,9 +11,12 @@ export function SidebarNav({ route }) {
 
   return (
     <div className="flex h-full flex-col bg-lembar">
-      <div className="flex h-16 shrink-0 items-center gap-3 border-b border-garis px-5">
+      <div className="flex h-[4.5rem] shrink-0 items-center gap-3 border-b border-garis px-5">
         <LogoMark className="size-7 shrink-0 text-pena" />
-        <span className="truncate text-sm font-semibold tracking-tight text-tinta">{site.name}</span>
+        <div className="min-w-0">
+          <span className="block truncate text-sm font-semibold tracking-tight text-tinta">{site.name}</span>
+          <span className="mt-0.5 block truncate text-[9px] font-medium uppercase tracking-[0.08em] text-tinta-redup">Smart Stock &amp; Sales Management</span>
+        </div>
       </div>
 
       <nav aria-label="Menu utama" className="flex-1 px-3 py-5">
