@@ -47,6 +47,15 @@ export function fileName(filter, ext) {
 
 const dmy = (date) => (/^\d{4}-\d{2}-\d{2}$/.test(date) ? `${date.slice(8, 10)}/${date.slice(5, 7)}/${date.slice(0, 4)}` : date || '-')
 
+/** Hilangkan nama brand di awal nama barang agar ruang sel lebih efisien. */
+const displayItemName = (name, brand) => {
+  const value = String(name || '').trim()
+  const prefix = String(brand || '').trim()
+  return prefix && value.toLocaleLowerCase('id-ID').startsWith(prefix.toLocaleLowerCase('id-ID'))
+    ? value.slice(prefix.length).replace(/^[\s-:]+/, '').trim() || value
+    : value
+}
+
 /** Kelompok per brand (abjad), lalu per tanggal (paling awal dulu) dengan total harian dan subtotal brand. */
 export function groupSales(rows) {
   const byBrand = new Map()
@@ -106,10 +115,10 @@ export function exportSalesExcel(rows, filter) {
       subtotal += day.total
       const firstRow = result.length + 2
       day.items.forEach((item, i) => {
-        const style = (c) => ({ sz: 8, border: LINE, h: c === 2 ? 'center' : c >= 3 ? 'right' : 'left', rp: c >= 3, wrap: c === 1 })
+        const style = (c) => ({ sz: 8, border: LINE, h: c === 2 ? 'center' : c >= 3 ? 'right' : 'left', rp: c >= 3, wrap: false })
         result.push({ cells: [
           { v: i === 0 ? dmy(day.date) : '', s: style(0) },
-          { v: item.item, s: style(1) },
+          { v: displayItemName(item.item, day.brand), s: style(1) },
           { v: item.qty, s: style(2) },
           { v: item.price, s: style(3) },
           { v: item.total, s: style(4) },
