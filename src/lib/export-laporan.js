@@ -226,7 +226,7 @@ export function buildReportPdf({ title, subtitle, groups, grandTotalText, dailyT
       if (brand !== day.brand) {
         if (brand) {
           rect(ops, x0, y, PANEL, ROW, C.subtotal)
-          txt(ops, 'TOTAL ' + brand + '  ' + formatRupiah(subtotal), x0 + PAD, y + ROW / 2 + 2.5, 7, true)
+          txt(ops, 'TOTAL ' + brand + '  ' + 'Rp ' + new Intl.NumberFormat('id-ID').format(subtotal), x0 + PAD, y + ROW / 2 + 2.5, 7, true)
           y += ROW
         }
         brand = day.brand
@@ -259,7 +259,7 @@ export function buildReportPdf({ title, subtitle, groups, grandTotalText, dailyT
     }
     if (brand) {
       rect(ops, x0, y, PANEL, ROW, C.subtotal)
-      txt(ops, 'TOTAL ' + brand + '  ' + formatRupiah(subtotal), x0 + PAD, y + ROW / 2 + 2.5, 7, true)
+      txt(ops, 'TOTAL ' + brand + '  ' + 'Rp ' + new Intl.NumberFormat('id-ID').format(subtotal), x0 + PAD, y + ROW / 2 + 2.5, 7, true)
     }
   }
   const ops = []
