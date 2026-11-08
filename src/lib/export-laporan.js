@@ -205,10 +205,9 @@ export function buildReportPdf({ title, subtitle, groups, grandTotalText, dailyT
     if (previousBrand) count += 1
     return count
   }
-  // Skala tabel hanya bila perlu, lalu pusatkan seluruh blok tabel dan total pada halaman.
+  // Skala tabel hanya bila perlu, lalu pusatkan kedua tabel pada halaman.
   const maxRows = Math.max(...panels.map(panelRows))
-  const TOTAL_GAP = 6
-  const availableRowsHeight = H - 2 * M - BASE_HEAD - TOTAL_GAP - BASE_ROW
+  const availableRowsHeight = H - 2 * M - BASE_HEAD
   const rowScale = Math.min(1, availableRowsHeight / Math.max(maxRows * BASE_ROW, 1))
   const FONT = BASE_FONT * rowScale
   const LEAD = BASE_LEAD * rowScale
@@ -235,8 +234,12 @@ export function buildReportPdf({ title, subtitle, groups, grandTotalText, dailyT
     const fixed = [0, 2, 3, 4, 5].map((i) =>
       Math.max(min[i], Math.min(max[i], Math.max(textWidth(labels[i], FONT, true), ...values[i].map((v) => textWidth(v, FONT))) + PAD * 2)),
     )
-    const nameWidth = Math.max(70, PANEL - fixed.reduce((sum, width) => sum + width, 0))
-    return [fixed[0], nameWidth, fixed[1], fixed[2], fixed[3], fixed[4]]
+    const MIN_NAME_WIDTH = 70
+    const fixedTotal = fixed.reduce((sum, width) => sum + width, 0)
+    const fixedScale = Math.min(1, (PANEL - MIN_NAME_WIDTH) / fixedTotal)
+    const fitted = fixed.map((width) => width * fixedScale)
+    const nameWidth = PANEL - fitted.reduce((sum, width) => sum + width, 0)
+    return [fitted[0], nameWidth, fitted[1], fitted[2], fitted[3], fitted[4]]
   }
   const widths = panels.map(widthsFor)
   const pages = []
@@ -309,24 +312,14 @@ export function buildReportPdf({ title, subtitle, groups, grandTotalText, dailyT
     return y
   }
   const ops = []
-  const blockHeight = HEAD + maxRows * ROW + TOTAL_GAP + BASE_ROW
+  const blockHeight = HEAD + maxRows * ROW
   const y = (H - blockHeight) / 2
   drawHeader(ops, y, M, widths[0])
   drawHeader(ops, y, M + PANEL + GAP, widths[1])
-  const leftBottom = renderPanel(ops, panels[0], M, widths[0], y + HEAD)
-  const rightBottom = renderPanel(ops, panels[1], M + PANEL + GAP, widths[1], y + HEAD)
-  // Total keseluruhan terpisah agar selalu berada di bawah kedua tabel.
-  const totalOps = []
-  const total = grandTotalText
-  const totalY = y + HEAD + maxRows * ROW + TOTAL_GAP
-  rect(totalOps, M, totalY, W - M * 2, BASE_ROW, C.total)
-  txt(totalOps, 'TOTAL SEMUA: ' + total, M + PAD, totalY + BASE_ROW / 2 + FONT * 0.35, FONT, true)
+  renderPanel(ops, panels[0], M, widths[0], y + HEAD)
+  renderPanel(ops, panels[1], M + PANEL + GAP, widths[1], y + HEAD)
 
-  // Ukuran font dan tinggi baris disesuaikan secara vertikal sebelum tabel digambar.
-  // Lebar tabel tidak ikut diperkecil, sehingga ruang horizontal tersedia untuk nama produk.
-  const contentBottom = Math.max(leftBottom, rightBottom)
-  // Perhitungan rowScale di atas sudah menyediakan ruang untuk total bawah.
-  ops.push(...totalOps)
+  // Kedua tabel dipusatkan sebagai satu blok, tanpa baris total keseluruhan.
   return assemblePdf([ops], { w: W, h: H })
 }
 /**
