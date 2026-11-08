@@ -1,11 +1,9 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 
-/* Palet minimal: putih, tinta gelap, satu warna aksen. */
+/* Design tokens D'House Digital */
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-
-  /* Semua ukuran teks dikurangi 1px dari bawaan Tailwind (xs 12→11, sm 14→13, base 16→15, dst). */
   --text-xs: 0.6875rem;
   --text-sm: 0.8125rem;
   --text-base: 0.9375rem;
@@ -17,37 +15,45 @@
   --text-5xl: 2.9375rem;
 
   --color-lembar: #ffffff;
-  --color-tinta: #111827;
-  --color-tinta-redup: #6b7280;
-  --color-pena: #1d3fbb;
-  --color-pena-tua: #16308f;
-  --color-garis: #e5e7eb;
-  --color-garis-halus: #f0f1f3;
+  --color-tinta: #172033;
+  --color-tinta-redup: #697586;
+  --color-pena: #1e3a8a;
+  --color-pena-tua: #172e70;
+  --color-garis: #e4e9f1;
+  --color-garis-halus: #f1f4f8;
   --color-bahaya: #b42318;
-
+  --color-latar: #f5f7fb;
+  --color-sukses: #16835d;
+  --color-peringatan: #b7791f;
 }
 
 @layer base {
-  html {
-    -webkit-text-size-adjust: 100%;
-  }
-
+  html { -webkit-text-size-adjust: 100%; }
   body {
-    background-color: var(--color-lembar);
+    min-height: 100vh;
+    background-color: var(--color-latar);
     color: var(--color-tinta);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     overflow-x: clip;
   }
-
   :focus-visible {
-    outline: 2px solid var(--color-pena);
-    outline-offset: 3px;
+    outline: 2px solid color-mix(in srgb, var(--color-pena) 65%, transparent);
+    outline-offset: 2px;
+  }
+  ::selection { background: #dbeafe; color: #172e70; }
+}
+
+@layer components {
+  .dh-card {
+    border: 1px solid var(--color-garis);
+    border-radius: 0.875rem;
+    background: var(--color-lembar);
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.035);
   }
 }
 
-/* Baris filter yang ringkas: satu baris di layar lebar, membungkus rapi di layar sempit.
-   Ditulis di luar @layer agar menimpa tinggi bawaan kontrol (h-10) hanya di dalam baris filter. */
+/* Baris filter */
 .filter-bar {
   display: flex;
   flex-wrap: wrap;
@@ -55,81 +61,45 @@
   gap: 0.5rem;
   padding: 0 1rem 1rem;
 }
-.filter-bar > * {
-  min-width: 0;
-}
-.filter-bar :is(button, input) {
-  height: 2.25rem;
-}
-.filter-bar button {
-  padding-inline: 0.625rem;
-}
+.filter-bar > * { min-width: 0; }
+.filter-bar :is(button, input) { height: 2.25rem; }
+.filter-bar button { padding-inline: 0.625rem; }
 .filter-dates {
   display: flex;
   align-items: center;
   gap: 0.375rem;
   flex: 1 1 100%;
 }
-.filter-dates > button {
-  flex: 1 1 0;
-}
-.filter-dates > span {
-  color: var(--color-tinta-redup);
-}
-.filter-bar > button,
-.filter-bar > .filter-grow {
-  flex: 1 1 9rem;
-}
-.filter-bar > .filter-reset {
-  flex: 0 0 auto;
-}
+.filter-dates > button { flex: 1 1 0; }
+.filter-dates > span { color: var(--color-tinta-redup); }
+.filter-bar > button, .filter-bar > .filter-grow { flex: 1 1 9rem; }
+.filter-bar > .filter-reset { flex: 0 0 auto; }
 @media (min-width: 40rem) {
-  .filter-bar {
-    padding: 0 1.25rem 1.25rem;
-  }
-  .filter-dates {
-    flex: 0 0 auto;
-  }
-  .filter-dates > button {
-    flex: 0 0 9.5rem;
-  }
-  .filter-bar > button {
-    flex: 0 1 11rem;
-  }
-  .filter-bar > .filter-grow {
-    flex: 1 1 14rem;
-  }
+  .filter-bar { padding: 0 1.25rem 1.25rem; }
+  .filter-dates { flex: 0 0 auto; }
+  .filter-dates > button { flex: 0 0 9.5rem; }
+  .filter-bar > button { flex: 0 1 11rem; }
+  .filter-bar > .filter-grow { flex: 1 1 14rem; }
 }
 
-/* Tabel dan daftar: tombol di dalam sel dibuat ringkas agar baris tidak membengkak. */
+/* Tombol dalam tabel tetap ringkas */
 .data-table :is(td, li) button {
   height: auto;
   min-height: 1.625rem;
   padding-block: 0.125rem;
 }
-.data-table :is(td, li) button:not([class*="underline"]) {
-  padding-inline: 0.5rem;
-}
+.data-table :is(td, li) button:not([class*="underline"]) { padding-inline: 0.5rem; }
 
-/* Selector bulan/tahun dan brand sejajar khusus halaman Penjualan. */
 .sales-filter-bar .sales-month-filter { flex: 1 1 8rem; min-width: 8rem; }
 .sales-filter-bar .sales-brand-filter { flex: 1 1 7.5rem; min-width: 7.5rem; }
-
-/* Kotak pencarian barang: satu baris sendiri di HP, ikut memanjang di layar lebar. */
 .sales-filter-bar .sales-search { flex: 1 1 100%; }
 @media (min-width: 40rem) {
   .sales-filter-bar .sales-search { flex: 1 1 12rem; }
 }
 
-/* History Penjualan: lebar kolom tetap agar muat di layar HP.
-   Urutan kolom: 1 Tgl, 2 Barang, 3 Jml, 4 Harga, 5 Total, 6 Sisa, 7 Aksi.
-   Kolom 4 dan 6 hanya tampil mulai layar sm (di HP sisa stok ada di bawah nama barang). */
-.sales-history-table {
-  width: 100%;
-  table-layout: fixed;
-}
-.sales-history-table th,
-.sales-history-table td {
+/* Riwayat penjualan: pertahankan proporsi kolom yang sudah disesuaikan untuk HP */
+.sales-history-table { width: 100%; table-layout: fixed; }
+.sales-history-table th, .sales-history-table td {
   padding-left: 0.35rem;
   padding-right: 0.35rem;
 }
