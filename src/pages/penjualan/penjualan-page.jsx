@@ -17,7 +17,6 @@ import { cn } from '@/lib/cn'
 import { formatAngka, formatRupiah } from '@/lib/format'
 import { addDaysISO, monthNames, monthRange, todayISO } from '@/lib/date'
 import { usePageSize } from '@/lib/preferences'
-import { exportSalesExcel, exportSalesPdf } from '@/features/penjualan/export-penjualan'
 import { getSalesExport, getSalesPage, getSalesStartMonth, getSalesSummary, getStockData } from '@/services/queries'
 
 const DEFAULT_PAGE_SIZE = 20
@@ -73,8 +72,11 @@ export function PenjualanPage() {
     try {
       const rows = await getSalesExport(filter) // semua halaman sesuai bulan dan brand yang sedang dipakai
       if (rows.length === 0) toast.info('Tidak ada penjualan untuk diekspor')
-      else if (kind === 'xlsx') exportSalesExcel(rows, filter)
-      else exportSalesPdf(rows, filter)
+      else {
+        const { exportSalesExcel, exportSalesPdf } = await import('@/features/penjualan/export-penjualan')
+        if (kind === 'xlsx') exportSalesExcel(rows, filter)
+        else exportSalesPdf(rows, filter)
+      }
     } catch (failure) {
       toast.error('Ekspor gagal', { description: failure.message })
     } finally {
