@@ -5,17 +5,21 @@ import { site } from '@/config/site'
 import { useAuth } from '@/lib/auth-context'
 import { cn } from '@/lib/cn'
 
-/** Sidebar desktop. Di HP, menu pindah ke bilah bawah (lihat bottom-nav.jsx). */
+/** Navigasi desktop. Hak akses dan tujuan menu mengikuti konfigurasi yang sama. */
 export function SidebarNav({ route }) {
   const { signOut } = useAuth()
+
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex h-14 items-center gap-3 px-5 lg:h-16">
-        <LogoMark className="size-7 text-pena" />
-        <span className="font-semibold tracking-tight">{site.name}</span>
+    <div className="flex h-full flex-col bg-lembar">
+      <div className="flex h-16 shrink-0 items-center gap-3 border-b border-garis px-5">
+        <LogoMark className="size-7 shrink-0 text-pena" />
+        <span className="truncate text-sm font-semibold tracking-tight text-tinta">{site.name}</span>
       </div>
 
-      <nav aria-label="Menu utama" className="flex-1 px-3 py-2">
+      <nav aria-label="Menu utama" className="flex-1 px-3 py-5">
+        <p className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-tinta-redup">
+          Menu utama
+        </p>
         <ul className="flex flex-col gap-1">
           {navItems.map(({ id, label, icon: Icon }) => {
             const active = route === id
@@ -25,14 +29,15 @@ export function SidebarNav({ route }) {
                   href={`#/${id}`}
                   aria-current={active ? 'page' : undefined}
                   className={cn(
-                    'flex h-11 items-center gap-3 rounded-md px-3 text-sm transition-colors',
+                    'flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pena',
                     active
-                      ? 'bg-garis-halus font-medium text-pena'
-                      : 'text-tinta-redup hover:bg-garis-halus/70 hover:text-tinta',
+                      ? 'bg-blue-50 font-semibold text-pena'
+                      : 'text-tinta-redup hover:bg-garis-halus hover:text-tinta',
                   )}
                 >
                   <Icon className="size-[18px] shrink-0" aria-hidden="true" />
-                  {label}
+                  <span className="min-w-0 truncate">{label}</span>
+                  {active ? <span className="ml-auto h-5 w-1 shrink-0 rounded-full bg-pena" /> : null}
                 </a>
               </li>
             )
@@ -40,11 +45,11 @@ export function SidebarNav({ route }) {
         </ul>
       </nav>
 
-      <div className="border-t border-garis px-3 py-3">
+      <div className="border-t border-garis p-3">
         <button
           type="button"
           onClick={signOut}
-          className="flex h-11 w-full items-center gap-3 rounded-md px-3 text-sm text-tinta-redup transition-colors hover:bg-garis-halus/70 hover:text-tinta"
+          className="flex min-h-11 w-full items-center gap-3 rounded-lg px-3 text-sm font-medium text-tinta-redup transition-colors hover:bg-garis-halus hover:text-tinta focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pena"
         >
           <LogOut className="size-[18px] shrink-0" aria-hidden="true" />
           Keluar
