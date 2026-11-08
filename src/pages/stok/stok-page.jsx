@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Download, FileText, Package, Plus, Search, TriangleAlert, Boxes, ShoppingCart } from 'lucide-react'
+import { Download, FileText, Package, Plus, Search, TriangleAlert, Boxes, ShoppingCart, Pencil, ArrowLeftRight } from 'lucide-react'
 import { PageTitle } from '@/components/layout/page-title'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader } from '@/components/ui/card'
@@ -31,7 +31,16 @@ const baseColumns = [
     key: 'stock',
     label: 'Stok',
     align: 'right',
-    render: (row) => <span className={row.stock < 0 ? 'text-bahaya' : undefined}>{formatAngka(row.stock)}</span>,
+    render: (row) => (
+      <span className={row.stock < 0
+        ? 'inline-flex min-w-12 justify-end rounded-md bg-bahaya/10 px-2 py-1 font-semibold text-bahaya'
+        : row.stock === 0
+          ? 'inline-flex min-w-12 justify-end rounded-md bg-amber-50 px-2 py-1 font-semibold text-amber-700'
+          : 'inline-flex min-w-12 justify-end rounded-md bg-sukses/10 px-2 py-1 font-semibold text-sukses'
+      }>
+        {formatAngka(row.stock)}
+      </span>
+    ),
   },
   { key: 'need', label: 'Kebutuhan PO', align: 'right', render: (row) => (need(row) > 0 ? formatAngka(need(row)) : '—') },
   { key: 'price', label: 'Harga terakhir', align: 'right', render: (row) => (row.price === null ? '—' : formatRupiah(row.price)) },
@@ -76,12 +85,12 @@ export function StokPage() {
       label: 'Aksi',
       align: 'right',
       render: (row) => (
-        <span className="inline-flex gap-1">
-          <Button variant="outline" size="sm" onClick={() => setDialog({ kind: 'mutasi', item: row })}>
-            Mutasi
+        <span className="inline-flex items-center justify-end gap-1">
+          <Button variant="outline" size="icon-sm" onClick={() => setDialog({ kind: 'mutasi', item: row })} aria-label={`Mutasi stok ${row.name}`} title="Mutasi stok">
+            <ArrowLeftRight />
           </Button>
-          <Button variant="ghost" size="sm" onClick={() => setDialog({ kind: 'ubah', item: row })}>
-            Ubah
+          <Button variant="ghost" size="icon-sm" onClick={() => setDialog({ kind: 'ubah', item: row })} aria-label={`Ubah ${row.name}`} title="Ubah barang">
+            <Pencil />
           </Button>
         </span>
       ),
@@ -106,10 +115,10 @@ export function StokPage() {
     <div className="space-y-3">
       <PageTitle
         icon={Boxes}
-        title="Stok Barang"
-        description="Daftar barang dan jumlah stoknya."
+        title="Produk & Stok"
+        description="Kelola barang, merek, dan jumlah stok."
         actions={
-          <Button onClick={() => setDialog({ kind: 'tambah' })}>
+          <Button onClick={() => setDialog({ kind: 'tambah' })} className="w-full sm:w-auto">
             <Plus />
             Tambah Barang
           </Button>
@@ -118,7 +127,7 @@ export function StokPage() {
 
       {error ? <ErrorNotice error={error} onRetry={reload} /> : null}
 
-      <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
         <StatCard label="Total Barang" icon={Package} value={waiting ? '…' : data ? formatAngka(items.length) : undefined} hint="Barang terdaftar" />
         <StatCard label="Total Stok" icon={Boxes} value={waiting ? '…' : data ? formatAngka(totalStock) : undefined} hint="Unit, tanpa stok minus" />
         <StatCard
@@ -131,32 +140,32 @@ export function StokPage() {
         <StatCard label="Kebutuhan PO" icon={ShoppingCart} value={waiting ? '…' : data ? formatAngka(poTotal) : undefined} hint="Unit untuk menutup stok minus" />
       </div>
 
-      <Card>
+      <Card className="min-w-0">
         <CardHeader
-          title="Tabel Stok"
-          description={data ? `${formatAngka(filtered.length)} dari ${formatAngka(items.length)} barang.` : undefined}
+          title="Daftar Produk"
+          description={data ? `${formatAngka(filtered.length)} dari ${formatAngka(items.length)} barang.` : 'Cari barang dan kelola stok.'}
           action={
-            <span className="inline-flex flex-wrap justify-end gap-2">
-              <Button variant="outline" size="sm" onClick={() => runRecap('xlsx')} disabled={recapPending} title="Rekap stok harian, 30 hari terakhir">
+            <span className="flex w-full flex-wrap gap-2 sm:w-auto sm:justify-end">
+              <Button variant="outline" size="sm" className="flex-1 sm:flex-none" onClick={() => runRecap('xlsx')} disabled={recapPending} title="Rekap stok harian, 30 hari terakhir">
                 <Download />
-                Rekap Excel
+                Excel
               </Button>
-              <Button variant="outline" size="sm" onClick={() => runRecap('pdf')} disabled={recapPending} title="Rekap stok harian, 30 hari terakhir">
+              <Button variant="outline" size="sm" className="flex-1 sm:flex-none" onClick={() => runRecap('pdf')} disabled={recapPending} title="Rekap stok harian, 30 hari terakhir">
                 <FileText />
-                Rekap PDF
+                PDF
               </Button>
             </span>
           }
         />
-        <div className="filter-bar">
-          <div className="filter-grow relative">
+        <div className="filter-bar grid grid-cols-1 gap-2 sm:flex">
+          <div className="relative min-w-0 sm:flex-1">
             <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-tinta-redup" aria-hidden="true" />
-            <Input type="search" aria-label="Cari barang" placeholder="Cari nama barang" className="pl-9" value={query} onChange={(event) => setQuery(event.target.value)} />
+            <Input type="search" aria-label="Cari barang" placeholder="Cari nama barang…" className="h-11 pl-9" value={query} onChange={(event) => setQuery(event.target.value)} />
           </div>
-          <Select aria-label="Filter brand" value={brand} onValueChange={setBrand} options={brandOptions} />
+          <Select aria-label="Filter brand" value={brand} onValueChange={setBrand} options={brandOptions} className="h-11 w-full sm:w-52" />
         </div>
         <DataTable
-          caption="Tabel stok barang"
+          caption="Daftar produk dan stok"
           columns={columns}
           rows={pageRows}
           empty={{
