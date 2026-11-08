@@ -21,6 +21,15 @@ export async function loadRecap() {
 const fileBase = (label) => `Rekap-Stok-${label.replace(/[^A-Za-z0-9]+/g, '-')}`
 const countText = (count) => `JUMLAH BARANG: ${formatAngka(count)}`
 
+// Hilangkan awalan brand dari nama barang khusus pada file rekap.
+const recapItemName = (name, brand) => {
+  const value = String(name ?? '')
+  const prefix = String(brand ?? '').trim()
+  if (!prefix || value.slice(0, prefix.length).toLowerCase() !== prefix.toLowerCase()) return value
+  const rest = value.slice(prefix.length)
+  return /^[\\s\\-:|]/.test(rest) ? rest.replace(/^[\\s\\-:|]+/, '') : value
+}
+
 export function exportRecapExcel({ dates, groups, count, label }) {
   const columns = dates.length + 1
   const BORDER = true
@@ -33,7 +42,7 @@ export function exportRecapExcel({ dates, groups, count, label }) {
     rows.push({ height: 16, cells: [{ v: group.brand.toUpperCase(), s: brandStyle }, ...blank(columns - 1, brandStyle)] })
     merges.push(`A${rows.length}:${colRef(columns - 1)}${rows.length}`)
     for (const row of group.rows) {
-      const cells = [{ v: row.name, s: { border: BORDER, h: 'left' } }]
+      const cells = [{ v: recapItemName(row.name, group.brand), s: { border: BORDER, h: 'left' } }]
       for (const cell of row.cells) {
         const d = cellDisplay(cell)
         const base = { border: BORDER, h: 'center', ...(d.black ? { fill: '000000', b: true, color: 'FFFFFF' } : {}) }
@@ -70,7 +79,7 @@ export function exportRecapPdf({ dates, groups, count, label }) {
     dayLabels: dates.map(dayLabel),
     groups: groups.map((group) => ({
       brand: group.brand,
-      rows: group.rows.map((row) => ({ name: row.name, cells: row.cells.map(cellDisplay) })),
+      rows: group.rows.map((row) => ({ name: recapItemName(row.name, group.brand), cells: row.cells.map(cellDisplay) })),
     })),
     countText: countText(count),
     legend: RECAP_LEGEND,
