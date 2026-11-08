@@ -7,7 +7,7 @@ import { EmptyState } from '@/components/ui/empty-state'
  * - sempit (HP, atau kolom kecil di sebelah formulir): tiap baris jadi kartu bertumpuk,
  *   satu pasang "label: isi" per baris.
  * - lebar: tabel biasa.
- * columns: [{ key, label, align?: 'right', render?: (row) => node }]
+ * columns: [{ key, label, align?: 'right', className?: string (untuk kolom tabel), render?: (row) => node }]
  */
 export function DataTable({ columns, rows, empty, caption, tableOnMobile = false, tableClassName = '' }) {
   return (
@@ -24,6 +24,7 @@ export function DataTable({ columns, rows, empty, caption, tableOnMobile = false
                 className={cn(
                   'px-4 py-1.5 text-left text-xs font-medium',
                   column.align === 'right' && 'text-right',
+                  column.className,
                 )}
               >
                 {column.label}
@@ -40,6 +41,7 @@ export function DataTable({ columns, rows, empty, caption, tableOnMobile = false
                   className={cn(
                     'px-4 py-1 leading-snug break-words',
                     column.align === 'right' && 'text-right tabular-nums',
+                    column.className,
                   )}
                 >
                   {column.render ? column.render(row) : row[column.key]}

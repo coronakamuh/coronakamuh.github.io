@@ -115,7 +115,15 @@
 .sales-filter-bar .sales-month-filter { flex: 1 1 8rem; min-width: 8rem; }
 .sales-filter-bar .sales-brand-filter { flex: 1 1 7.5rem; min-width: 7.5rem; }
 
-/* History Penjualan: kolom data dibuat auto-width agar muat di layar HP. */
+/* Kotak pencarian barang: satu baris sendiri di HP, ikut memanjang di layar lebar. */
+.sales-filter-bar .sales-search { flex: 1 1 100%; }
+@media (min-width: 40rem) {
+  .sales-filter-bar .sales-search { flex: 1 1 12rem; }
+}
+
+/* History Penjualan: lebar kolom tetap agar muat di layar HP.
+   Urutan kolom: 1 Tgl, 2 Barang, 3 Jml, 4 Harga, 5 Total, 6 Sisa, 7 Aksi.
+   Kolom 4 dan 6 hanya tampil mulai layar sm (di HP sisa stok ada di bawah nama barang). */
 .sales-history-table {
   width: 100%;
   table-layout: fixed;
@@ -125,13 +133,14 @@
   padding-left: 0.35rem;
   padding-right: 0.35rem;
 }
-.sales-history-table th:nth-child(1),
-.sales-history-table td:nth-child(1) { width: 3.25rem; }
-.sales-history-table th:nth-child(3),
-.sales-history-table td:nth-child(3) { width: 2.75rem; }
-.sales-history-table th:nth-child(4),
-.sales-history-table td:nth-child(4) { width: 2.75rem; }
-.sales-history-table th:nth-child(5),
-.sales-history-table td:nth-child(5) { width: 2.75rem; }
+.sales-history-table :is(th, td):nth-child(1) { width: 3.25rem; }
+.sales-history-table :is(th, td):nth-child(3) { width: 2.5rem; }
+.sales-history-table :is(th, td):nth-child(4) { width: 6.5rem; }
+.sales-history-table :is(th, td):nth-child(5) { width: 5rem; }
+.sales-history-table :is(th, td):nth-child(6) { width: 3.5rem; }
+.sales-history-table :is(th, td):nth-child(7) { width: 2.75rem; }
 .sales-history-table td:nth-child(2) { overflow-wrap: anywhere; }
-.sales-history-table td:nth-child(5) button { padding-left: 0.2rem; padding-right: 0.2rem; }
+.sales-history-table td:nth-child(7) button { padding-left: 0.2rem; padding-right: 0.2rem; }
+@media (min-width: 40rem) {
+  .sales-history-table :is(th, td):nth-child(5) { width: 7.5rem; }
+}

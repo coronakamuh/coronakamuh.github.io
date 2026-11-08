@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
-import { Download, FileText, Pencil, Receipt } from 'lucide-react'
+import { Download, FileText, Pencil, Receipt, Search, ShoppingCart, TrendingUp } from 'lucide-react'
 import { toast } from 'sonner'
-import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/data-table'
+import { Input } from '@/components/ui/field'
 import { NamaBarang } from '@/components/ui/nama-barang'
 import { ErrorNotice } from '@/components/ui/notice'
 import { Pager } from '@/components/ui/pager'
@@ -12,11 +12,12 @@ import { Select } from '@/components/ui/select'
 import { EditPenjualanDialog } from '@/features/penjualan/edit-penjualan-dialog'
 import { PenjualanForm } from '@/features/penjualan/penjualan-form'
 import { useAsync } from '@/hooks/use-async'
-import { formatAngka } from '@/lib/format'
+import { cn } from '@/lib/cn'
+import { formatAngka, formatRupiah } from '@/lib/format'
 import { addDaysISO, monthNames, monthRange, todayISO } from '@/lib/date'
 import { usePageSize } from '@/lib/preferences'
 import { exportSalesExcel, exportSalesPdf } from '@/features/penjualan/export-penjualan'
-import { getSalesExport, getSalesPage, getSalesStartMonth, getStockData } from '@/services/queries'
+import { getSalesExport, getSalesPage, getSalesStartMonth, getSalesSummary, getStockData } from '@/services/queries'
 
 const DEFAULT_PAGE_SIZE = 20
 
@@ -45,19 +46,31 @@ export function PenjualanPage() {
   const currentMonth = todayISO().slice(0, 7)
   const [selectedMonth, setSelectedMonth] = useState(() => todayISO().slice(0, 7))
   const [brand, setBrand] = useState('')
+  // Pencarian nama barang: `query` mengikuti ketikan, `search` dipakai untuk mengambil data (jeda 0,3 detik).
+  const [query, setQuery] = useState('')
+  const [search, setSearch] = useState('')
+  useEffect(() => {
+    const timer = setTimeout(() => setSearch(query.trim()), 300)
+    return () => clearTimeout(timer)
+  }, [query])
+
   const salesStart = useAsync(getSalesStartMonth, [])
   const { start: from, next } = monthRange(`${selectedMonth}-01`)
   const to = addDaysISO(next, -1)
   const filter = { from, to, brand }
-  const sales = useAsync(() => getSalesPage({ page, pageSize: PAGE_SIZE, ...filter }), [page, filter.from, filter.to, filter.brand, PAGE_SIZE])
-  useEffect(() => setPage(1), [selectedMonth, brand, PAGE_SIZE])
+  const sales = useAsync(
+    () => getSalesPage({ page, pageSize: PAGE_SIZE, ...filter, q: search }),
+    [page, filter.from, filter.to, filter.brand, search, PAGE_SIZE],
+  )
+  useEffect(() => setPage(1), [selectedMonth, brand, search, PAGE_SIZE])
+  const todaySummary = useAsync(() => getSalesSummary({ from: todayISO(), to: todayISO() }), [])
 
   const [exporting, setExporting] = useState('')
   async function handleExport(kind) {
     if (exporting) return
     setExporting(kind)
     try {
-      const rows = await getSalesExport(filter) // semua halaman sesuai filter yang sedang dipakai
+      const rows = await getSalesExport(filter) // semua halaman sesuai bulan dan brand yang sedang dipakai
       if (rows.length === 0) toast.info('Tidak ada penjualan untuk diekspor')
       else if (kind === 'xlsx') exportSalesExcel(rows, filter)
       else exportSalesPdf(rows, filter)
@@ -73,11 +86,39 @@ export function PenjualanPage() {
 
   const brandOptions = [{ value: '', label: 'Semua brand' }, ...(stock.data?.brands ?? []).map((entry) => ({ value: entry.name, label: entry.name }))]
 
+  // Di HP: Tgl, Barang (dengan sisa stok di bawah nama), Jml, Total, Aksi. Harga dan Sisa menjadi kolom sendiri di layar lebih lebar.
   const columns = [
     { key: 'date', label: 'Tgl', render: (row) => <span className="whitespace-nowrap">{row.date.slice(8, 10)}/{row.date.slice(5, 7)}</span> },
-    { key: 'item', label: 'Barang', render: (row) => <NamaBarang name={row.item} /> },
-    { key: 'qty', label: 'Qty', align: 'right', render: (row) => formatAngka(row.qty) },
-    { key: 'stock', label: 'Sisa', align: 'right', render: (row) => formatAngka(row.stock) },
+    {
+      key: 'item',
+      label: 'Barang',
+      render: (row) => (
+        <>
+          <NamaBarang name={row.item} />
+          <span className={cn('mt-0.5 block text-xs sm:hidden', row.stock < 0 ? 'text-bahaya' : 'text-tinta-redup')}>sisa {formatAngka(row.stock)}</span>
+        </>
+      ),
+    },
+    { key: 'qty', label: 'Jml', align: 'right', render: (row) => formatAngka(row.qty) },
+    { key: 'price', label: 'Harga', align: 'right', className: 'hidden sm:table-cell', render: (row) => formatRupiah(row.price) },
+    {
+      key: 'total',
+      label: 'Total',
+      align: 'right',
+      render: (row) => (
+        <span className="font-medium">
+          <span className="sm:hidden">{formatAngka(row.total)}</span>
+          <span className="hidden sm:inline">{formatRupiah(row.total)}</span>
+        </span>
+      ),
+    },
+    {
+      key: 'stock',
+      label: 'Sisa',
+      align: 'right',
+      className: 'hidden sm:table-cell',
+      render: (row) => <span className={row.stock < 0 ? 'text-bahaya' : undefined}>{formatAngka(row.stock)}</span>,
+    },
     {
       key: 'actions',
       label: 'Aksi',
@@ -93,82 +134,116 @@ export function PenjualanPage() {
   function refresh() {
     sales.reload()
     stock.reload()
+    todaySummary.reload()
   }
 
+  const todayText = todaySummary.error ? '—' : todaySummary.data ? formatRupiah(todaySummary.data.revenue) : '…'
+  const emptyDescription = search ? 'Tidak ada barang yang cocok dengan pencarian pada bulan dan brand yang dipilih.' : 'Belum ada penjualan pada bulan dan brand yang dipilih.'
+
   return (
-    <>
-      <PageHeader title="Penjualan" description="Catat penjualan dan lihat transaksi terbaru." />
-
-      <div className="grid gap-6 2xl:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] 2xl:items-start">
-        <Card className="max-w-xl 2xl:max-w-none">
-          <CardHeader
-            title="Catat Penjualan"
-            description="Penjualan otomatis mengurangi stok. Stok yang kurang dicatat sebagai pre-order (minus)."
-          />
-          {stock.error ? (
-            <div className="px-4 pb-4 sm:px-5">
-              <ErrorNotice error={stock.error} onRetry={refresh} />
-            </div>
-          ) : (
-            <PenjualanForm items={items} onSaved={refresh} />
-          )}
-        </Card>
-
-        <Card>
-          <CardHeader
-            title="Penjualan Terbaru"
-            action={
-              <span className="inline-flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => handleExport('xlsx')} disabled={Boolean(exporting) || sales.data?.total === 0}>
-                  <Download />
-                  {exporting === 'xlsx' ? 'Menyiapkan…' : 'Excel'}
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => handleExport('pdf')} disabled={Boolean(exporting) || sales.data?.total === 0}>
-                  <FileText />
-                  {exporting === 'pdf' ? 'Menyiapkan…' : 'PDF'}
-                </Button>
-              </span>
-            }
-          />
-          <div className="filter-bar sales-filter-bar">
-            <Select
-              id="filter-bulan"
-              aria-label="Filter bulan dan tahun"
-              value={selectedMonth}
-              onValueChange={setSelectedMonth}
-              options={buildMonthOptions(salesStart.data, currentMonth)}
-              className="sales-month-filter"
-              disabled={salesStart.loading}
-            />
-            <Select id="filter-brand" aria-label="Filter brand" value={brand} onValueChange={setBrand} options={brandOptions} className="sales-brand-filter" />
+    <div className="space-y-3">
+      {/* Judul + ringkasan hari ini */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-pena/10 text-pena">
+            <ShoppingCart className="size-5" aria-hidden="true" />
+          </span>
+          <div className="min-w-0">
+            <h1 className="text-lg leading-tight font-semibold tracking-tight">Penjualan</h1>
+            <p className="text-xs text-tinta-redup">Catat penjualan, stok otomatis berkurang</p>
           </div>
-          {salesStart.error ? (
-            <div className="px-4 pb-3 sm:px-5">
-              <ErrorNotice error={salesStart.error} onRetry={salesStart.reload} />
-            </div>
-          ) : null}
-          {sales.error ? (
-            <div className="px-4 pb-4 sm:px-5">
-              <ErrorNotice error={sales.error} onRetry={refresh} />
-            </div>
-          ) : null}
-          <DataTable
-            caption="Penjualan terbaru"
-            columns={columns}
-            rows={sales.data ? sales.data.rows : []}
-            tableOnMobile
-            tableClassName="sales-history-table"
-            empty={{
-              icon: Receipt,
-              title: waiting ? 'Memuat data' : 'Tidak ada penjualan',
-              description: waiting ? '' : 'Belum ada penjualan pada bulan dan brand yang dipilih.',
-            }}
-          />
-          <Pager page={page} pageSize={PAGE_SIZE} total={sales.data?.total ?? 0} onPageChange={setPage} />
-        </Card>
+        </div>
+        <div className="flex shrink-0 items-center gap-2 rounded-lg border border-garis bg-lembar px-3 py-1.5">
+          <TrendingUp className="size-4 text-pena" aria-hidden="true" />
+          <div className="leading-tight">
+            <div className="text-[11px] text-tinta-redup">Hari ini</div>
+            <div className="text-sm font-semibold tabular-nums" aria-live="polite">{todayText}</div>
+          </div>
+        </div>
       </div>
 
+      {/* Form ringkas */}
+      <Card className="p-3">
+        {stock.error ? (
+          <ErrorNotice error={stock.error} onRetry={refresh} />
+        ) : (
+          <PenjualanForm items={items} onSaved={refresh} />
+        )}
+      </Card>
+
+      {/* Transaksi terbaru */}
+      <Card>
+        <CardHeader
+          title={
+            <span className="inline-flex items-center gap-1.5">
+              <Receipt className="size-4 text-tinta-redup" aria-hidden="true" />
+              Transaksi terbaru
+            </span>
+          }
+          action={
+            <span className="inline-flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => handleExport('xlsx')} disabled={Boolean(exporting) || sales.data?.total === 0}>
+                <Download />
+                {exporting === 'xlsx' ? 'Menyiapkan…' : 'Excel'}
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => handleExport('pdf')} disabled={Boolean(exporting) || sales.data?.total === 0}>
+                <FileText />
+                {exporting === 'pdf' ? 'Menyiapkan…' : 'PDF'}
+              </Button>
+            </span>
+          }
+        />
+        <div className="filter-bar sales-filter-bar">
+          <div className="filter-grow sales-search relative">
+            <Search className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-tinta-redup" aria-hidden="true" />
+            <Input
+              id="cari-penjualan"
+              type="text"
+              autoComplete="off"
+              aria-label="Cari barang"
+              placeholder="Cari barang…"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              className="pl-8"
+            />
+          </div>
+          <Select
+            id="filter-bulan"
+            aria-label="Filter bulan dan tahun"
+            value={selectedMonth}
+            onValueChange={setSelectedMonth}
+            options={buildMonthOptions(salesStart.data, currentMonth)}
+            className="sales-month-filter"
+            disabled={salesStart.loading}
+          />
+          <Select id="filter-brand" aria-label="Filter brand" value={brand} onValueChange={setBrand} options={brandOptions} className="sales-brand-filter" />
+        </div>
+        {salesStart.error ? (
+          <div className="px-4 pb-3 sm:px-5">
+            <ErrorNotice error={salesStart.error} onRetry={salesStart.reload} />
+          </div>
+        ) : null}
+        {sales.error ? (
+          <div className="px-4 pb-4 sm:px-5">
+            <ErrorNotice error={sales.error} onRetry={refresh} />
+          </div>
+        ) : null}
+        <DataTable
+          caption="Transaksi terbaru"
+          columns={columns}
+          rows={sales.data ? sales.data.rows : []}
+          tableOnMobile
+          tableClassName="sales-history-table"
+          empty={{
+            icon: Receipt,
+            title: waiting ? 'Memuat data' : 'Belum ada transaksi',
+            description: waiting ? '' : emptyDescription,
+          }}
+        />
+        <Pager page={page} pageSize={PAGE_SIZE} total={sales.data?.total ?? 0} onPageChange={setPage} />
+      </Card>
+
       <EditPenjualanDialog sale={editing} items={items} onOpenChange={(open) => !open && setEditing(null)} onDone={refresh} />
-    </>
+    </div>
   )
 }

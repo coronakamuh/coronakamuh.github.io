@@ -189,12 +189,18 @@ function filterSales(query, { from, to, brand }) {
   return next
 }
 
-export async function getSalesPage({ page, pageSize, from, to, brand }) {
+/** `q`: cari nama barang (tidak peduli huruf besar/kecil). Karakter khusus LIKE (% _ \) dianggap huruf biasa. */
+export async function getSalesPage({ page, pageSize, from, to, brand, q }) {
   const start = (page - 1) * pageSize
-  const { data, error, count } = await filterSales(
-    supabase.from('penjualan').select('id, tanggal_pembelian, brand, qty, harga, barang_id, barang(nama)', { count: 'exact' }),
+  const search = (q ?? '').trim()
+  let query = filterSales(
+    supabase
+      .from('penjualan')
+      .select(`id, tanggal_pembelian, brand, qty, harga, barang_id, ${search ? 'barang!inner(nama)' : 'barang(nama)'}`, { count: 'exact' }),
     { from, to, brand },
   )
+  if (search) query = query.ilike('barang.nama', `%${search.replace(/[\\%_]/g, '\\$&')}%`)
+  const { data, error, count } = await query
     .order('tanggal_pembelian', { ascending: false })
     .order('id', { ascending: false })
     .range(start, start + pageSize - 1)

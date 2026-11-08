@@ -1,12 +1,31 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Calendar, Hash, Package, Tag } from 'lucide-react'
 import { DatePicker } from '@/components/ui/date-picker'
 import { Field, Input } from '@/components/ui/field'
+import { cn } from '@/lib/cn'
 import { formatAngka, formatRupiah } from '@/lib/format'
 import { todayISO } from '@/lib/date'
 import { parseWhole } from '@/lib/validation'
 
-/** Isian yang sama untuk catat dan ubah penjualan. value: { barangId, qty, harga, tanggal } (teks). */
-export function PenjualanFields({ idPrefix, items, value, onChange, disabled }) {
+/** Label kecil beserta ikon, untuk tampilan ringkas. */
+function CompactField({ icon: Icon, label, htmlFor, className, children }) {
+  return (
+    <div className={cn('flex min-w-0 flex-col gap-1', className)}>
+      <label htmlFor={htmlFor} className="flex items-center gap-1 text-xs font-medium text-tinta-redup">
+        <Icon className="size-3.5" aria-hidden="true" />
+        {label}
+      </label>
+      {children}
+    </div>
+  )
+}
+
+/**
+ * Isian yang sama untuk catat dan ubah penjualan. value: { barangId, qty, harga, tanggal } (teks).
+ * compact: tata letak satu kartu yang ringkas (dipakai di halaman Penjualan). `children` ditaruh
+ * di akhir grid ringkas (subtotal dan tombol simpan). Tanpa compact: tumpuk satu kolom (dipakai di dialog ubah).
+ */
+export function PenjualanFields({ idPrefix, items, value, onChange, disabled, compact = false, children }) {
   const options = useMemo(
     () => items.map((item) => ({ value: String(item.id), label: item.name, hint: `${item.brand} · stok ${formatAngka(item.stock)}` })),
     [items],
@@ -29,32 +48,72 @@ export function PenjualanFields({ idPrefix, items, value, onChange, disabled }) 
     onChange({ ...value, barangId: next, harga: item?.price != null ? String(item.price) : value.harga })
   }
 
+  const tanggalControl = (
+    <DatePicker id={`${idPrefix}-tanggal`} value={value.tanggal} onChange={(tanggal) => onChange({ ...value, tanggal })} max={todayISO()} disabled={disabled} />
+  )
+
+  const barangControl = (
+    <div className="relative">
+      <Input id={`${idPrefix}-barang`} type="text" autoComplete="off" placeholder="Ketik nama barang…" value={barangQuery}
+        onChange={(event) => { setBarangQuery(event.target.value); if (value.barangId) onChange({ ...value, barangId: '' }) }}
+        disabled={disabled} role="combobox" aria-autocomplete="list" aria-expanded={matches.length > 0} aria-controls={`${idPrefix}-barang-list`} />
+      {matches.length > 0 ? (
+        <ul id={`${idPrefix}-barang-list`} role="listbox" className="absolute z-50 mt-1 max-h-52 w-full overflow-y-auto rounded-md border border-garis bg-lembar p-1 shadow-lg">
+          {matches.map((option) => (
+            <li key={option.value} role="option" aria-selected={false}>
+              <button type="button" className="flex w-full items-center justify-between gap-3 rounded-sm px-3 py-2 text-left text-sm hover:bg-garis-halus" onClick={() => pickItem(option.value)}>
+                <span className="min-w-0 truncate">{option.label}</span><span className="shrink-0 text-xs text-tinta-redup">{option.hint}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
+  )
+
+  const qtyControl = (
+    <Input id={`${idPrefix}-qty`} inputMode="numeric" placeholder="0" value={value.qty} onChange={(event) => onChange({ ...value, qty: event.target.value })} disabled={disabled} />
+  )
+
+  if (compact) {
+    // Lebar ditentukan oleh lebar kartunya (container query), bukan lebar layar: aman bila ada sidebar.
+    return (
+      <div className="@container">
+        <div className="grid grid-cols-2 gap-x-3 gap-y-2.5 @xl:grid-cols-12 [&_button[id]]:h-9 [&_input]:h-9">
+          <CompactField icon={Calendar} label="Tanggal" htmlFor={`${idPrefix}-tanggal`} className="col-span-2 @xl:col-span-3">
+            {tanggalControl}
+          </CompactField>
+          <CompactField icon={Package} label="Barang" htmlFor={`${idPrefix}-barang`} className="col-span-2 @xl:col-span-9">
+            {barangControl}
+          </CompactField>
+          <CompactField icon={Hash} label="Jumlah" htmlFor={`${idPrefix}-qty`} className="@xl:col-span-3">
+            {qtyControl}
+          </CompactField>
+          <CompactField icon={Tag} label="Harga satuan" htmlFor={`${idPrefix}-harga`} className="@xl:col-span-4">
+            <div className="relative">
+              <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-xs text-tinta-redup" aria-hidden="true">
+                Rp
+              </span>
+              <Input id={`${idPrefix}-harga`} inputMode="numeric" placeholder="0" value={value.harga} onChange={(event) => onChange({ ...value, harga: event.target.value })} disabled={disabled} className="pl-9" />
+            </div>
+          </CompactField>
+          {children}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <>
       <Field label="Tanggal" htmlFor={`${idPrefix}-tanggal`}>
-        <DatePicker id={`${idPrefix}-tanggal`} value={value.tanggal} onChange={(tanggal) => onChange({ ...value, tanggal })} max={todayISO()} disabled={disabled} />
+        {tanggalControl}
       </Field>
       <Field label="Barang" htmlFor={`${idPrefix}-barang`}>
-        <div className="relative">
-          <Input id={`${idPrefix}-barang`} type="text" autoComplete="off" placeholder="Ketik nama barang…" value={barangQuery}
-            onChange={(event) => { setBarangQuery(event.target.value); if (value.barangId) onChange({ ...value, barangId: '' }) }}
-            disabled={disabled} role="combobox" aria-autocomplete="list" aria-expanded={matches.length > 0} aria-controls={`${idPrefix}-barang-list`} />
-          {matches.length > 0 ? (
-            <ul id={`${idPrefix}-barang-list`} role="listbox" className="absolute z-50 mt-1 max-h-52 w-full overflow-y-auto rounded-md border border-garis bg-lembar p-1 shadow-lg">
-              {matches.map((option) => (
-                <li key={option.value} role="option" aria-selected={false}>
-                  <button type="button" className="flex w-full items-center justify-between gap-3 rounded-sm px-3 py-2 text-left text-sm hover:bg-garis-halus" onClick={() => pickItem(option.value)}>
-                    <span className="min-w-0 truncate">{option.label}</span><span className="shrink-0 text-xs text-tinta-redup">{option.hint}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </div>
+        {barangControl}
       </Field>
       <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3">
         <Field label="Jumlah" htmlFor={`${idPrefix}-qty`}>
-          <Input id={`${idPrefix}-qty`} inputMode="numeric" placeholder="0" value={value.qty} onChange={(event) => onChange({ ...value, qty: event.target.value })} disabled={disabled} />
+          {qtyControl}
         </Field>
         <Field label="Harga satuan" htmlFor={`${idPrefix}-harga`}>
           <Input id={`${idPrefix}-harga`} inputMode="numeric" placeholder="0" value={value.harga} onChange={(event) => onChange({ ...value, harga: event.target.value })} disabled={disabled} />
