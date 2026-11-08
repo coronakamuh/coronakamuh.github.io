@@ -26,10 +26,11 @@ export function AppShell({ route, children }) {
       </aside>
 
       <div className="flex min-h-svh min-w-0 flex-col">
-        <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-2.5 border-b border-garis bg-lembar/95 px-3 backdrop-blur-sm sm:px-5 lg:hidden">
+        <header className="sticky top-0 z-30 flex h-[4.5rem] shrink-0 items-center gap-2.5 border-b border-garis bg-lembar/95 px-3 backdrop-blur-sm sm:px-5 lg:hidden">
           <LogoMark className="size-6 shrink-0 text-pena" />
-          <span className="min-w-0 truncate text-sm font-semibold tracking-tight text-tinta">
-            {site.name}
+          <span className="min-w-0">
+            <span className="block truncate text-sm font-semibold tracking-tight text-tinta">{site.name}</span>
+            <span className="mt-0.5 block truncate text-[9px] font-medium uppercase tracking-[0.08em] text-tinta-redup">Smart Stock &amp; Sales Management</span>
           </span>
           <Button
             variant="ghost"
