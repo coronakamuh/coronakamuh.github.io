@@ -167,6 +167,13 @@ const rgb = (hex) => {
 }
 const COLOR = { head: '800020', brand: 'F4E5EA', sub: 'FAF2F5', grand: 'E9CBD5', text: '35262C', line: 'DFC5CE' }
 
+/** Potong teks tepat sesuai lebar sel, tanpa menambahkan tanda titik. */
+const fitCellText = (value, maxWidth, size) => {
+  let output = String(value ?? '')
+  while (output.length > 0 && textWidth(output, size) > maxWidth) output = output.slice(0, -1)
+  return output.trimEnd()
+}
+
 /**
  * Laporan PDF A4 tegak. groups: [{ brand, days: [{ label, dailyTotal, items: [{ name, qty, priceText, totalText }] }], subtotalText }]
  */
@@ -236,7 +243,7 @@ export function buildReportPdf({ title, subtitle, groups, grandTotalText, dailyT
         y += ROW
       }
       subtotal += day.total
-      const heights = day.items.map((item) => Math.max(ROW, wrapText(item.name, colWidths[1] - PAD * 2, FONT, 2).length * LEAD + PAD * 2))
+      const heights = day.items.map(() => ROW)
       const dayHeight = heights.reduce((sum, h) => sum + h, 0)
       const dailyTotalWidth = colWidths[5]
       const dailyTotalX = x0 + colWidths.slice(0, 5).reduce((sum, width) => sum + width, 0)
@@ -259,7 +266,7 @@ export function buildReportPdf({ title, subtitle, groups, grandTotalText, dailyT
         values.forEach((value, index) => {
           const c = index + 1
           rect(ops, x, yy, colWidths[c], h)
-          const lines = c === 1 ? wrapText(value, colWidths[c] - PAD * 2, FONT, 2) : [value]
+          const lines = c === 1 ? [fitCellText(value, colWidths[c] - PAD * 2, FONT)] : [value]
           lines.forEach((line, li) => {
             const tw = textWidth(line, FONT)
             const tx = c === 2 ? x + (colWidths[c] - tw) / 2 : c >= 3 ? x + colWidths[c] - PAD - tw : x + PAD
