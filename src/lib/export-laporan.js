@@ -281,19 +281,31 @@ export function buildReportPdf({ title, subtitle, groups, grandTotalText, dailyT
     if (brand) {
       rect(ops, x0, y, PANEL, ROW, C.subtotal)
       txt(ops, 'TOTAL ' + brand + '  ' + 'Rp ' + new Intl.NumberFormat('id-ID').format(subtotal), x0 + PAD, y + ROW / 2 + 2.5, 7, true)
+      y += ROW
     }
+    return y
   }
   const ops = []
   txt(ops, titleText, (W - textWidth(titleText, 9, true)) / 2, 8 * MM, 9, true, '000000')
   const y = 12 * MM
   drawHeader(ops, y, M, widths[0])
   drawHeader(ops, y, M + PANEL + GAP, widths[1])
-  renderPanel(ops, panels[0], M, widths[0], y + HEAD)
-  renderPanel(ops, panels[1], M + PANEL + GAP, widths[1], y + HEAD)
+  const leftBottom = renderPanel(ops, panels[0], M, widths[0], y + HEAD)
+  const rightBottom = renderPanel(ops, panels[1], M + PANEL + GAP, widths[1], y + HEAD)
   const total = grandTotalText
   const totalY = H - M - ROW
   rect(ops, M, totalY, W - M * 2, ROW, C.total)
   txt(ops, 'TOTAL SEMUA: ' + total, M + PAD, totalY + ROW / 2 + 2.5, 8, true)
+
+  // Pertahankan ukuran normal jika muat. Jika isi melewati area satu halaman,
+  // skalakan seluruh hasil (termasuk teks, garis, dan tabel) secara proporsional.
+  const topAnchor = 8 * MM
+  const contentBottom = Math.max(leftBottom, rightBottom)
+  if (contentBottom > totalY) {
+    const scale = (totalY - topAnchor) / (contentBottom - topAnchor)
+    ops.unshift('q', `${scale} 0 0 ${scale} 0 ${H * (1 - scale)} cm`)
+    ops.push('Q')
+  }
   return assemblePdf([ops], { w: W, h: H })
 }
 /**
