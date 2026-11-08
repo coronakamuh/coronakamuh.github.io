@@ -32,3 +32,8 @@ export async function editPenjualan({ id, barangId, brand, qty, harga, tanggal }
   })
   return { id: data.penjualan_id, preorderSetelah: Number(data.preorder_after) }
 }
+
+/** Hapus penjualan beserta transaksi stok terkait dalam satu proses database atomik. */
+export async function hapusPenjualan(id) {
+  return call('hapus_penjualan_atomic', { p_penjualan_id: id })
+}
