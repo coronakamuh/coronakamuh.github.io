@@ -91,23 +91,25 @@ export function PenjualanPage() {
 
   // Di HP: Tgl, Barang (dengan sisa stok di bawah nama), Jml, Total, Aksi. Harga dan Sisa menjadi kolom sendiri di layar lebih lebar.
   const columns = [
-    { key: 'date', label: 'Tgl', render: (row) => <span className="whitespace-nowrap">{row.date.slice(8, 10)}/{row.date.slice(5, 7)}</span> },
+    { key: 'date', label: 'Tgl', className: 'w-[9%] whitespace-nowrap', render: (row) => <span className="whitespace-nowrap">{row.date.slice(8, 10)}/{row.date.slice(5, 7)}</span> },
     {
       key: 'item',
       label: 'Barang',
+      className: 'w-[32%] min-w-0',
       render: (row) => (
         <>
-          <NamaBarang name={row.item} />
+          <span className="block min-w-0 overflow-hidden text-ellipsis whitespace-nowrap" title={row.item}><NamaBarang name={row.item} /></span>
           <span className={cn('mt-0.5 block text-xs sm:hidden', row.stock < 0 ? 'text-bahaya' : 'text-tinta-redup')}>sisa {formatAngka(row.stock)}</span>
         </>
       ),
     },
-    { key: 'qty', label: 'Jml', align: 'right', render: (row) => formatAngka(row.qty) },
-    { key: 'price', label: 'Harga', align: 'right', className: 'hidden sm:table-cell', render: (row) => formatRupiah(row.price) },
+    { key: 'qty', label: 'Jml', align: 'right', className: 'w-[7%] whitespace-nowrap', render: (row) => formatAngka(row.qty) },
+    { key: 'price', label: 'Harga', align: 'right', className: 'w-[16%] whitespace-nowrap hidden sm:table-cell', render: (row) => formatRupiah(row.price) },
     {
       key: 'total',
       label: 'Total',
       align: 'right',
+      className: 'w-[18%] whitespace-nowrap',
       render: (row) => (
         <span className="font-semibold tabular-nums">{formatRupiah(row.total)}</span>
       ),
@@ -116,13 +118,14 @@ export function PenjualanPage() {
       key: 'stock',
       label: 'Sisa',
       align: 'right',
-      className: 'hidden sm:table-cell',
+      className: 'w-[8%] whitespace-nowrap hidden sm:table-cell',
       render: (row) => <span className={row.stock < 0 ? 'text-bahaya' : undefined}>{formatAngka(row.stock)}</span>,
     },
     {
       key: 'actions',
       label: 'Aksi',
       align: 'right',
+      className: 'w-[10%] whitespace-nowrap',
       render: (row) => (
         <Button variant="ghost" size="sm" onClick={() => setEditing(row)} disabled={items.length === 0} aria-label="Ubah penjualan" title="Ubah penjualan">
           <Pencil size={15} />
@@ -227,6 +230,7 @@ export function PenjualanPage() {
         ) : null}
         <DataTable
           caption="Transaksi terbaru"
+          tableClassName="text-[13px]"
           columns={columns}
           rows={sales.data ? sales.data.rows : []}
           empty={{
