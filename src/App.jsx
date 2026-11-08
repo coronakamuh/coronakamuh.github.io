@@ -1,16 +1,17 @@
+import { lazy, Suspense } from 'react'
 import { Toaster } from 'sonner'
 import { PreferencesProvider } from '@/lib/preferences'
 import { configProblem } from '@/config/supabase'
 import { AppShell } from '@/components/layout/app-shell'
 import { AuthProvider, useAuth } from '@/lib/auth-context'
 import { useHashRoute } from '@/lib/use-hash-route'
-import { DashboardPage } from '@/pages/dashboard/dashboard-page'
+const DashboardPage = lazy(() => import('@/pages/dashboard/dashboard-page').then((module) => ({ default: module.DashboardPage })))
 import { AccessErrorScreen, ConfigErrorScreen, NotAdminScreen, SplashScreen } from '@/pages/login/access-screens'
 import { LoginPage } from '@/pages/login/login-page'
-import { PenjualanPage } from '@/pages/penjualan/penjualan-page'
-import { PengaturanPage } from '@/pages/pengaturan/pengaturan-page'
-import { RiwayatPage } from '@/pages/riwayat/riwayat-page'
-import { StokPage } from '@/pages/stok/stok-page'
+const PenjualanPage = lazy(() => import('@/pages/penjualan/penjualan-page').then((module) => ({ default: module.PenjualanPage })))
+const PengaturanPage = lazy(() => import('@/pages/pengaturan/pengaturan-page').then((module) => ({ default: module.PengaturanPage })))
+const RiwayatPage = lazy(() => import('@/pages/riwayat/riwayat-page').then((module) => ({ default: module.RiwayatPage })))
+const StokPage = lazy(() => import('@/pages/stok/stok-page').then((module) => ({ default: module.StokPage })))
 
 const pages = {
   dashboard: DashboardPage,
@@ -25,7 +26,9 @@ function AuthenticatedApp() {
   const Page = pages[route]
   return (
     <AppShell route={route}>
-      <Page />
+      <Suspense fallback={<SplashScreen />}>
+        <Page />
+      </Suspense>
     </AppShell>
   )
 }
