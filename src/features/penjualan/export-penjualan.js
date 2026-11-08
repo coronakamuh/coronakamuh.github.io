@@ -81,51 +81,55 @@ export function totals(rows) {
 
 export function exportSalesExcel(rows, filter) {
   const groups = groupSales(rows)
+  const days = groups.flatMap((group) => group.days.map((day) => ({ ...day, brand: group.brand })))
+  const middle = Math.ceil(days.length / 2)
+  const panels = [days.slice(0, middle), days.slice(middle)]
   const LINE = true
-  const head = (c) => ({ b: true, color: 'FFFFFF', fill: '800020', border: LINE, h: c === 3 ? 'center' : c >= 4 ? 'right' : 'left' })
-  const align = (c) => (c === 3 ? 'center' : c >= 4 ? 'right' : 'left')
   const blank = (n, s) => Array.from({ length: n }, () => ({ v: '', s }))
-  const out = [
-    { height: 28, cells: [{ v: '' }, { v: reportTitle(filter), s: { sz: 16, b: true, h: 'left' } }, ...blank(5)] },
-    { height: 19, cells: [{ v: '' }, { v: 'CATATAN PENJUALAN', s: { sz: 10, b: true, h: 'left' } }, ...blank(5)] },
-    { height: 8, cells: blank(7) },
-    { height: 24, cells: ['Tanggal', 'Nama Barang', 'Brand', 'Qty', 'Harga/Unit', 'Total', 'Total Harian'].map((v, c) => ({ v, s: head(c) })) },
-  ]
-  const merges = ['B1:G1', 'B2:G2']
-  const brandStyle = { sz: 9, b: true, fill: 'F4E5EA', border: LINE, h: 'left' }
-  const subStyle = (c) => ({ b: true, fill: 'FAF2F5', border: LINE, h: align(c), rp: c >= 4 })
-  let grand = 0
-  for (const group of groups) {
-    out.push({ height: 22, cells: [{ v: '', s: brandStyle }, { v: group.brand.toUpperCase(), s: brandStyle }, ...blank(5, brandStyle)] })
-    merges.push(`B${out.length}:G${out.length}`)
-    for (const day of group.days) {
-      const first = out.length + 1
-      day.items.forEach((item, n) => {
-        const st = (c) => ({ fill: 'FFFFFF', border: LINE, h: align(c), rp: c >= 4, wrap: c === 1 })
-        out.push({
-          cells: [
-            { v: n === 0 ? dmy(day.date) : '', s: st(0) },
-            { v: item.item, s: st(1) },
-            { v: group.brand, s: st(2) },
-            { v: item.qty, s: st(3) },
-            { v: item.price, s: st(4) },
-            { v: item.total, s: st(5) },
-            { v: n === 0 ? day.total : '', s: st(6) },
-          ],
-        })
+  const header = ['Tgl', 'Nama Barang', 'Qty', 'Harga/Unit', 'Harga Total', 'Total Harian']
+  const buildPanel = (panel) => {
+    const result = [{ cells: header.map((v, c) => ({ v, s: { sz: 8, b: true, color: 'FFFFFF', fill: '800020', border: LINE, h: c === 2 ? 'center' : c >= 3 ? 'right' : 'left' } })) }]
+    let brand = ''
+    let subtotal = 0
+    for (const day of panel) {
+      if (brand !== day.brand) {
+        if (brand) result.push({ cells: [...blank(4), { v: 'TOTAL ' + brand, s: { sz: 8, b: true, fill: 'FAF2F5', border: LINE, h: 'right' } }, { v: subtotal, s: { sz: 8, b: true, fill: 'FAF2F5', border: LINE, h: 'right', rp: true } }] })
+        brand = day.brand
+        subtotal = 0
+        const style = { sz: 8, b: true, fill: 'F4E5EA', border: LINE }
+        result.push({ height: 17, cells: [{ v: brand.toUpperCase(), s: style }, ...blank(5, style)] })
+      }
+      subtotal += day.total
+      day.items.forEach((item, i) => {
+        const style = (c) => ({ sz: 8, border: LINE, h: c === 2 ? 'center' : c >= 3 ? 'right' : 'left', rp: c >= 3, wrap: c === 1 })
+        result.push({ cells: [
+          { v: i === 0 ? dmy(day.date) : '', s: style(0) },
+          { v: item.item, s: style(1) },
+          { v: item.qty, s: style(2) },
+          { v: item.price, s: style(3) },
+          { v: item.total, s: style(4) },
+          { v: i === 0 ? day.total : '', s: style(5) },
+        ] })
       })
-      if (day.items.length > 1) merges.push(`A${first}:A${out.length}`, `G${first}:G${out.length}`)
     }
-    out.push({ cells: [...blank(5, subStyle(0)), { v: `TOTAL ${group.brand}`, s: subStyle(5) }, { v: group.subtotal, s: subStyle(6) }] })
-    grand += group.subtotal
+    if (brand) result.push({ cells: [...blank(4), { v: 'TOTAL ' + brand, s: { sz: 8, b: true, fill: 'FAF2F5', border: LINE, h: 'right' } }, { v: subtotal, s: { sz: 8, b: true, fill: 'FAF2F5', border: LINE, h: 'right', rp: true } }] })
+    return result
   }
-  const grandStyle = (c) => ({ b: true, fill: 'E9CBD5', border: LINE, h: c === 6 ? 'right' : 'right', rp: c === 6 })
-  out.push({ cells: [{ v: 'TOTAL SEMUA', s: grandStyle(0) }, ...blank(4, grandStyle(0)), { v: '', s: grandStyle(5) }, { v: grand, s: grandStyle(6) }] })
-  merges.push(`A${out.length}:F${out.length}`)
-  const bytes = buildReportXlsx({ sheetName: 'Penjualan', widths: [13, 42, 18, 9, 17, 18, 20], rows: out, merges })
-  downloadFile(fileName(filter, 'xlsx'), bytes, XLSX_MIME)
+  const left = buildPanel(panels[0])
+  const right = buildPanel(panels[1])
+  const title = 'PENJUALAN ' + reportTitle(filter)
+  const out = [{ height: 17, cells: [{ v: title, s: { sz: 10, b: true } }, ...blank(12)] }]
+  const max = Math.max(left.length, right.length)
+  for (let i = 0; i < max; i++) out.push({ cells: [...(left[i]?.cells ?? blank(6)), { v: '' }, ...(right[i]?.cells ?? blank(6))] })
+  const total = totals(rows)
+  out.push({ height: 18, cells: [{ v: 'TOTAL SEMUA', s: { sz: 8, b: true, fill: 'E9CBD5', border: LINE } }, { v: total.count + ' transaksi', s: { sz: 8, b: true, fill: 'E9CBD5', border: LINE } }, { v: total.units, s: { sz: 8, b: true, fill: 'E9CBD5', border: LINE } }, ...blank(9), { v: total.revenue, s: { sz: 8, b: true, fill: 'E9CBD5', border: LINE, rp: true } }] })
+  const width = (panel, c) => {
+    const vals = panel.flatMap((d) => d.items.map((item) => [dmy(d.date), item.item, String(item.qty), String(item.price), String(item.total), String(d.total)][c]))
+    return Math.max([8, 30, 7, 13, 13, 13][c], Math.min([12, 38, 10, 18, 19, 19][c], Math.max(header[c].length, ...vals.map((v) => v.length)) + 2))
+  }
+  const widths = [...Array.from({ length: 6 }, (_, i) => width(panels[0], i)), 2, ...Array.from({ length: 6 }, (_, i) => width(panels[1], i))]
+  downloadFile(fileName(filter, 'xlsx'), buildReportXlsx({ sheetName: 'Penjualan', widths, rows: out, pageSetup: { fitToHeight: 0 } }), XLSX_MIME)
 }
-
 export function exportSalesPdf(rows, filter) {
   const groups = groupSales(rows)
   let grand = 0
