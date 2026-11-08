@@ -171,104 +171,110 @@ const COLOR = { head: '800020', brand: 'F4E5EA', sub: 'FAF2F5', grand: 'E9CBD5',
  * Laporan PDF A4 tegak. groups: [{ brand, days: [{ label, dailyTotal, items: [{ name, qty, priceText, totalText }] }], subtotalText }]
  */
 export function buildReportPdf({ title, subtitle, groups, grandTotalText, dailyTotalText }) {
+  const W = 841.89
+  const H = 595.28
+  const MM = 72 / 25.4
+  const M = 5 * MM
+  const GAP = 9
+  const PANEL = (W - M * 2 - GAP) / 2
+  const FONT = 8
+  const LEAD = 9
+  const PAD = 2
+  const HEAD = 7 * MM
+  const ROW = 5 * MM
+  const C = { head: '800020', brand: 'F4E5EA', subtotal: 'FAF2F5', total: 'E9CBD5', text: '35262C', line: 'DFC5CE' }
+  const rgb = (hex) => { const n = parseInt(hex, 16); return ((n >> 16) & 255) / 255 + ' ' + ((n >> 8) & 255) / 255 + ' ' + (n & 255) / 255 }
+  const top = (v) => H - v
+  const txt = (ops, value, x, y, size = FONT, bold = false, color = C.text) => ops.push('BT /' + (bold ? 'F2' : 'F1') + ' ' + size + ' Tf ' + rgb(color) + ' rg ' + x.toFixed(2) + ' ' + top(y).toFixed(2) + ' Td (' + escapePdf(value) + ') Tj ET')
+  const rect = (ops, x, y, w, h, fill) => ops.push((fill ? rgb(fill) + ' rg ' + x.toFixed(2) + ' ' + top(y + h).toFixed(2) + ' ' + w.toFixed(2) + ' ' + h.toFixed(2) + ' re f ' : '') + rgb(C.line) + ' RG 0.35 w ' + x.toFixed(2) + ' ' + top(y + h).toFixed(2) + ' ' + w.toFixed(2) + ' ' + h.toFixed(2) + ' re S')
+  const days = groups.flatMap((g) => g.days.map((d) => ({ ...d, brand: g.brand })))
+  const middle = Math.ceil(days.length / 2)
+  const panels = [days.slice(0, middle), days.slice(middle)]
+  const labels = ['Tgl', 'Nama Barang', 'Qty', 'Harga/Unit', 'Harga Total', 'Total Harian']
+  const widthsFor = (panel) => {
+    const values = [
+      panel.map((d) => d.label),
+      panel.flatMap((d) => d.items.map((i) => i.name)),
+      panel.flatMap((d) => d.items.map((i) => String(i.qty))),
+      panel.flatMap((d) => d.items.map((i) => i.priceText)),
+      panel.flatMap((d) => d.items.map((i) => i.totalText)),
+      panel.map((d) => dailyTotalText(d)),
+    ]
+    const min = [25, 70, 19, 43, 46, 43]
+    const max = [38, 150, 30, 72, 78, 72]
+    const raw = labels.map((label, i) => Math.max(min[i], Math.min(max[i], Math.max(textWidth(label, 7, true), ...values[i].map((v) => textWidth(v, FONT))) + PAD * 2)))
+    const sum = raw.reduce((a, b) => a + b, 0)
+    return raw.map((v) => v * PANEL / sum)
+  }
+  const widths = panels.map(widthsFor)
   const pages = []
-  let ops = []
-  let y = 0 // jarak dari atas halaman (pt)
-
-  const top = (value) => PAGE.h - value
-  const text = (value, x, baseline, { bold = false, color = COLOR.text, size = FONT } = {}) =>
-    `BT /${bold ? 'F2' : 'F1'} ${size} Tf ${rgb(color)} rg ${x.toFixed(2)} ${top(baseline).toFixed(2)} Td (${escapePdf(value)}) Tj ET`
-  const box = (x, yy, w, h, fill) =>
-    `${fill ? `${rgb(fill)} rg ${x.toFixed(2)} ${top(yy + h).toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} re f ` : ''}` +
-    `${rgb(COLOR.line)} RG 0.4 w ${x.toFixed(2)} ${top(yy + h).toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} re S`
-  const colX = (i) => MARGIN + COL_W.slice(0, i).reduce((a, b) => a + b, 0)
-  const spanW = (from, to) => COL_W.slice(from, to + 1).reduce((a, b) => a + b, 0)
-
-  // Teks dalam sel: rata kiri/tengah/kanan, di tengah vertikal.
-  function cellText(lines, x, w, yy, h, align, opts) {
-    const block = lines.length * LEAD
-    let baseline = yy + (h - block) / 2 + LEAD - 1.6
-    for (const line of lines) {
-      const width = textWidth(line, FONT, opts?.bold)
-      const tx = align === 'center' ? x + (w - width) / 2 : align === 'right' ? x + w - PAD - width : x + PAD
-      ops.push(text(line, tx, baseline, opts))
-      baseline += LEAD
-    }
-  }
-  function drawHead() {
-    const labels = ['Tanggal', 'Nama Barang', 'Qty', 'Harga/Unit', 'Total', 'Total Harian']
+  const titleText = 'PENJUALAN ' + title
+  const drawHeader = (ops, y, x0, colWidths) => {
+    let x = x0
     labels.forEach((label, i) => {
-      ops.push(box(colX(i), y, COL_W[i], HEAD_H, COLOR.head))
-      cellText([label], colX(i), COL_W[i], y, HEAD_H, 'center', { bold: true, color: 'FFFFFF' })
+      rect(ops, x, y, colWidths[i], HEAD, C.head)
+      const size = 7
+      txt(ops, label, x + Math.max(PAD, (colWidths[i] - textWidth(label, size, true)) / 2), y + HEAD / 2 + 2.4, size, true, 'FFFFFF')
+      x += colWidths[i]
     })
-    y += HEAD_H
   }
-  function newPage(first) {
-    ops = []
-    pages.push(ops)
-    y = MARGIN
-    if (first) {
-      ops.push(text(title, (PAGE.w - textWidth(title, 15, true)) / 2, 15 * MM, { bold: true, size: 15, color: '000000' }))
-      ops.push(text(subtitle, (PAGE.w - textWidth(subtitle, 9, false)) / 2, 21 * MM, { size: 9, color: '000000' }))
-      y = 28 * MM
-    }
-    drawHead()
-  }
-  const limit = PAGE.h - MARGIN
-  const ensure = (height) => {
-    if (y + height > limit) newPage(false)
-  }
-  const spanRow = (label, fromCol, toCol, valueText, fill, align) => {
-    ensure(MIN_ROW)
-    ops.push(box(colX(fromCol), y, spanW(fromCol, toCol), MIN_ROW, fill))
-    cellText([label], colX(fromCol), spanW(fromCol, toCol), y, MIN_ROW, align, { bold: true })
-    if (valueText !== null) {
-      ops.push(box(colX(5), y, COL_W[5], MIN_ROW, fill))
-      cellText([valueText], colX(5), COL_W[5], y, MIN_ROW, 'right', { bold: true })
-    }
-    y += MIN_ROW
-  }
-
-  newPage(true)
-  for (const group of groups) {
-    const firstDay = group.days[0]
-    ensure(MIN_ROW + dayHeight(firstDay))
-    spanRow(group.brand.toUpperCase(), 0, 5, null, COLOR.brand, 'center')
-    for (const day of group.days) {
-      const heights = day.items.map(rowHeight)
-      const total = heights.reduce((a, b) => a + b, 0)
-      ensure(total)
-      const startY = y
+  const renderPanel = (ops, panel, x0, colWidths, yStart) => {
+    let y = yStart
+    let brand = ''
+    let subtotal = 0
+    for (const day of panel) {
+      if (brand !== day.brand) {
+        if (brand) {
+          rect(ops, x0, y, PANEL, ROW, C.subtotal)
+          txt(ops, 'TOTAL ' + brand + '  ' + formatRupiah(subtotal), x0 + PAD, y + ROW / 2 + 2.5, 7, true)
+          y += ROW
+        }
+        brand = day.brand
+        subtotal = 0
+        rect(ops, x0, y, PANEL, ROW, C.brand)
+        txt(ops, brand.toUpperCase(), x0 + PAD, y + ROW / 2 + 2.5, 7, true)
+        y += ROW
+      }
+      subtotal += day.total
+      const heights = day.items.map((item) => Math.max(ROW, wrapText(item.name, colWidths[1] - PAD * 2, FONT, 2).length * LEAD + PAD * 2))
+      const dayHeight = heights.reduce((sum, h) => sum + h, 0)
+      let yy = y
       day.items.forEach((item, n) => {
         const h = heights[n]
-        ops.push(box(colX(1), y, COL_W[1], h), box(colX(2), y, COL_W[2], h), box(colX(3), y, COL_W[3], h), box(colX(4), y, COL_W[4], h))
-        cellText(nameLines(item.name), colX(1), COL_W[1], y, h, 'left')
-        cellText([String(item.qty)], colX(2), COL_W[2], y, h, 'center')
-        cellText([item.priceText], colX(3), COL_W[3], y, h, 'right')
-        cellText([item.totalText], colX(4), COL_W[4], y, h, 'right')
-        y += h
+        const values = [n === 0 ? day.label : '', item.name, String(item.qty), item.priceText, item.totalText, n === 0 ? dailyTotalText(day) : '']
+        let x = x0
+        values.forEach((value, c) => {
+          rect(ops, x, yy, colWidths[c], h)
+          const lines = c === 1 ? wrapText(value, colWidths[c] - PAD * 2, FONT, 2) : [value]
+          lines.forEach((line, li) => {
+            const tw = textWidth(line, FONT)
+            const tx = c === 0 || c === 2 ? x + (colWidths[c] - tw) / 2 : c >= 3 ? x + colWidths[c] - PAD - tw : x + PAD
+            txt(ops, line, tx, yy + (h - lines.length * LEAD) / 2 + LEAD - 1 + li * LEAD, FONT, c === 5)
+          })
+          x += colWidths[c]
+        })
+        yy += h
       })
-      ops.push(box(colX(0), startY, COL_W[0], total), box(colX(5), startY, COL_W[5], total))
-      cellText([day.label], colX(0), COL_W[0], startY, total, 'center')
-      cellText([dailyTotalText(day)], colX(5), COL_W[5], startY, total, 'right', { bold: true })
+      y = yy
     }
-    spanRow(`TOTAL ${group.brand}`, 0, 4, group.subtotalText, COLOR.sub, 'right')
+    if (brand) {
+      rect(ops, x0, y, PANEL, ROW, C.subtotal)
+      txt(ops, 'TOTAL ' + brand + '  ' + formatRupiah(subtotal), x0 + PAD, y + ROW / 2 + 2.5, 7, true)
+    }
   }
-  spanRow('TOTAL SEMUA', 0, 4, grandTotalText, COLOR.grand, 'right')
-
-  return assemblePdf(pages)
-
-  function nameLines(name) {
-    return wrapText(name, COL_W[1] - PAD * 2, FONT, 3, false)
-  }
-  function rowHeight(item) {
-    return Math.max(MIN_ROW, nameLines(item.name).length * LEAD + PAD * 2)
-  }
-  function dayHeight(day) {
-    return day.items.map(rowHeight).reduce((a, b) => a + b, 0)
-  }
+  const ops = []
+  txt(ops, titleText, (W - textWidth(titleText, 9, true)) / 2, 8 * MM, 9, true, '000000')
+  const y = 12 * MM
+  drawHeader(ops, y, M, widths[0])
+  drawHeader(ops, y, M + PANEL + GAP, widths[1])
+  renderPanel(ops, panels[0], M, widths[0], y + HEAD)
+  renderPanel(ops, panels[1], M + PANEL + GAP, widths[1], y + HEAD)
+  const total = grandTotalText
+  const totalY = H - M - ROW
+  rect(ops, M, totalY, W - M * 2, ROW, C.total)
+  txt(ops, 'TOTAL SEMUA: ' + total, M + PAD, totalY + ROW / 2 + 2.5, 8, true)
+  return assemblePdf([ops], { w: W, h: H })
 }
-
 /**
  * Rekap stok PDF landscape A4: kolom nama + satu kolom per hari.
  * groups: [{ brand, rows: [{ name, cells: [{ main, sup, black }] }] }]
