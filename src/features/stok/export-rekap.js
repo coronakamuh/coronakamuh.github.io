@@ -27,9 +27,8 @@ const recapItemName = (name, brand) => {
   const prefix = String(brand ?? '').trim()
   if (!prefix || value.slice(0, prefix.length).toLowerCase() !== prefix.toLowerCase()) return value
   const rest = value.slice(prefix.length)
-  return /^[\\s\\-:|]/.test(rest) ? rest.replace(/^[\\s\\-:|]+/, '') : value
+  return rest && ' -:|'.includes(rest[0]) ? rest.trimStart().replace(/^[-:|]+/, '').trimStart() : value
 }
-
 export function exportRecapExcel({ dates, groups, count, label }) {
   const columns = dates.length + 1
   const BORDER = true
