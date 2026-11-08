@@ -87,8 +87,12 @@ export function exportSalesExcel(rows, filter) {
   const LINE = true
   const blank = (n, s) => Array.from({ length: n }, () => ({ v: '', s }))
   const header = ['Tgl', 'Nama Barang', 'Qty', 'Harga/Unit', 'Harga Total', 'Total Harian']
-  const buildPanel = (panel) => {
+  const buildPanel = (panel, columnOffset) => {
     const result = [{ cells: header.map((v, c) => ({ v, s: { sz: 8, b: true, color: 'FFFFFF', fill: '800020', border: LINE, h: c === 2 ? 'center' : c >= 3 ? 'right' : 'left' } })) }]
+    const merges = []
+    const columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M']
+    const dateColumn = columns[columnOffset]
+    const dailyTotalColumn = columns[columnOffset + 5]
     let brand = ''
     let subtotal = 0
     for (const day of panel) {
@@ -100,6 +104,7 @@ export function exportSalesExcel(rows, filter) {
         result.push({ height: 17, cells: [{ v: brand.toUpperCase(), s: style }, ...blank(5, style)] })
       }
       subtotal += day.total
+      const firstRow = result.length + 2
       day.items.forEach((item, i) => {
         const style = (c) => ({ sz: 8, border: LINE, h: c === 2 ? 'center' : c >= 3 ? 'right' : 'left', rp: c >= 3, wrap: c === 1 })
         result.push({ cells: [
@@ -111,16 +116,22 @@ export function exportSalesExcel(rows, filter) {
           { v: i === 0 ? day.total : '', s: style(5) },
         ] })
       })
+      if (day.items.length > 1) {
+        const lastRow = firstRow + day.items.length - 1
+        merges.push(`${dateColumn}${firstRow}:${dateColumn}${lastRow}`)
+        merges.push(`${dailyTotalColumn}${firstRow}:${dailyTotalColumn}${lastRow}`)
+      }
     }
     if (brand) result.push({ cells: [...blank(4), { v: 'TOTAL ' + brand, s: { sz: 8, b: true, fill: 'FAF2F5', border: LINE, h: 'right' } }, { v: subtotal, s: { sz: 8, b: true, fill: 'FAF2F5', border: LINE, h: 'right', rp: true } }] })
-    return result
+    return { rows: result, merges }
   }
-  const left = buildPanel(panels[0])
-  const right = buildPanel(panels[1])
+  const left = buildPanel(panels[0], 0)
+  const right = buildPanel(panels[1], 7)
   const title = 'PENJUALAN ' + reportTitle(filter)
   const out = [{ height: 17, cells: [{ v: title, s: { sz: 10, b: true } }, ...blank(12)] }]
-  const max = Math.max(left.length, right.length)
-  for (let i = 0; i < max; i++) out.push({ cells: [...(left[i]?.cells ?? blank(6)), { v: '' }, ...(right[i]?.cells ?? blank(6))] })
+  const max = Math.max(left.rows.length, right.rows.length)
+  for (let i = 0; i < max; i++) out.push({ cells: [...(left.rows[i]?.cells ?? blank(6)), { v: '' }, ...(right.rows[i]?.cells ?? blank(6))] })
+  const merges = [...left.merges, ...right.merges]
   const total = totals(rows)
   out.push({ height: 18, cells: [{ v: 'TOTAL SEMUA', s: { sz: 8, b: true, fill: 'E9CBD5', border: LINE } }, { v: total.count + ' transaksi', s: { sz: 8, b: true, fill: 'E9CBD5', border: LINE } }, { v: total.units, s: { sz: 8, b: true, fill: 'E9CBD5', border: LINE } }, ...blank(9), { v: total.revenue, s: { sz: 8, b: true, fill: 'E9CBD5', border: LINE, rp: true } }] })
   const width = (panel, c) => {
@@ -128,7 +139,7 @@ export function exportSalesExcel(rows, filter) {
     return Math.max([8, 30, 7, 13, 13, 13][c], Math.min([12, 38, 10, 18, 19, 19][c], Math.max(header[c].length, ...vals.map((v) => v.length)) + 2))
   }
   const widths = [...Array.from({ length: 6 }, (_, i) => width(panels[0], i)), 2, ...Array.from({ length: 6 }, (_, i) => width(panels[1], i))]
-  downloadFile(fileName(filter, 'xlsx'), buildReportXlsx({ sheetName: 'Penjualan', widths, rows: out, pageSetup: { fitToHeight: 0 } }), XLSX_MIME)
+  downloadFile(fileName(filter, 'xlsx'), buildReportXlsx({ sheetName: 'Penjualan', widths, rows: out, merges, pageSetup: { fitToHeight: 0 } }), XLSX_MIME)
 }
 export function exportSalesPdf(rows, filter) {
   const groups = groupSales(rows)
