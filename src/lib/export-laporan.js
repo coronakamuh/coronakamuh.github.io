@@ -204,13 +204,14 @@ export function buildReportPdf({ title, subtitle, groups, grandTotalText, dailyT
     if (previousBrand) count += 1
     return count
   }
-  // Hitung skala dari tinggi aktual: header, semua baris, dan ruang untuk total bawah.
-  const requiredHeight = 12 * MM + BASE_HEAD + (Math.max(...panels.map(panelRows)) + 2) * BASE_ROW
-  const rowScale = Math.min(1, (H - M) / Math.max(requiredHeight, 1))
+  // Sisakan ruang tetap untuk total keseluruhan di bagian bawah halaman.
+  const maxRows = Math.max(...panels.map(panelRows))
+  const availableRowsHeight = H - M - BASE_ROW - 2 - 12 * MM - BASE_HEAD
+  const rowScale = Math.min(1, availableRowsHeight / Math.max(maxRows * BASE_ROW, 1))
   const FONT = BASE_FONT * rowScale
   const LEAD = BASE_LEAD * rowScale
   const PAD = BASE_PAD
-  const HEAD = BASE_HEAD * rowScale
+  const HEAD = BASE_HEAD
   const ROW = BASE_ROW * rowScale
   const C = { head: '800020', brand: 'F4E5EA', subtotal: 'FAF2F5', total: 'E9CBD5', text: '35262C', line: 'DFC5CE' }
   const rgb = (hex) => { const n = parseInt(hex, 16); return ((n >> 16) & 255) / 255 + ' ' + ((n >> 8) & 255) / 255 + ' ' + (n & 255) / 255 }
@@ -317,9 +318,9 @@ export function buildReportPdf({ title, subtitle, groups, grandTotalText, dailyT
   // Total keseluruhan terpisah agar selalu berada di bawah kedua tabel.
   const totalOps = []
   const total = grandTotalText
-  const totalY = H - M - ROW
-  rect(totalOps, M, totalY, W - M * 2, ROW, C.total)
-  txt(totalOps, 'TOTAL SEMUA: ' + total, M + PAD, totalY + ROW / 2 + 2.5, 8, true)
+  const totalY = H - M - BASE_ROW
+  rect(totalOps, M, totalY, W - M * 2, BASE_ROW, C.total)
+  txt(totalOps, 'TOTAL SEMUA: ' + total, M + PAD, totalY + BASE_ROW / 2 + 2.5, 8, true)
 
   // Ukuran font dan tinggi baris disesuaikan secara vertikal sebelum tabel digambar.
   // Lebar tabel tidak ikut diperkecil, sehingga ruang horizontal tersedia untuk nama produk.
