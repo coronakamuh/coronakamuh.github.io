@@ -9,11 +9,11 @@ import { EmptyState } from '@/components/ui/empty-state'
  * - lebar: tabel biasa.
  * columns: [{ key, label, align?: 'right', render?: (row) => node }]
  */
-export function DataTable({ columns, rows, empty, caption }) {
+export function DataTable({ columns, rows, empty, caption, tableOnMobile = false }) {
   return (
-    <div className="data-table @container">
-      {/* Tabel: hanya bila kartu cukup lebar */}
-      <table className="hidden w-full table-fixed border-collapse text-sm @xl:table">
+    <div className={`data-table @container ${tableOnMobile ? 'overflow-x-auto' : ''}`}>
+      {/* Tabel: pada halaman tertentu tetap berupa tabel di layar HP. */}
+      <table className={`${tableOnMobile ? 'min-w-[30rem] w-full' : 'hidden w-full @xl:table'} table-fixed border-collapse text-sm`}>
         <caption className="sr-only">{caption}</caption>
         <thead>
           <tr className="border-y border-garis bg-garis-halus/60 text-tinta-redup">
@@ -51,7 +51,7 @@ export function DataTable({ columns, rows, empty, caption }) {
       </table>
 
       {/* Daftar ringkas: saat kartu sempit (HP). Baris judul (nama + aksi), lalu isi lain dalam 2 kolom. */}
-      {rows.length > 0 ? (
+      {!tableOnMobile && rows.length > 0 ? (
         <ul aria-label={caption} className="divide-y divide-garis-halus border-t border-garis @xl:hidden">
           {rows.map((row, index) => {
             const cell = (column) => (column.render ? column.render(row) : row[column.key])
