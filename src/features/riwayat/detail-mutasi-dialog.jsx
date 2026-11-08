@@ -8,9 +8,9 @@ import { getMovementDetail } from '@/services/queries'
 
 function Fact({ label, children }) {
   return (
-    <div className="rounded-md bg-kertas px-3 py-2">
-      <dt className="text-xs text-tinta-redup">{label}</dt>
-      <dd className="mt-0.5 text-sm font-medium">{children}</dd>
+    <div className="rounded-lg border border-garis bg-kertas px-3 py-2.5">
+      <dt className="text-[11px] font-medium uppercase tracking-wide text-tinta-redup">{label}</dt>
+      <dd className="mt-1 text-sm font-semibold leading-relaxed">{children}</dd>
     </div>
   )
 }
@@ -30,7 +30,7 @@ function Body({ id }) {
   const need = data.currentStock !== null ? Math.max(0, -data.currentStock) : 0
   return (
     <div className="space-y-3">
-      <dl className="grid grid-cols-2 gap-2">
+      <dl className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <Fact label="Nomor catatan">#{data.id}</Fact>
         <Fact label="Tanggal">{formatDisplay(data.date)}</Fact>
         <Fact label="Barang">{data.item}</Fact>
@@ -49,9 +49,9 @@ function Body({ id }) {
       </dl>
       <p className="text-sm text-tinta-redup">{explain[data.type] ?? ''}</p>
       {data.sale ? (
-        <div className="rounded-md border border-garis px-3 py-2 text-sm">
+        <div className="rounded-lg border border-garis bg-lembar px-3 py-3 text-sm">
           <p className="font-medium">Dari penjualan #{data.sale.id}</p>
-          <p className="text-tinta-redup">
+          <p className="mt-1 break-words leading-relaxed text-tinta-redup">
             {formatDisplay(data.sale.date)} · {formatAngka(data.sale.qty)} × {formatRupiah(data.sale.price)} = {formatRupiah(data.sale.qty * data.sale.price)} · {data.sale.brand}
           </p>
           <p className="mt-1 text-tinta-redup">Ubah lewat halaman Penjualan agar stok tetap sesuai.</p>
