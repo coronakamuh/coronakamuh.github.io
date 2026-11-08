@@ -7,6 +7,7 @@ import { PenjualanFields } from '@/features/penjualan/penjualan-fields'
 import { useMutation } from '@/hooks/use-mutation'
 import { formatAngka, formatRupiah } from '@/lib/format'
 import { todayISO } from '@/lib/date'
+import { catatPenjualan } from '@/services/sales'
 import { parseWhole, validateSale } from '@/lib/validation'
 
 /** Perkiraan stok sebelum simpan. Angka resmi tetap dihitung database saat menyimpan. */
