@@ -235,6 +235,7 @@ export function buildReportPdf({ title, subtitle, groups, grandTotalText, dailyT
     const nameWidth = Math.max(70, PANEL - fixed.reduce((sum, width) => sum + width, 0))
     return [fixed[0], nameWidth, fixed[1], fixed[2], fixed[3], fixed[4]]
   }
+  const widths = panels.map(widthsFor)
   const pages = []
   const titleText = 'PENJUALAN ' + title
   const drawHeader = (ops, y, x0, colWidths) => {
