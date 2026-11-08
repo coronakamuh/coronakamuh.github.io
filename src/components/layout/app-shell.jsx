@@ -6,40 +6,47 @@ import { Button } from '@/components/ui/button'
 import { site } from '@/config/site'
 import { useAuth } from '@/lib/auth-context'
 
-/**
- * Kerangka aplikasi.
- * Desktop (lg ke atas): sidebar tetap di kiri.
- * HP: bilah atas berisi nama aplikasi, dan menu berada di bilah bawah.
- */
+/** Layout utama, sidebar untuk desktop dan navigasi bawah untuk HP. */
 export function AppShell({ route, children }) {
   const { signOut } = useAuth()
+
   return (
-    <div className="min-h-svh lg:grid lg:grid-cols-[15rem_minmax(0,1fr)]">
+    <div className="min-h-svh lg:grid lg:grid-cols-[14rem_minmax(0,1fr)]">
       <a
         href="#utama"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-md focus:bg-pena focus:px-3 focus:py-2 focus:text-sm focus:text-white"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-pena focus:px-4 focus:py-3 focus:text-sm focus:text-white"
       >
         Lompat ke konten
       </a>
 
-      <aside className="hidden border-r border-garis lg:block">
+      <aside className="hidden border-r border-garis bg-lembar lg:block">
         <div className="sticky top-0 h-svh">
           <SidebarNav route={route} />
         </div>
       </aside>
 
-      <div className="flex min-w-0 flex-col">
-        <header className="flex h-14 items-center gap-2.5 border-b border-garis bg-lembar pr-2 pl-4 lg:hidden">
-          <LogoMark className="size-6 text-pena" />
-          <span className="font-semibold tracking-tight">{site.name}</span>
-          <Button variant="ghost" size="icon" className="ml-auto" aria-label="Keluar" onClick={signOut}>
-            <LogOut />
+      <div className="flex min-h-svh min-w-0 flex-col">
+        <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-2.5 border-b border-garis bg-lembar/95 px-3 backdrop-blur-sm sm:px-5 lg:hidden">
+          <LogoMark className="size-6 shrink-0 text-pena" />
+          <span className="min-w-0 truncate text-sm font-semibold tracking-tight text-tinta">
+            {site.name}
+          </span>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="ml-auto size-10 shrink-0"
+            aria-label="Keluar"
+            onClick={signOut}
+          >
+            <LogOut className="size-[18px]" />
           </Button>
         </header>
 
-        {/* pb-28: ruang agar isi paling bawah tidak tertutup bilah menu di HP */}
-        <main id="utama" className="flex-1 px-4 pt-6 pb-28 sm:px-8 lg:py-10">
-          <div className="mx-auto w-full max-w-6xl">{children}</div>
+        <main
+          id="utama"
+          className="min-w-0 flex-1 px-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-5 sm:px-5 sm:pt-6 lg:px-8 lg:py-8 xl:px-10"
+        >
+          <div className="mx-auto w-full max-w-screen-2xl">{children}</div>
         </main>
       </div>
 
