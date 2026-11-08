@@ -206,25 +206,8 @@ export async function getSalesPage({ page, pageSize, from, to, brand }) {
     if (stockError) throw friendlyError(stockError)
     stockOf = new Map(stockRows.map((row) => [row.id, Number(row.stok)]))
   }
-  const dates = [...new Set(data.map((row) => row.tanggal_pembelian))]
-  const dailyRows = dates.length > 0
-    ? await fetchAll(() => {
-        let query = supabase
-          .from('penjualan')
-          .select('tanggal_pembelian, qty, harga')
-          .in('tanggal_pembelian', dates)
-        if (brand) query = query.eq('brand', brand)
-        return query.order('id')
-      })
-    : []
-  const dailyTotals = Object.fromEntries(dates.map((date) => [date, 0]))
-  for (const row of dailyRows) {
-    dailyTotals[row.tanggal_pembelian] += Number(row.qty) * Number(row.harga)
-  }
-
   return {
     total: count ?? 0,
-    dailyTotals,
     rows: data.map((row) => ({
       id: row.id,
       date: row.tanggal_pembelian,
