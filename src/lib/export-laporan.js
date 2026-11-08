@@ -238,18 +238,32 @@ export function buildReportPdf({ title, subtitle, groups, grandTotalText, dailyT
       subtotal += day.total
       const heights = day.items.map((item) => Math.max(ROW, wrapText(item.name, colWidths[1] - PAD * 2, FONT, 2).length * LEAD + PAD * 2))
       const dayHeight = heights.reduce((sum, h) => sum + h, 0)
+      const dailyTotalWidth = colWidths[5]
+      const dailyTotalX = x0 + colWidths.slice(0, 5).reduce((sum, width) => sum + width, 0)
+
+      // Tanggal dan total harian masing-masing satu sel yang membentang seluruh baris hari ini.
+      rect(ops, x0, y, colWidths[0], dayHeight)
+      const dateWidth = textWidth(day.label, FONT)
+      txt(ops, day.label, x0 + (colWidths[0] - dateWidth) / 2, y + dayHeight / 2 + FONT * 0.35, FONT)
+
+      rect(ops, dailyTotalX, y, dailyTotalWidth, dayHeight)
+      const dailyText = dailyTotalText(day)
+      const dailyWidth = textWidth(dailyText, FONT, true)
+      txt(ops, dailyText, dailyTotalX + dailyTotalWidth - PAD - dailyWidth, y + dayHeight / 2 + FONT * 0.35, FONT, true)
+
       let yy = y
       day.items.forEach((item, n) => {
         const h = heights[n]
-        const values = [n === 0 ? day.label : '', item.name, String(item.qty), item.priceText, item.totalText, n === 0 ? dailyTotalText(day) : '']
-        let x = x0
-        values.forEach((value, c) => {
+        const values = [item.name, String(item.qty), item.priceText, item.totalText]
+        let x = x0 + colWidths[0]
+        values.forEach((value, index) => {
+          const c = index + 1
           rect(ops, x, yy, colWidths[c], h)
           const lines = c === 1 ? wrapText(value, colWidths[c] - PAD * 2, FONT, 2) : [value]
           lines.forEach((line, li) => {
             const tw = textWidth(line, FONT)
-            const tx = c === 0 || c === 2 ? x + (colWidths[c] - tw) / 2 : c >= 3 ? x + colWidths[c] - PAD - tw : x + PAD
-            txt(ops, line, tx, yy + (h - lines.length * LEAD) / 2 + LEAD - 1 + li * LEAD, FONT, c === 5)
+            const tx = c === 2 ? x + (colWidths[c] - tw) / 2 : c >= 3 ? x + colWidths[c] - PAD - tw : x + PAD
+            txt(ops, line, tx, yy + (h - lines.length * LEAD) / 2 + LEAD - 1 + li * LEAD, FONT)
           })
           x += colWidths[c]
         })
