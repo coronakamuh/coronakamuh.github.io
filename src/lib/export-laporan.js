@@ -68,6 +68,7 @@ export function buildReportXlsx({ sheetName = 'Laporan', widths, rows, merges = 
     `<dimension ref="A1:${lastColumn}${rows.length}"/>` +
     '<sheetViews><sheetView showGridLines="0" workbookViewId="0"/></sheetViews>' +
     `<cols>${cols}</cols><sheetData>${sheetRows}</sheetData>${mergeXml}` +
+    '<printOptions horizontalCentered="1" verticalCentered="1"/>' +
     '<pageMargins left="0.4" right="0.4" top="0.5" bottom="0.5" header="0.3" footer="0.3"/>' +
     `<pageSetup paperSize="9" orientation="landscape" fitToWidth="1" fitToHeight="${pageSetup.fitToHeight ?? 0}"/></worksheet>`
 
@@ -204,9 +205,10 @@ export function buildReportPdf({ title, subtitle, groups, grandTotalText, dailyT
     if (previousBrand) count += 1
     return count
   }
-  // Sisakan ruang tetap untuk total keseluruhan di bagian bawah halaman.
+  // Skala tabel hanya bila perlu, lalu pusatkan seluruh blok tabel dan total pada halaman.
   const maxRows = Math.max(...panels.map(panelRows))
-  const availableRowsHeight = H - M - BASE_ROW - 2 - 12 * MM - BASE_HEAD
+  const TOTAL_GAP = 6
+  const availableRowsHeight = H - 2 * M - BASE_HEAD - TOTAL_GAP - BASE_ROW
   const rowScale = Math.min(1, availableRowsHeight / Math.max(maxRows * BASE_ROW, 1))
   const FONT = BASE_FONT * rowScale
   const LEAD = BASE_LEAD * rowScale
@@ -238,7 +240,6 @@ export function buildReportPdf({ title, subtitle, groups, grandTotalText, dailyT
   }
   const widths = panels.map(widthsFor)
   const pages = []
-  const titleText = 'PENJUALAN ' + title
   const drawHeader = (ops, y, x0, colWidths) => {
     let x = x0
     labels.forEach((label, i) => {
@@ -302,14 +303,14 @@ export function buildReportPdf({ title, subtitle, groups, grandTotalText, dailyT
     }
     if (brand) {
       rect(ops, x0, y, PANEL, ROW, C.subtotal)
-      txt(ops, 'TOTAL ' + brand + '  ' + 'Rp ' + new Intl.NumberFormat('id-ID').format(subtotal), x0 + PAD, y + ROW / 2 + 2.5, 7, true)
+      txt(ops, 'TOTAL ' + brand + '  ' + 'Rp ' + new Intl.NumberFormat('id-ID').format(subtotal), x0 + PAD, y + ROW / 2 + FONT * 0.35, FONT, true)
       y += ROW
     }
     return y
   }
   const ops = []
-  txt(ops, titleText, (W - textWidth(titleText, FONT, true)) / 2, 8 * MM, FONT, true, '000000')
-  const y = 12 * MM
+  const blockHeight = HEAD + maxRows * ROW + TOTAL_GAP + BASE_ROW
+  const y = (H - blockHeight) / 2
   drawHeader(ops, y, M, widths[0])
   drawHeader(ops, y, M + PANEL + GAP, widths[1])
   const leftBottom = renderPanel(ops, panels[0], M, widths[0], y + HEAD)
@@ -317,7 +318,7 @@ export function buildReportPdf({ title, subtitle, groups, grandTotalText, dailyT
   // Total keseluruhan terpisah agar selalu berada di bawah kedua tabel.
   const totalOps = []
   const total = grandTotalText
-  const totalY = H - M - BASE_ROW
+  const totalY = y + HEAD + maxRows * ROW + TOTAL_GAP
   rect(totalOps, M, totalY, W - M * 2, BASE_ROW, C.total)
   txt(totalOps, 'TOTAL SEMUA: ' + total, M + PAD, totalY + BASE_ROW / 2 + FONT * 0.35, FONT, true)
 
