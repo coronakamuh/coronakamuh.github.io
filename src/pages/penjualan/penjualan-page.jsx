@@ -107,10 +107,7 @@ export function PenjualanPage() {
       label: 'Total',
       align: 'right',
       render: (row) => (
-        <span className="font-medium">
-          <span className="sm:hidden">{formatAngka(row.total)}</span>
-          <span className="hidden sm:inline">{formatRupiah(row.total)}</span>
-        </span>
+        <span className="font-semibold tabular-nums">{formatRupiah(row.total)}</span>
       ),
     },
     {
@@ -230,8 +227,6 @@ export function PenjualanPage() {
           caption="Transaksi terbaru"
           columns={columns}
           rows={sales.data ? sales.data.rows : []}
-          tableOnMobile
-          tableClassName="sales-history-table"
           empty={{
             icon: Receipt,
             title: waiting ? 'Memuat data' : 'Belum ada transaksi',
