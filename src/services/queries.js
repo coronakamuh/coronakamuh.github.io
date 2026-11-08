@@ -188,6 +188,13 @@ export async function getSalesPage({ page, pageSize, from, to, brand }) {
     .order('id', { ascending: false })
     .range(start, start + pageSize - 1)
   if (error) throw friendlyError(error)
+  const barangIds = [...new Set(data.map((row) => row.barang_id).filter((id) => id != null))]
+  let stockOf = new Map()
+  if (barangIds.length > 0) {
+    const { data: stockRows, error: stockError } = await supabase.from('v_stock').select('id, stok').in('id', barangIds)
+    if (stockError) throw friendlyError(stockError)
+    stockOf = new Map(stockRows.map((row) => [row.id, Number(row.stok)]))
+  }
   return {
     total: count ?? 0,
     rows: data.map((row) => ({
@@ -197,6 +204,7 @@ export async function getSalesPage({ page, pageSize, from, to, brand }) {
       item: row.barang?.nama ?? '—',
       brand: row.brand,
       qty: Number(row.qty),
+      stock: stockOf.get(row.barang_id) ?? 0,
       price: Number(row.harga),
       total: Number(row.qty) * Number(row.harga),
     })),
