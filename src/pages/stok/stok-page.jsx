@@ -25,10 +25,11 @@ const DEFAULT_PAGE_SIZE = 50
 const need = (row) => Math.max(0, -row.stock)
 
 const baseColumns = [
-  { key: 'brand', label: 'Brand' },
+  { key: 'brand', label: 'Brand', className: 'w-[15%]' },
   {
     key: 'stock',
     label: 'Stok',
+    className: 'w-[10%]',
     align: 'right',
     render: (row) => (
       <span className={row.stock < 0
@@ -41,8 +42,8 @@ const baseColumns = [
       </span>
     ),
   },
-  { key: 'need', label: 'Kebutuhan PO', align: 'right', render: (row) => (need(row) > 0 ? formatAngka(need(row)) : '—') },
-  { key: 'price', label: 'Harga terakhir', align: 'right', render: (row) => (row.price === null ? '—' : formatRupiah(row.price)) },
+  { key: 'need', label: 'Kebutuhan PO', align: 'right', className: 'w-[13%]', render: (row) => (need(row) > 0 ? formatAngka(need(row)) : '—') },
+  { key: 'price', label: 'Harga terakhir', align: 'right', className: 'w-[14%]', render: (row) => (row.price === null ? '—' : formatRupiah(row.price)) },
 ]
 
 export function StokPage() {
@@ -72,6 +73,7 @@ export function StokPage() {
     {
       key: 'name',
       label: 'Barang',
+      className: 'w-[38%]',
       render: (row) => (
         <button type="button" className="text-left font-medium underline-offset-2 hover:underline" onClick={() => setDialog({ kind: 'detail', item: row })}>
           <NamaBarang name={row.name} />
@@ -82,6 +84,7 @@ export function StokPage() {
     {
       key: 'actions',
       label: 'Aksi',
+      className: 'w-[10%]',
       align: 'right',
       render: (row) => (
         <span className="inline-flex items-center justify-end gap-1">
