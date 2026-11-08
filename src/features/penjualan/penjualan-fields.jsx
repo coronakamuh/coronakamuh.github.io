@@ -1,5 +1,4 @@
-import { useMemo } from 'react'
-import { Combobox } from '@/components/ui/combobox'
+import { useEffect, useMemo, useState } from 'react'
 import { DatePicker } from '@/components/ui/date-picker'
 import { Field, Input } from '@/components/ui/field'
 import { formatAngka, formatRupiah } from '@/lib/format'
@@ -12,6 +11,15 @@ export function PenjualanFields({ idPrefix, items, value, onChange, disabled }) 
     () => items.map((item) => ({ value: String(item.id), label: item.name, hint: `${item.brand} · stok ${formatAngka(item.stock)}` })),
     [items],
   )
+  const selected = options.find((option) => option.value === value.barangId)
+  const [barangQuery, setBarangQuery] = useState(selected?.label ?? '')
+  const matches = useMemo(() => {
+    const needle = barangQuery.trim().toLocaleLowerCase('id')
+    return needle ? options.filter((option) => option.label.toLocaleLowerCase('id').includes(needle)).slice(0, 50) : []
+  }, [options, barangQuery])
+  useEffect(() => {
+    setBarangQuery(selected?.label ?? '')
+  }, [value.barangId, items])
   const q = parseWhole(value.qty)
   const h = parseWhole(value.harga)
 
@@ -27,7 +35,22 @@ export function PenjualanFields({ idPrefix, items, value, onChange, disabled }) 
         <DatePicker id={`${idPrefix}-tanggal`} value={value.tanggal} onChange={(tanggal) => onChange({ ...value, tanggal })} max={todayISO()} disabled={disabled} />
       </Field>
       <Field label="Barang" htmlFor={`${idPrefix}-barang`}>
-        <Combobox id={`${idPrefix}-barang`} value={value.barangId} onValueChange={pickItem} options={options} placeholder="Pilih barang" searchLabel="Cari barang" disabled={disabled} />
+        <div className="relative">
+          <Input id={`${idPrefix}-barang`} type="text" autoComplete="off" placeholder="Ketik nama barang…" value={barangQuery}
+            onChange={(event) => { setBarangQuery(event.target.value); if (value.barangId) onChange({ ...value, barangId: '' }) }}
+            disabled={disabled} role="combobox" aria-autocomplete="list" aria-expanded={matches.length > 0} aria-controls={`${idPrefix}-barang-list`} />
+          {matches.length > 0 ? (
+            <ul id={`${idPrefix}-barang-list`} role="listbox" className="absolute z-50 mt-1 max-h-52 w-full overflow-y-auto rounded-md border border-garis bg-lembar p-1 shadow-lg">
+              {matches.map((option) => (
+                <li key={option.value} role="option" aria-selected={false}>
+                  <button type="button" className="flex w-full items-center justify-between gap-3 rounded-sm px-3 py-2 text-left text-sm hover:bg-garis-halus" onClick={() => pickItem(option.value)}>
+                    <span className="min-w-0 truncate">{option.label}</span><span className="shrink-0 text-xs text-tinta-redup">{option.hint}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
       </Field>
       <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3">
         <Field label="Jumlah" htmlFor={`${idPrefix}-qty`}>
