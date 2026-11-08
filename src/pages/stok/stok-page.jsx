@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Download, FileText, Package, Plus, Search, TriangleAlert, Boxes, ShoppingCart } from 'lucide-react'
-import { PageHeader } from '@/components/layout/page-header'
+import { PageTitle } from '@/components/layout/page-title'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/data-table'
@@ -150,8 +150,9 @@ export function StokPage() {
   })
 
   return (
-    <>
-      <PageHeader
+    <div className="space-y-3">
+      <PageTitle
+        icon={Boxes}
         title="Stok Barang"
         description="Daftar barang dan jumlah stoknya."
         actions={
@@ -162,11 +163,7 @@ export function StokPage() {
         }
       />
 
-      {error ? (
-        <div className="mb-6">
-          <ErrorNotice error={error} onRetry={reload} />
-        </div>
-      ) : null}
+      {error ? <ErrorNotice error={error} onRetry={reload} /> : null}
 
       <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3 sm:grid-cols-4">
         <StatCard label="Total Barang" icon={Package} value={waiting ? '…' : data ? formatAngka(items.length) : undefined} hint="Barang terdaftar" />
@@ -181,7 +178,7 @@ export function StokPage() {
         <StatCard label="Kebutuhan PO" icon={ShoppingCart} value={waiting ? '…' : data ? formatAngka(poTotal) : undefined} hint="Unit untuk menutup stok minus" />
       </div>
 
-      <Card className="mt-6">
+      <Card>
         <CardHeader
           title="Tabel Stok"
           description={data ? `${formatAngka(filtered.length)} dari ${formatAngka(items.length)} barang.` : undefined}
@@ -241,6 +238,6 @@ export function StokPage() {
         onUbah={(item) => setDialog({ kind: 'ubah', item })}
       />
       <MutasiDialog item={dialog?.kind === 'mutasi' ? dialog.item : null} onOpenChange={(open) => !open && setDialog(null)} onDone={reload} />
-    </>
+    </div>
   )
 }

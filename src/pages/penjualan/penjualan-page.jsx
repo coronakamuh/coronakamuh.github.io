@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Download, FileText, Pencil, Receipt, Search, ShoppingCart, TrendingUp } from 'lucide-react'
 import { toast } from 'sonner'
+import { PageTitle } from '@/components/layout/page-title'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/data-table'
@@ -143,24 +144,21 @@ export function PenjualanPage() {
   return (
     <div className="space-y-3">
       {/* Judul + ringkasan hari ini */}
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-2.5">
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-pena/10 text-pena">
-            <ShoppingCart className="size-5" aria-hidden="true" />
-          </span>
-          <div className="min-w-0">
-            <h1 className="text-lg leading-tight font-semibold tracking-tight">Penjualan</h1>
-            <p className="text-xs text-tinta-redup">Catat penjualan, stok otomatis berkurang</p>
+      <PageTitle
+        icon={ShoppingCart}
+        title="Penjualan"
+        description="Catat penjualan, stok otomatis berkurang"
+        inlineActions
+        actions={
+          <div className="flex items-center gap-2 rounded-lg border border-garis bg-lembar px-3 py-1.5">
+            <TrendingUp className="size-4 text-pena" aria-hidden="true" />
+            <div className="leading-tight">
+              <div className="text-[11px] text-tinta-redup">Hari ini</div>
+              <div className="text-sm font-semibold tabular-nums" aria-live="polite">{todayText}</div>
+            </div>
           </div>
-        </div>
-        <div className="flex shrink-0 items-center gap-2 rounded-lg border border-garis bg-lembar px-3 py-1.5">
-          <TrendingUp className="size-4 text-pena" aria-hidden="true" />
-          <div className="leading-tight">
-            <div className="text-[11px] text-tinta-redup">Hari ini</div>
-            <div className="text-sm font-semibold tabular-nums" aria-live="polite">{todayText}</div>
-          </div>
-        </div>
-      </div>
+        }
+      />
 
       {/* Form ringkas */}
       <Card className="p-3">
