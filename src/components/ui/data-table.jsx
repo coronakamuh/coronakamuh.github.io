@@ -13,7 +13,7 @@ export function DataTable({ columns, rows, empty, caption, tableOnMobile = false
   return (
     <div className={`data-table @container ${tableOnMobile ? 'overflow-x-auto' : ''}`}>
       {/* Tabel: pada halaman tertentu tetap berupa tabel di layar HP. */}
-      <table className={cn(tableOnMobile ? 'w-full min-w-0' : 'hidden w-full @xl:table', 'table-fixed border-collapse text-sm', tableClassName)}>
+      <table className={cn(tableOnMobile ? 'w-full min-w-0' : 'hidden w-full @xl:table', 'table-fixed border-collapse text-[13px]', tableClassName)}>
         <caption className="sr-only">{caption}</caption>
         <thead>
           <tr className="border-y border-garis bg-garis-halus/60 text-tinta-redup">
@@ -22,7 +22,7 @@ export function DataTable({ columns, rows, empty, caption, tableOnMobile = false
                 key={column.key}
                 scope="col"
                 className={cn(
-                  'px-4 py-1.5 text-left text-xs font-medium',
+                  'px-3 py-2 text-left text-xs font-semibold sm:px-4',
                   column.align === 'right' && 'text-right',
                   column.className,
                 )}
@@ -39,7 +39,7 @@ export function DataTable({ columns, rows, empty, caption, tableOnMobile = false
                 <td
                   key={column.key}
                   className={cn(
-                    'px-4 py-1 leading-snug break-words',
+                    'px-3 py-2 leading-snug break-words sm:px-4',
                     column.align === 'right' && 'text-right tabular-nums',
                     column.className,
                   )}
@@ -61,16 +61,16 @@ export function DataTable({ columns, rows, empty, caption, tableOnMobile = false
             const actionColumn = columns.find((column) => column.key === 'actions')
             const rest = columns.filter((column) => column !== titleColumn && column !== actionColumn && !column.mobileHidden)
             return (
-              <li key={row.id ?? index} className="px-3 py-1.5 text-xs leading-snug">
+              <li key={row.id ?? index} className="px-3 py-2.5 text-xs leading-normal">
                 <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0 text-[13px] font-medium break-words">{cell(titleColumn)}</div>
+                  <div className="min-w-0 text-[13px] font-semibold leading-snug break-words">{cell(titleColumn)}</div>
                   {actionColumn ? <div className="shrink-0">{cell(actionColumn)}</div> : null}
                 </div>
-                <div className="mt-0.5 grid grid-cols-2 gap-x-4 gap-y-px">
+                <div className="mt-1 grid grid-cols-2 gap-x-4 gap-y-1">
                   {rest.map((column) => (
                     <div key={column.key} className="flex min-w-0 items-baseline justify-between gap-2">
-                      <span className="shrink-0 text-tinta-redup">{column.label}</span>
-                      <span className="min-w-0 text-right break-words tabular-nums">{cell(column)}</span>
+                      <span className="shrink-0 text-[11px] text-tinta-redup">{column.label}</span>
+                      <span className="min-w-0 text-right text-xs font-medium break-words tabular-nums">{cell(column)}</span>
                     </div>
                   ))}
                 </div>
