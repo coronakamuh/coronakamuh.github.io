@@ -11,6 +11,19 @@ const rootDir = path.dirname(fileURLToPath(import.meta.url))
 export default defineConfig({
   base: '/',
   plugins: [react(), tailwindcss()],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('/node_modules/')) return
+          if (id.includes('/@supabase/')) return 'supabase'
+          if (id.includes('/@radix-ui/')) return 'radix'
+          if (id.includes('/react-dom/') || id.includes('/react/') || id.includes('/scheduler/')) return 'react-vendor'
+          return 'vendor'
+        },
+      },
+    },
+  },
   resolve: {
     alias: {
       '@': path.resolve(rootDir, 'src'),
