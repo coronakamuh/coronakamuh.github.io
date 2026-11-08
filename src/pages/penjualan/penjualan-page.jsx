@@ -13,11 +13,11 @@ import { Select } from '@/components/ui/select'
 import { EditPenjualanDialog } from '@/features/penjualan/edit-penjualan-dialog'
 import { PenjualanForm } from '@/features/penjualan/penjualan-form'
 import { useAsync } from '@/hooks/use-async'
-import { formatAngka, formatRupiah } from '@/lib/format'
+import { formatAngka } from '@/lib/format'
 import { todayISO } from '@/lib/date'
 import { usePageSize } from '@/lib/preferences'
 import { exportSalesExcel, exportSalesPdf } from '@/features/penjualan/export-penjualan'
-import { getSalesExport, getSalesPage, getSalesSummary, getStockData } from '@/services/queries'
+import { getSalesExport, getSalesPage, getStockData } from '@/services/queries'
 
 const DEFAULT_PAGE_SIZE = 20
 
@@ -31,7 +31,6 @@ export function PenjualanPage() {
   const rangeError = from && to && from > to ? 'Tanggal "Dari" tidak boleh setelah "Sampai".' : ''
   const filter = rangeError ? { from: '', to: '', brand } : { from, to, brand }
   const sales = useAsync(() => getSalesPage({ page, pageSize: PAGE_SIZE, ...filter }), [page, filter.from, filter.to, filter.brand, PAGE_SIZE])
-  const summary = useAsync(() => getSalesSummary(filter), [filter.from, filter.to, filter.brand])
   useEffect(() => setPage(1), [from, to, brand, PAGE_SIZE])
 
   const [exporting, setExporting] = useState('')
@@ -75,7 +74,6 @@ export function PenjualanPage() {
 
   function refresh() {
     sales.reload()
-    summary.reload()
     stock.reload()
   }
 
@@ -112,11 +110,6 @@ export function PenjualanPage() {
                   {exporting === 'pdf' ? 'Menyiapkan…' : 'PDF'}
                 </Button>
               </span>
-            }
-            description={
-              summary.data
-                ? `${formatAngka(summary.data.count)} penjualan · ${formatAngka(summary.data.units)} unit · ${formatRupiah(summary.data.revenue)}${filtered ? ' (sesuai filter)' : ''}`
-                : undefined
             }
           />
           <div className="filter-bar sales-filter-bar">
