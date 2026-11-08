@@ -9,11 +9,11 @@ import { EmptyState } from '@/components/ui/empty-state'
  * - lebar: tabel biasa.
  * columns: [{ key, label, align?: 'right', render?: (row) => node }]
  */
-export function DataTable({ columns, rows, empty, caption, tableOnMobile = false }) {
+export function DataTable({ columns, rows, empty, caption, tableOnMobile = false, tableClassName = '' }) {
   return (
     <div className={`data-table @container ${tableOnMobile ? 'overflow-x-auto' : ''}`}>
       {/* Tabel: pada halaman tertentu tetap berupa tabel di layar HP. */}
-      <table className={`${tableOnMobile ? 'min-w-[30rem] w-full' : 'hidden w-full @xl:table'} table-fixed border-collapse text-sm`}>
+      <table className={cn(tableOnMobile ? 'w-full min-w-0' : 'hidden w-full @xl:table', 'table-fixed border-collapse text-sm', tableClassName)}>
         <caption className="sr-only">{caption}</caption>
         <thead>
           <tr className="border-y border-garis bg-garis-halus/60 text-tinta-redup">
