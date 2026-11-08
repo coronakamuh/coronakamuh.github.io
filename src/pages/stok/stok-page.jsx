@@ -13,7 +13,6 @@ import { StatCard } from '@/components/ui/stat-card'
 import { toast } from 'sonner'
 import { useAsync } from '@/hooks/use-async'
 import { useMutation } from '@/hooks/use-mutation'
-import { exportRecapExcel, exportRecapPdf, loadRecap } from '@/features/stok/export-rekap'
 import { BarangDialog } from '@/features/stok/barang-dialog'
 import { DetailBarangDialog } from '@/features/stok/detail-barang-dialog'
 import { MutasiDialog } from '@/features/stok/mutasi-dialog'
@@ -99,6 +98,7 @@ export function StokPage() {
 
   const { run: runRecap, pending: recapPending } = useMutation(async (format) => {
     try {
+      const { loadRecap, exportRecapPdf, exportRecapExcel } = await import('@/features/stok/export-rekap')
       const recap = await loadRecap()
       if (!recap) {
         toast.info('Tidak ada barang dengan stok pada periode ini')
