@@ -64,7 +64,7 @@ export function PenjualanFields({ idPrefix, items, value, onChange, disabled, co
         <ul id={`${idPrefix}-barang-list`} role="listbox" className="absolute z-50 mt-1 max-h-52 w-full overflow-y-auto rounded-md border border-garis bg-lembar p-1 shadow-lg">
           {matches.map((option) => (
             <li key={option.value} role="option" aria-selected={false}>
-              <button type="button" className="flex w-full items-center justify-between gap-3 rounded-sm px-3 py-2 text-left text-sm hover:bg-garis-halus" onClick={() => pickItem(option.value)}>
+              <button type="button" className="flex min-h-11 w-full items-center justify-between gap-3 rounded-sm px-3 py-2 text-left text-sm hover:bg-garis-halus" onClick={() => pickItem(option.value)}>
                 <span className="min-w-0 truncate">{option.label}</span><span className="shrink-0 text-xs text-tinta-redup">{option.hint}</span>
               </button>
             </li>
@@ -82,22 +82,22 @@ export function PenjualanFields({ idPrefix, items, value, onChange, disabled, co
     // Lebar ditentukan oleh lebar kartunya (container query), bukan lebar layar: aman bila ada sidebar.
     return (
       <div className="@container">
-        <div className="grid grid-cols-2 gap-x-3 gap-y-2.5 @xl:grid-cols-12 [&_button[id]]:h-9 [&_input]:h-9">
-          <CompactField icon={Calendar} label="Tanggal" htmlFor={`${idPrefix}-tanggal`} className="col-span-2 @xl:col-span-3">
+        <div className="grid grid-cols-1 gap-x-3 gap-y-3 @xl:grid-cols-12 [&_button[id]]:h-10 [&_input]:h-11">
+          <CompactField icon={Calendar} label="Tanggal penjualan" htmlFor={`${idPrefix}-tanggal`} className="col-span-1 @xl:col-span-3">
             {tanggalControl}
           </CompactField>
-          <CompactField icon={Package} label="Barang" htmlFor={`${idPrefix}-barang`} className="col-span-2 @xl:col-span-9">
+          <CompactField icon={Package} label="Nama barang" htmlFor={`${idPrefix}-barang`} className="col-span-1 @xl:col-span-9">
             {barangControl}
           </CompactField>
-          <CompactField icon={Hash} label="Jumlah" htmlFor={`${idPrefix}-qty`} className="@xl:col-span-3">
+          <CompactField icon={Hash} label="Jumlah barang" htmlFor={`${idPrefix}-qty`} className="col-span-1 @xl:col-span-3">
             {qtyControl}
           </CompactField>
-          <CompactField icon={Tag} label="Harga satuan" htmlFor={`${idPrefix}-harga`} className="@xl:col-span-4">
+          <CompactField icon={Tag} label="Harga per unit" htmlFor={`${idPrefix}-harga`} className="col-span-1 @xl:col-span-4">
             <div className="relative">
               <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-xs text-tinta-redup" aria-hidden="true">
                 Rp
               </span>
-              <Input id={`${idPrefix}-harga`} inputMode="numeric" placeholder="0" value={value.harga} onChange={(event) => onChange({ ...value, harga: event.target.value })} disabled={disabled} className="pl-9" />
+              <Input id={`${idPrefix}-harga`} inputMode="numeric" placeholder="0" value={value.harga} onChange={(event) => onChange({ ...value, harga: event.target.value })} disabled={disabled} className="h-11 pl-9" />
             </div>
           </CompactField>
           {children}
