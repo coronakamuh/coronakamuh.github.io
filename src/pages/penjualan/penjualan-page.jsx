@@ -14,7 +14,7 @@ import { EditPenjualanDialog } from '@/features/penjualan/edit-penjualan-dialog'
 import { PenjualanForm } from '@/features/penjualan/penjualan-form'
 import { useAsync } from '@/hooks/use-async'
 import { formatAngka, formatRupiah } from '@/lib/format'
-import { formatDisplay, todayISO } from '@/lib/date'
+import { todayISO } from '@/lib/date'
 import { usePageSize } from '@/lib/preferences'
 import { exportSalesExcel, exportSalesPdf } from '@/features/penjualan/export-penjualan'
 import { getSalesExport, getSalesPage, getSalesSummary, getStockData } from '@/services/queries'
@@ -57,12 +57,10 @@ export function PenjualanPage() {
   const filtered = Boolean(from || to || brand)
 
   const columns = [
-    { key: 'date', label: 'Tanggal', render: (row) => <span className="whitespace-nowrap">{formatDisplay(row.date)}</span> },
-    { key: 'item', label: 'Nama Barang', render: (row) => <NamaBarang name={row.item} /> },
+    { key: 'date', label: 'Tgl', render: (row) => <span className="whitespace-nowrap">{row.date.slice(8, 10)}/{row.date.slice(5, 7)}</span> },
+    { key: 'item', label: 'Barang', render: (row) => <NamaBarang name={row.item} /> },
     { key: 'qty', label: 'Qty', align: 'right', render: (row) => formatAngka(row.qty) },
-    { key: 'price', label: 'Harga', align: 'right', render: (row) => <span className="whitespace-nowrap">{formatRupiah(row.price)}</span> },
-    { key: 'total', label: 'Total', align: 'right', render: (row) => <span className="whitespace-nowrap">{formatRupiah(row.total)}</span> },
-    { key: 'brand', label: 'Brand' },
+    { key: 'stock', label: 'Sisa', align: 'right', render: (row) => formatAngka(row.stock) },
     {
       key: 'actions',
       label: 'Aksi',
@@ -121,13 +119,13 @@ export function PenjualanPage() {
                 : undefined
             }
           />
-          <div className="filter-bar">
+          <div className="filter-bar sales-filter-bar">
             <div className="filter-dates">
               <DatePicker id="filter-dari" aria-label="Dari tanggal" placeholder="Dari" value={from} onChange={setFrom} max={todayISO()} />
               <span aria-hidden="true">—</span>
               <DatePicker id="filter-sampai" aria-label="Sampai tanggal" placeholder="Sampai" value={to} onChange={setTo} max={todayISO()} />
             </div>
-            <Select id="filter-brand" aria-label="Filter brand" value={brand} onValueChange={setBrand} options={brandOptions} />
+            <Select id="filter-brand" aria-label="Filter brand" value={brand} onValueChange={setBrand} options={brandOptions} className="sales-brand-filter" />
             <Button variant="ghost" size="sm" className="filter-reset" onClick={() => { setFrom(''); setTo(''); setBrand('') }} disabled={!filtered}>
               <X />
               Reset
@@ -143,6 +141,7 @@ export function PenjualanPage() {
             caption="Penjualan terbaru"
             columns={columns}
             rows={sales.data ? sales.data.rows : []}
+            tableOnMobile
             empty={{
               icon: Receipt,
               title: waiting ? 'Memuat data' : filtered ? 'Tidak ada penjualan' : 'Belum ada penjualan',
