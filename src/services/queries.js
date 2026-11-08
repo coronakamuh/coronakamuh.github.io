@@ -170,6 +170,17 @@ export async function getTargetRows() {
     .map((brand) => ({ id: brand.id, brand: brand.name, target: targetOf.get(brand.name) ?? null }))
 }
 
+/** Bulan paling awal yang memiliki catatan penjualan (YYYY-MM). */
+export async function getSalesStartMonth() {
+  const row = unwrap(await supabase
+    .from('penjualan')
+    .select('tanggal_pembelian')
+    .order('tanggal_pembelian', { ascending: true })
+    .limit(1)
+    .maybeSingle())
+  return row?.tanggal_pembelian?.slice(0, 7) ?? null
+}
+
 function filterSales(query, { from, to, brand }) {
   let next = query
   if (from) next = next.gte('tanggal_pembelian', from)
