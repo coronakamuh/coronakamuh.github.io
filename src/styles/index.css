@@ -110,3 +110,8 @@
 .data-table :is(td, li) button:not([class*="underline"]) {
   padding-inline: 0.5rem;
 }
+
+/* Filter tanggal dan brand sejajar khusus halaman Penjualan. */
+.sales-filter-bar .filter-dates { flex: 1 1 0; min-width: 0; }
+.sales-filter-bar .filter-dates > button { flex: 1 1 0; min-width: 0; padding-inline: 0.45rem; }
+.sales-filter-bar .sales-brand-filter { flex: 1 1 7.5rem; min-width: 7.5rem; }
