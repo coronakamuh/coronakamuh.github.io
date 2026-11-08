@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { History, Plus } from 'lucide-react'
+import { ArrowDownLeft, ArrowUpRight, History, Plus, RotateCcw, X } from 'lucide-react'
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader } from '@/components/ui/card'
@@ -20,23 +20,32 @@ import { getMovementsPage, getStockData } from '@/services/queries'
 const DEFAULT_PAGE_SIZE = 20
 
 const makeColumns = (onDetail) => [
-  { key: 'date', label: 'Tanggal', render: (row) => formatDisplay(row.date) },
+  {
+    key: 'date',
+    label: 'Tanggal',
+    render: (row) => <span className="whitespace-nowrap font-medium text-tinta">{formatDisplay(row.date)}</span>,
+  },
   {
     key: 'item',
-    label: 'Barang',
+    label: 'Produk',
     render: (row) => (
-      <button type="button" className="text-left font-medium underline-offset-2 hover:underline" onClick={() => onDetail(row.id)}>
+      <button type="button" className="text-left font-semibold underline-offset-2 hover:underline" onClick={() => onDetail(row.id)}>
         <NamaBarang name={row.item} />
       </button>
     ),
   },
-  { key: 'label', label: 'Jenis' },
+  {
+    key: 'label',
+    label: 'Jenis transaksi',
+    render: (row) => <span className="inline-flex rounded-full bg-garis-halus px-2 py-1 text-xs font-medium text-tinta">{row.label}</span>,
+  },
   {
     key: 'delta',
     label: 'Jumlah',
     align: 'right',
     render: (row) => (
-      <span className={row.delta < 0 ? 'text-bahaya' : undefined}>
+      <span className={row.delta < 0 ? 'inline-flex items-center gap-1 font-semibold text-bahaya' : 'inline-flex items-center gap-1 font-semibold text-sukses'}>
+        {row.delta < 0 ? <ArrowDownLeft className="size-3.5" aria-hidden="true" /> : <ArrowUpRight className="size-3.5" aria-hidden="true" />}
         {row.delta > 0 ? '+' : ''}
         {formatAngka(row.delta)}
       </span>
@@ -72,31 +81,59 @@ export function RiwayatPage() {
 
   useEffect(() => setPage(1), [from, to, group])
 
+  function resetFilters() {
+    setFrom('')
+    setTo('')
+    setGroup('')
+  }
+
   return (
-    <>
+    <div className="space-y-4">
       <PageHeader
-        title="Riwayat In/Out"
-        description="Catatan barang masuk, keluar, dan penyesuaian stok."
+        title="Riwayat Transaksi"
+        description="Pantau barang masuk, keluar, dan penyesuaian stok."
         actions={
-          <Button onClick={() => setCatat(true)} disabled={!stock.data}>
+          <Button onClick={() => setCatat(true)} disabled={!stock.data} className="w-full sm:w-auto">
             <Plus />
             Catat Mutasi
           </Button>
         }
       />
 
-      <Card>
-        <CardHeader title="Riwayat Mutasi" description={data ? `${formatAngka(data.total)} catatan.` : undefined} />
-        <div className="filter-bar">
-          <div className="filter-dates">
-            <DatePicker id="riwayat-dari" aria-label="Dari tanggal" placeholder="Dari" value={from} onChange={setFrom} max={to || undefined} />
-            <span aria-hidden="true">—</span>
-            <DatePicker id="riwayat-sampai" aria-label="Sampai tanggal" placeholder="Sampai" value={to} onChange={setTo} min={from || undefined} />
+      <Card className="min-w-0">
+        <CardHeader
+          title="Riwayat Mutasi"
+          description={data ? `${formatAngka(data.total)} catatan transaksi` : 'Daftar seluruh pergerakan stok.'}
+        />
+
+        <div className="space-y-2.5 px-3 pb-4 sm:px-5">
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-tinta-redup">Filter transaksi</p>
+            {filtering ? (
+              <Button type="button" variant="ghost" size="sm" className="h-8 px-2 text-xs" onClick={resetFilters}>
+                <X className="size-3.5" />
+                Reset filter
+              </Button>
+            ) : null}
           </div>
-          <Select id="riwayat-jenis" aria-label="Jenis mutasi" value={group} onValueChange={setGroup} options={typeOptions} />
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(11rem,0.9fr)]">
+            <div className="min-w-0 space-y-1">
+              <label htmlFor="riwayat-dari" className="text-xs font-medium text-tinta-redup">Dari tanggal</label>
+              <DatePicker id="riwayat-dari" aria-label="Dari tanggal" placeholder="Pilih tanggal awal" value={from} onChange={setFrom} max={to || undefined} />
+            </div>
+            <div className="min-w-0 space-y-1">
+              <label htmlFor="riwayat-sampai" className="text-xs font-medium text-tinta-redup">Sampai tanggal</label>
+              <DatePicker id="riwayat-sampai" aria-label="Sampai tanggal" placeholder="Pilih tanggal akhir" value={to} onChange={setTo} min={from || undefined} />
+            </div>
+            <div className="min-w-0 space-y-1">
+              <label htmlFor="riwayat-jenis" className="text-xs font-medium text-tinta-redup">Jenis transaksi</label>
+              <Select id="riwayat-jenis" aria-label="Jenis mutasi" value={group} onValueChange={setGroup} options={typeOptions} className="w-full" />
+            </div>
+          </div>
         </div>
+
         {error ? (
-          <div className="px-4 pb-4 sm:px-5">
+          <div className="px-3 pb-4 sm:px-5">
             <ErrorNotice error={error} onRetry={reload} />
           </div>
         ) : null}
@@ -107,12 +144,13 @@ export function RiwayatPage() {
           empty={{
             icon: History,
             title: waiting ? 'Memuat data' : filtering ? 'Tidak ada riwayat yang cocok' : 'Belum ada riwayat',
-            description: waiting ? '' : filtering ? 'Ubah tanggal atau jenis mutasi.' : 'Barang masuk dan keluar akan tercatat di sini.',
+            description: waiting ? '' : filtering ? 'Ubah tanggal atau jenis transaksi.' : 'Barang masuk dan keluar akan tercatat di sini.',
           }}
         />
         <Pager page={page} pageSize={PAGE_SIZE} total={data?.total ?? 0} onPageChange={setPage} />
       </Card>
-    <DetailMutasiDialog id={detailId} onOpenChange={(open) => !open && setDetailId(null)} />
+
+      <DetailMutasiDialog id={detailId} onOpenChange={(open) => !open && setDetailId(null)} />
       <MutasiDialog
         open={catat}
         items={stock.data?.items}
@@ -122,6 +160,6 @@ export function RiwayatPage() {
           stock.reload()
         }}
       />
-    </>
+    </div>
   )
 }
