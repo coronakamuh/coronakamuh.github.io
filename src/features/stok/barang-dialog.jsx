@@ -55,7 +55,7 @@ export function BarangDialog({ open, item, brands, existingNames, onOpenChange, 
       title={editing ? 'Ubah Barang' : 'Tambah Barang'}
       description={editing ? 'Mengganti brand hanya berlaku untuk penjualan baru.' : 'Stok awal adalah jumlah stok saat barang pertama dicatat.'}
     >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3" noValidate>
         <Field label="Nama barang" htmlFor="barang-nama">
           <Input id="barang-nama" value={nama} onChange={(event) => setNama(event.target.value)} />
         </Field>
@@ -68,7 +68,7 @@ export function BarangDialog({ open, item, brands, existingNames, onOpenChange, 
           </Field>
         ) : null}
         <FormMessage>{error}</FormMessage>
-        <Button type="submit" disabled={save.pending}>
+        <Button type="submit" className="h-11 w-full" disabled={save.pending}>
           {save.pending ? 'Menyimpan…' : 'Simpan Barang'}
         </Button>
       </form>
