@@ -104,7 +104,8 @@ export function PenjualanPage() {
       ),
     },
     { key: 'qty', label: 'Jml', align: 'right', className: 'w-[7%] whitespace-nowrap', render: (row) => formatAngka(row.qty) },
-    { key: 'price', label: 'Harga', align: 'right', className: 'w-[16%] whitespace-nowrap hidden sm:table-cell', render: (row) => formatRupiah(row.price) },
+    { key: 'price', label: 'Harga', align: 'right', className: 'w-[16%] whitespace-nowrap hidden sm:table-cell',
+      mobileHidden: true, render: (row) => formatRupiah(row.price) },
     {
       key: 'total',
       label: 'Total',
@@ -119,6 +120,7 @@ export function PenjualanPage() {
       label: 'Sisa',
       align: 'right',
       className: 'w-[8%] whitespace-nowrap hidden sm:table-cell',
+      mobileHidden: true,
       render: (row) => <span className={row.stock < 0 ? 'text-bahaya' : undefined}>{formatAngka(row.stock)}</span>,
     },
     {
