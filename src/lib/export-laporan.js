@@ -231,7 +231,7 @@ export function buildReportPdf({ title, subtitle, groups, grandTotalText, dailyT
     const min = [25, 0, 19, 43, 46, 43]
     const max = [38, 0, 30, 72, 78, 72]
     const fixed = [0, 2, 3, 4, 5].map((i) =>
-      Math.max(min[i], Math.min(max[i], Math.max(textWidth(labels[i], 7, true), ...values[i].map((v) => textWidth(v, FONT))) + PAD * 2)),
+      Math.max(min[i], Math.min(max[i], Math.max(textWidth(labels[i], FONT, true), ...values[i].map((v) => textWidth(v, FONT))) + PAD * 2)),
     )
     const nameWidth = Math.max(70, PANEL - fixed.reduce((sum, width) => sum + width, 0))
     return [fixed[0], nameWidth, fixed[1], fixed[2], fixed[3], fixed[4]]
@@ -243,8 +243,7 @@ export function buildReportPdf({ title, subtitle, groups, grandTotalText, dailyT
     let x = x0
     labels.forEach((label, i) => {
       rect(ops, x, y, colWidths[i], HEAD, C.head)
-      const size = 7
-      txt(ops, label, x + Math.max(PAD, (colWidths[i] - textWidth(label, size, true)) / 2), y + HEAD / 2 + 2.4, size, true, 'FFFFFF')
+      txt(ops, label, x + Math.max(PAD, (colWidths[i] - textWidth(label, FONT, true)) / 2), y + HEAD / 2 + FONT * 0.35, FONT, true, 'FFFFFF')
       x += colWidths[i]
     })
   }
@@ -256,13 +255,13 @@ export function buildReportPdf({ title, subtitle, groups, grandTotalText, dailyT
       if (brand !== day.brand) {
         if (brand) {
           rect(ops, x0, y, PANEL, ROW, C.subtotal)
-          txt(ops, 'TOTAL ' + brand + '  ' + 'Rp ' + new Intl.NumberFormat('id-ID').format(subtotal), x0 + PAD, y + ROW / 2 + 2.5, 7, true)
+          txt(ops, 'TOTAL ' + brand + '  ' + 'Rp ' + new Intl.NumberFormat('id-ID').format(subtotal), x0 + PAD, y + ROW / 2 + FONT * 0.35, FONT, true)
           y += ROW
         }
         brand = day.brand
         subtotal = 0
         rect(ops, x0, y, PANEL, ROW, C.brand)
-        txt(ops, brand.toUpperCase(), x0 + PAD, y + ROW / 2 + 2.5, 7, true)
+        txt(ops, brand.toUpperCase(), x0 + PAD, y + ROW / 2 + FONT * 0.35, FONT, true)
         y += ROW
       }
       subtotal += day.total
@@ -309,7 +308,7 @@ export function buildReportPdf({ title, subtitle, groups, grandTotalText, dailyT
     return y
   }
   const ops = []
-  txt(ops, titleText, (W - textWidth(titleText, 9, true)) / 2, 8 * MM, 9, true, '000000')
+  txt(ops, titleText, (W - textWidth(titleText, FONT, true)) / 2, 8 * MM, FONT, true, '000000')
   const y = 12 * MM
   drawHeader(ops, y, M, widths[0])
   drawHeader(ops, y, M + PANEL + GAP, widths[1])
@@ -320,7 +319,7 @@ export function buildReportPdf({ title, subtitle, groups, grandTotalText, dailyT
   const total = grandTotalText
   const totalY = H - M - BASE_ROW
   rect(totalOps, M, totalY, W - M * 2, BASE_ROW, C.total)
-  txt(totalOps, 'TOTAL SEMUA: ' + total, M + PAD, totalY + BASE_ROW / 2 + 2.5, 8, true)
+  txt(totalOps, 'TOTAL SEMUA: ' + total, M + PAD, totalY + BASE_ROW / 2 + FONT * 0.35, FONT, true)
 
   // Ukuran font dan tinggi baris disesuaikan secara vertikal sebelum tabel digambar.
   // Lebar tabel tidak ikut diperkecil, sehingga ruang horizontal tersedia untuk nama produk.
