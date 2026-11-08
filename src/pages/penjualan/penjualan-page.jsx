@@ -12,7 +12,7 @@ import { Select } from '@/components/ui/select'
 import { EditPenjualanDialog } from '@/features/penjualan/edit-penjualan-dialog'
 import { PenjualanForm } from '@/features/penjualan/penjualan-form'
 import { useAsync } from '@/hooks/use-async'
-import { formatAngka, formatRupiah } from '@/lib/format'
+import { formatAngka } from '@/lib/format'
 import { addDaysISO, monthNames, monthRange, todayISO } from '@/lib/date'
 import { usePageSize } from '@/lib/preferences'
 import { exportSalesExcel, exportSalesPdf } from '@/features/penjualan/export-penjualan'
@@ -152,65 +152,18 @@ export function PenjualanPage() {
               <ErrorNotice error={sales.error} onRetry={refresh} />
             </div>
           ) : null}
-          {sales.data?.rows?.length > 0 ? (
-            <div className="data-table overflow-x-auto">
-              <table className="w-full min-w-0 table-fixed border-collapse text-sm sales-history-table">
-                <caption className="sr-only">Penjualan terbaru</caption>
-                <thead>
-                  <tr className="border-y border-garis bg-garis-halus/60 text-tinta-redup">
-                    {['Tgl', 'Total harian', 'Barang', 'Qty', 'Sisa', 'Aksi'].map((label) => (
-                      <th key={label} scope="col" className="px-2 py-1.5 text-left text-xs font-medium">
-                        {label}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {sales.data.rows.map((row, index, rows) => {
-                    const firstOfDay = index === 0 || rows[index - 1].date !== row.date
-                    const dayCount = firstOfDay ? rows.filter((entry) => entry.date === row.date).length : 0
-                    return (
-                      <tr key={row.id} className="border-b border-garis-halus last:border-b-0">
-                        {firstOfDay ? (
-                          <>
-                            <td rowSpan={dayCount} className="px-2 py-1 align-top leading-snug whitespace-nowrap">
-                              {row.date.slice(8, 10)}/{row.date.slice(5, 7)}
-                            </td>
-                            <td rowSpan={dayCount} className="px-2 py-1 align-top text-right leading-snug tabular-nums whitespace-nowrap">
-                              {formatRupiah(sales.data.dailyTotals?.[row.date] ?? 0)}
-                            </td>
-                          </>
-                        ) : null}
-                        <td className="px-2 py-1 leading-snug break-words">
-                          <NamaBarang name={row.item} />
-                        </td>
-                        <td className="px-2 py-1 text-right leading-snug tabular-nums">{formatAngka(row.qty)}</td>
-                        <td className="px-2 py-1 text-right leading-snug tabular-nums">{formatAngka(row.stock)}</td>
-                        <td className="px-1 py-1 text-right">
-                          <Button variant="ghost" size="sm" onClick={() => setEditing(row)} disabled={items.length === 0} aria-label="Ubah penjualan" title="Ubah penjualan">
-                            <Pencil size={15} />
-                          </Button>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <DataTable
-              caption="Penjualan terbaru"
-              columns={columns}
-              rows={[]}
-              tableOnMobile
-              tableClassName="sales-history-table"
-              empty={{
-                icon: Receipt,
-                title: waiting ? 'Memuat data' : 'Tidak ada penjualan',
-                description: waiting ? '' : 'Belum ada penjualan pada bulan dan brand yang dipilih.',
-              }}
-            />
-          )}
+          <DataTable
+            caption="Penjualan terbaru"
+            columns={columns}
+            rows={sales.data ? sales.data.rows : []}
+            tableOnMobile
+            tableClassName="sales-history-table"
+            empty={{
+              icon: Receipt,
+              title: waiting ? 'Memuat data' : 'Tidak ada penjualan',
+              description: waiting ? '' : 'Belum ada penjualan pada bulan dan brand yang dipilih.',
+            }}
+          />
           <Pager page={page} pageSize={PAGE_SIZE} total={sales.data?.total ?? 0} onPageChange={setPage} />
         </Card>
       </div>
