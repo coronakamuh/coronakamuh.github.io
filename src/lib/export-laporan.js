@@ -292,20 +292,25 @@ export function buildReportPdf({ title, subtitle, groups, grandTotalText, dailyT
   drawHeader(ops, y, M + PANEL + GAP, widths[1])
   const leftBottom = renderPanel(ops, panels[0], M, widths[0], y + HEAD)
   const rightBottom = renderPanel(ops, panels[1], M + PANEL + GAP, widths[1], y + HEAD)
+  // Total keseluruhan terpisah agar selalu berada di bawah kedua tabel.
+  const totalOps = []
   const total = grandTotalText
   const totalY = H - M - ROW
-  rect(ops, M, totalY, W - M * 2, ROW, C.total)
-  txt(ops, 'TOTAL SEMUA: ' + total, M + PAD, totalY + ROW / 2 + 2.5, 8, true)
+  rect(totalOps, M, totalY, W - M * 2, ROW, C.total)
+  txt(totalOps, 'TOTAL SEMUA: ' + total, M + PAD, totalY + ROW / 2 + 2.5, 8, true)
 
-  // Pertahankan ukuran normal jika muat. Jika isi melewati area satu halaman,
-  // skalakan seluruh hasil (termasuk teks, garis, dan tabel) secara proporsional.
+  // Skala konten tabel dan judul secara proporsional, tetap di tengah halaman.
+  // Baris total tidak ikut diskalakan agar tidak bergeser ke tengah tabel.
   const topAnchor = 8 * MM
   const contentBottom = Math.max(leftBottom, rightBottom)
-  if (contentBottom > totalY) {
-    const scale = (totalY - topAnchor) / (contentBottom - topAnchor)
-    ops.unshift('q', `${scale} 0 0 ${scale} 0 ${H * (1 - scale)} cm`)
+  if (contentBottom > totalY - ROW) {
+    const scale = (totalY - ROW - topAnchor) / (contentBottom - topAnchor)
+    const offsetX = (W * (1 - scale)) / 2
+    const offsetY = (H - topAnchor) * (1 - scale)
+    ops.unshift('q', `${scale} 0 0 ${scale} ${offsetX} ${offsetY} cm`)
     ops.push('Q')
   }
+  ops.push(...totalOps)
   return assemblePdf([ops], { w: W, h: H })
 }
 /**
