@@ -8,7 +8,6 @@ import { useMutation } from '@/hooks/use-mutation'
 import { formatAngka, formatRupiah } from '@/lib/format'
 import { todayISO } from '@/lib/date'
 import { parseWhole, validateSale } from '@/lib/validation'
-import { catatPenjualan } from '@/services/sales'
 
 /** Perkiraan stok sebelum simpan. Angka resmi tetap dihitung database saat menyimpan. */
 function StockInfo({ barang, qty, tanggal }) {
@@ -87,16 +86,16 @@ export function PenjualanForm({ items, onSaved }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-2.5" noValidate>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3" noValidate>
       <PenjualanFields key={fieldsReset} compact idPrefix="jual" items={items} value={value} onChange={setValue} disabled={save.pending}>
-        <div className="col-span-2 flex items-end gap-2 @xl:col-span-5">
-          <div className="flex h-9 min-w-0 flex-1 items-center justify-between gap-2 rounded-md bg-garis-halus px-2.5 text-sm" aria-live="polite">
+        <div className="col-span-1 flex min-w-0 flex-col items-stretch gap-2 @xl:col-span-5 @xl:flex-row @xl:items-end">
+          <div className="flex h-11 min-w-0 flex-1 items-center justify-between gap-2 rounded-lg bg-garis-halus px-3 text-sm" aria-live="polite">
             <span className="text-xs text-tinta-redup">Subtotal</span>
             <span className="truncate font-semibold tabular-nums">{formatRupiah(subtotal)}</span>
           </div>
-          <Button type="submit" size="sm" disabled={save.pending}>
+          <Button type="submit" className="h-11 w-full @xl:w-auto" disabled={save.pending}>
             <Plus />
-            {save.pending ? 'Menyimpan…' : 'Simpan'}
+            {save.pending ? 'Menyimpan…' : 'Catat Penjualan'}
           </Button>
         </div>
       </PenjualanFields>
