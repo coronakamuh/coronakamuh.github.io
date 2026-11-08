@@ -17,11 +17,7 @@ import { exportRecapExcel, exportRecapPdf, loadRecap } from '@/features/stok/exp
 import { BarangDialog } from '@/features/stok/barang-dialog'
 import { DetailBarangDialog } from '@/features/stok/detail-barang-dialog'
 import { MutasiDialog } from '@/features/stok/mutasi-dialog'
-import { downloadFile } from '@/lib/download'
-import { buildPdf } from '@/lib/export-pdf'
-import { buildXlsx } from '@/lib/export-xlsx'
 import { formatAngka, formatRupiah } from '@/lib/format'
-import { todayISO } from '@/lib/date'
 import { usePageSize } from '@/lib/preferences'
 import { getStockData } from '@/services/queries'
 
@@ -39,14 +35,6 @@ const baseColumns = [
   },
   { key: 'need', label: 'Kebutuhan PO', align: 'right', render: (row) => (need(row) > 0 ? formatAngka(need(row)) : '—') },
   { key: 'price', label: 'Harga terakhir', align: 'right', render: (row) => (row.price === null ? '—' : formatRupiah(row.price)) },
-]
-
-const exportColumns = [
-  { label: 'Barang', width: 44, pdf: 230, value: (row) => row.name },
-  { label: 'Brand', width: 18, pdf: 90, value: (row) => row.brand },
-  { label: 'Stok', width: 10, pdf: 50, type: 'number', align: 'right', value: (row) => row.stock },
-  { label: 'Kebutuhan PO', width: 14, pdf: 70, type: 'number', align: 'right', value: need },
-  { label: 'Harga terakhir', width: 16, pdf: 90, type: 'rupiah', align: 'right', value: (row) => row.price },
 ]
 
 export function StokPage() {
@@ -100,41 +88,6 @@ export function StokPage() {
     },
   ]
 
-  function filterNote() {
-    const parts = []
-    if (brand) parts.push(`Brand: ${brand}`)
-    if (query.trim()) parts.push(`Cari: "${query.trim()}"`)
-    return parts.length ? parts.join(' · ') : 'Semua barang'
-  }
-
-  function exportExcel() {
-    const bytes = buildXlsx({
-      sheetName: 'Stok Barang',
-      rows: filtered,
-      columns: exportColumns.map((c) => ({ label: c.label, width: c.width, type: c.type, value: c.value })),
-    })
-    downloadFile(`stok-barang-${todayISO()}.xlsx`, bytes, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-  }
-
-  function exportPdf() {
-    const bytes = buildPdf({
-      title: 'Stok Barang',
-      subtitle: `Dhouse Digital · ${todayISO()} · ${filterNote()}`,
-      summary: [
-        `${formatAngka(filtered.length)} barang · Total stok ${formatAngka(filtered.reduce((t, r) => t + Math.max(r.stock, 0), 0))} · ${formatAngka(filtered.filter((r) => r.stock < 0).length)} barang minus · Kebutuhan PO ${formatAngka(filtered.reduce((t, r) => t + need(r), 0))} unit`,
-      ],
-      footer: 'Dhouse Digital',
-      rows: filtered,
-      columns: exportColumns.map((c) => ({
-        label: c.label,
-        width: c.pdf,
-        align: c.align,
-        value: (row) => (c.type === 'rupiah' ? (row.price === null ? '-' : formatRupiah(row.price)) : c.type === 'number' ? String(c.value(row)) : c.value(row) ?? ''),
-      })),
-    })
-    downloadFile(`stok-barang-${todayISO()}.pdf`, bytes, 'application/pdf')
-  }
-
   const { run: runRecap, pending: recapPending } = useMutation(async (format) => {
     try {
       const recap = await loadRecap()
@@ -184,14 +137,6 @@ export function StokPage() {
           description={data ? `${formatAngka(filtered.length)} dari ${formatAngka(items.length)} barang.` : undefined}
           action={
             <span className="inline-flex flex-wrap justify-end gap-2">
-              <Button variant="outline" size="sm" onClick={exportExcel} disabled={filtered.length === 0}>
-                <Download />
-                Excel
-              </Button>
-              <Button variant="outline" size="sm" onClick={exportPdf} disabled={filtered.length === 0}>
-                <FileText />
-                PDF
-              </Button>
               <Button variant="outline" size="sm" onClick={() => runRecap('xlsx')} disabled={recapPending} title="Rekap stok harian, 30 hari terakhir">
                 <Download />
                 Rekap Excel
