@@ -259,7 +259,8 @@ export function buildReportPdf({ title, subtitle, groups, grandTotalText, dailyT
       if (brand !== day.brand) {
         if (brand) {
           rect(ops, x0, y, PANEL, ROW, C.subtotal)
-          txt(ops, 'TOTAL ' + brand + '  ' + 'Rp ' + new Intl.NumberFormat('id-ID').format(subtotal), x0 + PAD, y + ROW / 2 + FONT * 0.35, FONT, true)
+          const subtotalText = fitCellText('TOTAL ' + brand + '  ' + 'Rp ' + new Intl.NumberFormat('id-ID').format(subtotal), PANEL - PAD * 2, FONT)
+          txt(ops, subtotalText, x0 + PANEL - PAD - textWidth(subtotalText, FONT, true), y + ROW / 2 + FONT * 0.35, FONT, true)
           y += ROW
         }
         brand = day.brand
@@ -306,7 +307,8 @@ export function buildReportPdf({ title, subtitle, groups, grandTotalText, dailyT
     }
     if (brand) {
       rect(ops, x0, y, PANEL, ROW, C.subtotal)
-      txt(ops, 'TOTAL ' + brand + '  ' + 'Rp ' + new Intl.NumberFormat('id-ID').format(subtotal), x0 + PAD, y + ROW / 2 + FONT * 0.35, FONT, true)
+      const subtotalText = fitCellText('TOTAL ' + brand + '  ' + 'Rp ' + new Intl.NumberFormat('id-ID').format(subtotal), PANEL - PAD * 2, FONT)
+      txt(ops, subtotalText, x0 + PANEL - PAD - textWidth(subtotalText, FONT, true), y + ROW / 2 + FONT * 0.35, FONT, true)
       y += ROW
     }
     return y
