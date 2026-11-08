@@ -148,7 +148,7 @@ export function exportSalesExcel(rows, filter) {
     return Math.max([8, 30, 7, 13, 13, 13][c], Math.min([12, 38, 10, 18, 19, 19][c], Math.max(header[c].length, ...vals.map((v) => v.length)) + 2))
   }
   const widths = [...Array.from({ length: 6 }, (_, i) => width(panels[0], i)), 2, ...Array.from({ length: 6 }, (_, i) => width(panels[1], i))]
-  downloadFile(fileName(filter, 'xlsx'), buildReportXlsx({ sheetName: 'Penjualan', widths, rows: out, merges, pageSetup: { fitToHeight: 0 } }), XLSX_MIME)
+  downloadFile(fileName(filter, 'xlsx'), buildReportXlsx({ sheetName: 'Penjualan', widths, rows: out, merges, pageSetup: { fitToHeight: 1 } }), XLSX_MIME)
 }
 export function exportSalesPdf(rows, filter) {
   const groups = groupSales(rows)
