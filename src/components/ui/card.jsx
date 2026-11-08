@@ -1,7 +1,7 @@
 import { cn } from '@/lib/cn'
 
 export function Card({ className, ...props }) {
-  return <section className={cn('rounded-xl border border-garis bg-lembar shadow-[0_1px_3px_rgb(15_23_42/0.045)]', className)} {...props} />
+  return <section className={cn('dh-card', className)} {...props} />
 }
 
 /** Kepala kartu: judul di kiri, aksi (tombol, filter) di kanan. */

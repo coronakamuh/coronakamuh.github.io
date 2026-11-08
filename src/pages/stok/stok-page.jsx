@@ -35,7 +35,7 @@ const baseColumns = [
       <span className={row.stock < 0
         ? 'inline-flex min-w-12 justify-end rounded-md bg-bahaya/10 px-2 py-1 font-semibold text-bahaya'
         : row.stock === 0
-          ? 'inline-flex min-w-12 justify-end rounded-md bg-amber-50 px-2 py-1 font-semibold text-amber-700'
+          ? 'inline-flex min-w-12 justify-end rounded-md bg-peringatan/10 px-2 py-1 font-semibold text-peringatan'
           : 'inline-flex min-w-12 justify-end rounded-md bg-sukses/10 px-2 py-1 font-semibold text-sukses'
       }>
         {formatAngka(row.stock)}

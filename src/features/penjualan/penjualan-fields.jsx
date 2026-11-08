@@ -61,10 +61,10 @@ export function PenjualanFields({ idPrefix, items, value, onChange, disabled, co
         onChange={(event) => { setBarangQuery(event.target.value); setShowMatches(true); if (value.barangId) onChange({ ...value, barangId: '' }) }}
         disabled={disabled} role="combobox" aria-autocomplete="list" aria-expanded={showMatches && matches.length > 0} aria-controls={`${idPrefix}-barang-list`} />
       {showMatches && matches.length > 0 ? (
-        <ul id={`${idPrefix}-barang-list`} role="listbox" className="absolute z-50 mt-1 max-h-52 w-full overflow-y-auto rounded-md border border-garis bg-lembar p-1 shadow-lg">
+        <ul id={`${idPrefix}-barang-list`} role="listbox" className="absolute z-50 mt-1 max-h-52 w-full overflow-y-auto rounded-xl border border-garis bg-lembar p-1 shadow-pop">
           {matches.map((option) => (
             <li key={option.value} role="option" aria-selected={false}>
-              <button type="button" className="flex min-h-11 w-full items-center justify-between gap-3 rounded-sm px-3 py-2 text-left text-sm hover:bg-garis-halus" onClick={() => pickItem(option.value)}>
+              <button type="button" className="flex min-h-11 w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-left text-sm hover:bg-garis-halus" onClick={() => pickItem(option.value)}>
                 <span className="min-w-0 truncate">{option.label}</span><span className="shrink-0 text-xs text-tinta-redup">{option.hint}</span>
               </button>
             </li>

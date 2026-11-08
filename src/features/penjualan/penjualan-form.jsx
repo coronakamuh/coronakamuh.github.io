@@ -32,7 +32,7 @@ function StockInfo({ barang, qty, tanggal }) {
   const after = qty ? barang.stock - qty : null
   if (after !== null && after < 0) {
     return (
-      <p className="flex items-center gap-1.5 rounded-md bg-amber-50 px-2.5 py-1.5 text-xs text-amber-800" aria-live="polite">
+      <p className="flex items-center gap-1.5 rounded-lg bg-peringatan/10 px-2.5 py-1.5 text-xs text-peringatan" aria-live="polite">
         <TriangleAlert className="size-3.5 shrink-0" aria-hidden="true" />
         Stok sekarang {formatAngka(barang.stock)}, setelah penjualan {formatAngka(after)}. Kebutuhan PO {formatAngka(-after)} unit (stok akan minus).
       </p>

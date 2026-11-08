@@ -3,7 +3,7 @@ import { cn } from '@/lib/cn'
 /** Kartu angka ringkas. Tanpa nilai, tampil "—" karena belum ada data. */
 export function StatCard({ label, value, hint = 'Belum ada data', icon: Icon, tone = 'default', className }) {
   return (
-    <div className={cn('min-w-0 rounded-xl border border-garis bg-lembar p-3 shadow-[0_1px_3px_rgb(15_23_42/0.045)] sm:p-4', className)}>
+    <div className={cn('dh-card min-w-0 p-3 sm:p-4', className)}>
       <div className="flex min-w-0 items-center justify-between gap-2 text-xs font-medium text-tinta-redup">
         <span className="min-w-0">{label}</span>
         {Icon ? (

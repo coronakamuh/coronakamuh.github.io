@@ -61,7 +61,7 @@ export function DatePicker({ id, value, onChange, min, max, placeholder = 'Pilih
           align="start"
           sideOffset={4}
           collisionPadding={8}
-          className="z-[60] w-[17.5rem] rounded-md border border-garis bg-lembar p-3 shadow-lg"
+          className="z-[60] w-[17.5rem] rounded-xl border border-garis bg-lembar p-3 shadow-pop"
         >
           <div className="flex items-center justify-between">
             <Button variant="ghost" size="icon-sm" aria-label="Bulan sebelumnya" onClick={() => shiftMonth(-1)}>
@@ -97,7 +97,7 @@ export function DatePicker({ id, value, onChange, min, max, placeholder = 'Pilih
                   aria-pressed={selected}
                   onClick={() => pick(iso)}
                   className={cn(
-                    'flex size-9 items-center justify-center rounded-md text-sm tabular-nums disabled:pointer-events-none disabled:opacity-30',
+                    'flex size-9 items-center justify-center rounded-lg text-sm tabular-nums disabled:pointer-events-none disabled:opacity-30',
                     selected
                       ? 'bg-pena font-medium text-white'
                       : 'hover:bg-garis-halus',

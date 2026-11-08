@@ -34,7 +34,7 @@ export function SidebarNav({ route }) {
                   className={cn(
                     'flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pena',
                     active
-                      ? 'bg-blue-50 font-semibold text-pena'
+                      ? 'bg-pena/8 font-semibold text-pena'
                       : 'text-tinta-redup hover:bg-garis-halus hover:text-tinta',
                   )}
                 >

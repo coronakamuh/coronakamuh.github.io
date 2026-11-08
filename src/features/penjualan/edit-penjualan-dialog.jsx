@@ -80,7 +80,7 @@ export function EditPenjualanDialog({ sale, items, onOpenChange, onDone }) {
           {save.pending ? 'Menyimpan…' : 'Simpan Perubahan'}
         </Button>
         {confirmDelete ? (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+          <div className="rounded-lg border border-bahaya/30 bg-bahaya/5 p-3 text-sm text-bahaya">
             <p className="font-semibold">Hapus penjualan ini?</p>
             <p className="mt-1">Catatan penjualan dan transaksi stok terkait akan dihapus. Stok barang akan bertambah kembali.</p>
             <div className="mt-3 flex gap-2">

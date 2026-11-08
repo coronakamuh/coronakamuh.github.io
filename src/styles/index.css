@@ -25,6 +25,11 @@
   --color-latar: #f5f7fb;
   --color-sukses: #16835d;
   --color-peringatan: #b7791f;
+  --color-kertas: #f8fafc;
+  --color-info: #1d4ed8;
+  --shadow-kartu: 0 1px 2px rgb(15 23 42 / 0.04), 0 1px 3px rgb(15 23 42 / 0.05);
+  --shadow-pop: 0 10px 30px -8px rgb(15 23 42 / 0.18), 0 2px 6px rgb(15 23 42 / 0.06);
+  --radius-kartu: 0.875rem;
 }
 
 @layer base {
@@ -47,9 +52,9 @@
 @layer components {
   .dh-card {
     border: 1px solid var(--color-garis);
-    border-radius: 0.875rem;
+    border-radius: var(--radius-kartu);
     background: var(--color-lembar);
-    box-shadow: 0 1px 2px rgb(15 23 42 / 0.035);
+    box-shadow: var(--shadow-kartu);
   }
 }
 

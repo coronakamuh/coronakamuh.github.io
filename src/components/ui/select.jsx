@@ -51,14 +51,14 @@ export function Select({
           position="popper"
           sideOffset={4}
           collisionPadding={8}
-          className="z-[60] max-h-72 w-[var(--radix-select-trigger-width)] min-w-40 overflow-hidden rounded-md border border-garis bg-lembar shadow-lg"
+          className="z-[60] max-h-72 w-[var(--radix-select-trigger-width)] min-w-40 overflow-hidden rounded-xl border border-garis bg-lembar shadow-pop"
         >
           <SelectPrimitive.Viewport className="p-1">
             {options.map((option) => (
               <SelectPrimitive.Item
                 key={option.value}
                 value={option.value === '' ? EMPTY : option.value}
-                className="relative flex h-10 cursor-pointer items-center rounded-sm pr-8 pl-3 text-sm outline-none select-none data-[highlighted]:bg-garis-halus data-[state=checked]:font-medium data-[state=checked]:text-pena"
+                className="relative flex h-10 cursor-pointer items-center rounded-lg pr-8 pl-3 text-sm outline-none select-none data-[highlighted]:bg-garis-halus data-[state=checked]:font-medium data-[state=checked]:text-pena"
               >
                 <SelectPrimitive.ItemText>{option.label}</SelectPrimitive.ItemText>
                 <SelectPrimitive.ItemIndicator className="absolute right-3">

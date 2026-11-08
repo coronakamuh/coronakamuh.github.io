@@ -8,8 +8,9 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         primary: 'bg-pena text-white shadow-sm shadow-pena/15 hover:bg-pena-tua hover:shadow-md',
-        outline: 'border border-garis bg-white text-tinta shadow-sm hover:border-pena/40 hover:bg-garis-halus hover:text-pena',
+        outline: 'border border-garis bg-lembar text-tinta shadow-sm hover:border-pena/40 hover:bg-kertas hover:text-pena',
         ghost: 'text-tinta-redup hover:bg-garis-halus hover:text-tinta',
+        danger: 'bg-bahaya text-white shadow-sm hover:bg-bahaya/90 focus-visible:ring-bahaya/20',
       },
       size: {
         md: 'h-10 px-4',

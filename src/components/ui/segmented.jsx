@@ -4,12 +4,12 @@ import * as Tabs from '@radix-ui/react-tabs'
 export function Segmented({ label, value, onValueChange, options }) {
   return (
     <Tabs.Root value={value} onValueChange={onValueChange}>
-      <Tabs.List aria-label={label} className="inline-flex rounded-md border border-garis p-0.5">
+      <Tabs.List aria-label={label} className="inline-flex gap-0.5 rounded-lg border border-garis bg-kertas p-0.5">
         {options.map((option) => (
           <Tabs.Trigger
             key={option.value}
             value={option.value}
-            className="h-8 rounded-sm px-3 text-sm text-tinta-redup transition-colors hover:text-tinta data-[state=active]:bg-tinta data-[state=active]:text-white"
+            className="h-8 rounded-md px-3 text-sm font-medium text-tinta-redup transition-colors hover:text-tinta data-[state=active]:bg-pena data-[state=active]:text-white data-[state=active]:shadow-sm"
           >
             {option.label}
           </Tabs.Trigger>

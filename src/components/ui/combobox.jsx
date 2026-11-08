@@ -43,7 +43,7 @@ export function Combobox({ id, value, onValueChange, options, placeholder = 'Pil
           align="start"
           sideOffset={4}
           collisionPadding={8}
-          className="z-[60] w-[var(--radix-popover-trigger-width)] min-w-56 rounded-md border border-garis bg-lembar shadow-lg"
+          className="z-[60] w-[var(--radix-popover-trigger-width)] min-w-56 rounded-xl border border-garis bg-lembar shadow-pop"
         >
           <div className="relative border-b border-garis-halus p-2">
             <Search className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-tinta-redup" aria-hidden="true" />
@@ -69,7 +69,7 @@ export function Combobox({ id, value, onValueChange, options, placeholder = 'Pil
                     setOpen(false)
                   }}
                   className={cn(
-                    'flex w-full items-baseline justify-between gap-3 rounded-sm px-3 py-2 text-left text-sm hover:bg-garis-halus',
+                    'flex w-full items-baseline justify-between gap-3 rounded-lg px-3 py-2 text-left text-sm hover:bg-garis-halus',
                     option.value === value && 'bg-garis-halus font-medium',
                   )}
                 >
