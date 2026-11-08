@@ -184,19 +184,39 @@ export function buildReportPdf({ title, subtitle, groups, grandTotalText, dailyT
   const M = 5 * MM
   const GAP = 9
   const PANEL = (W - M * 2 - GAP) / 2
-  const FONT = 8
-  const LEAD = 9
-  const PAD = 2
-  const HEAD = 7 * MM
-  const ROW = 5 * MM
+  const BASE_FONT = 8
+  const BASE_LEAD = 9
+  const BASE_PAD = 2
+  const BASE_HEAD = 7 * MM
+  const BASE_ROW = 5 * MM
+  const days = groups.flatMap((g) => g.days.map((d) => ({ ...d, brand: g.brand })))
+  const middle = Math.ceil(days.length / 2)
+  const panels = [days.slice(0, middle), days.slice(middle)]
+  const panelRows = (panel) => {
+    let count = panel.reduce((sum, day) => sum + day.items.length, 0)
+    let previousBrand = ''
+    for (const day of panel) {
+      if (day.brand !== previousBrand) {
+        count += 1
+        previousBrand = day.brand
+      }
+    }
+    if (previousBrand) count += 1
+    return count
+  }
+  const availableHeight = H - M - BASE_ROW - (12 * MM + BASE_HEAD + BASE_ROW)
+  const requiredHeight = Math.max(...panels.map((panel) => panelRows(panel) * BASE_ROW + BASE_HEAD))
+  const rowScale = Math.min(1, availableHeight / Math.max(requiredHeight, 1))
+  const FONT = BASE_FONT * rowScale
+  const LEAD = BASE_LEAD * rowScale
+  const PAD = BASE_PAD
+  const HEAD = BASE_HEAD * rowScale
+  const ROW = BASE_ROW * rowScale
   const C = { head: '800020', brand: 'F4E5EA', subtotal: 'FAF2F5', total: 'E9CBD5', text: '35262C', line: 'DFC5CE' }
   const rgb = (hex) => { const n = parseInt(hex, 16); return ((n >> 16) & 255) / 255 + ' ' + ((n >> 8) & 255) / 255 + ' ' + (n & 255) / 255 }
   const top = (v) => H - v
   const txt = (ops, value, x, y, size = FONT, bold = false, color = C.text) => ops.push('BT /' + (bold ? 'F2' : 'F1') + ' ' + size + ' Tf ' + rgb(color) + ' rg ' + x.toFixed(2) + ' ' + top(y).toFixed(2) + ' Td (' + escapePdf(value) + ') Tj ET')
   const rect = (ops, x, y, w, h, fill) => ops.push((fill ? rgb(fill) + ' rg ' + x.toFixed(2) + ' ' + top(y + h).toFixed(2) + ' ' + w.toFixed(2) + ' ' + h.toFixed(2) + ' re f ' : '') + rgb(C.line) + ' RG 0.35 w ' + x.toFixed(2) + ' ' + top(y + h).toFixed(2) + ' ' + w.toFixed(2) + ' ' + h.toFixed(2) + ' re S')
-  const days = groups.flatMap((g) => g.days.map((d) => ({ ...d, brand: g.brand })))
-  const middle = Math.ceil(days.length / 2)
-  const panels = [days.slice(0, middle), days.slice(middle)]
   const labels = ['Tgl', 'Nama Barang', 'Qty', 'Harga/Unit', 'Harga Total', 'Total Harian']
   const widthsFor = (panel) => {
     const values = [
@@ -207,13 +227,14 @@ export function buildReportPdf({ title, subtitle, groups, grandTotalText, dailyT
       panel.flatMap((d) => d.items.map((i) => i.totalText)),
       panel.map((d) => dailyTotalText(d)),
     ]
-    const min = [25, 70, 19, 43, 46, 43]
-    const max = [38, 150, 30, 72, 78, 72]
-    const raw = labels.map((label, i) => Math.max(min[i], Math.min(max[i], Math.max(textWidth(label, 7, true), ...values[i].map((v) => textWidth(v, FONT))) + PAD * 2)))
-    const sum = raw.reduce((a, b) => a + b, 0)
-    return raw.map((v) => v * PANEL / sum)
+    const min = [25, 0, 19, 43, 46, 43]
+    const max = [38, 0, 30, 72, 78, 72]
+    const fixed = [0, 2, 3, 4, 5].map((i) =>
+      Math.max(min[i], Math.min(max[i], Math.max(textWidth(labels[i], 7, true), ...values[i].map((v) => textWidth(v, FONT))) + PAD * 2)),
+    )
+    const nameWidth = Math.max(70, PANEL - fixed.reduce((sum, width) => sum + width, 0))
+    return [fixed[0], nameWidth, fixed[1], fixed[2], fixed[3], fixed[4]]
   }
-  const widths = panels.map(widthsFor)
   const pages = []
   const titleText = 'PENJUALAN ' + title
   const drawHeader = (ops, y, x0, colWidths) => {
@@ -299,16 +320,11 @@ export function buildReportPdf({ title, subtitle, groups, grandTotalText, dailyT
   rect(totalOps, M, totalY, W - M * 2, ROW, C.total)
   txt(totalOps, 'TOTAL SEMUA: ' + total, M + PAD, totalY + ROW / 2 + 2.5, 8, true)
 
-  // Skala konten tabel dan judul secara proporsional, tetap di tengah halaman.
-  // Baris total tidak ikut diskalakan agar tidak bergeser ke tengah tabel.
-  const topAnchor = 8 * MM
+  // Ukuran font dan tinggi baris disesuaikan secara vertikal sebelum tabel digambar.
+  // Lebar tabel tidak ikut diperkecil, sehingga ruang horizontal tersedia untuk nama produk.
   const contentBottom = Math.max(leftBottom, rightBottom)
-  if (contentBottom > totalY - ROW) {
-    const scale = (totalY - ROW - topAnchor) / (contentBottom - topAnchor)
-    const offsetX = (W * (1 - scale)) / 2
-    const offsetY = (H - topAnchor) * (1 - scale)
-    ops.unshift('q', `${scale} 0 0 ${scale} ${offsetX} ${offsetY} cm`)
-    ops.push('Q')
+  if (contentBottom > totalY - ROW + 0.5) {
+    throw new Error('Layout PDF melewati batas halaman setelah penyesuaian ukuran.')
   }
   ops.push(...totalOps)
   return assemblePdf([ops], { w: W, h: H })
