@@ -20,3 +20,6 @@ Thumbs.db
 .idea
 .vscode/*
 !.vscode/extensions.json
+
+# Proyek Android dibuat otomatis oleh workflow Buat APK (tidak di-commit)
+/android

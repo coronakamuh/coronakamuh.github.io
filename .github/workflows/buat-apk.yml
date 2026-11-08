@@ -1,0 +1,50 @@
+name: Buat APK Android
+
+# Dijalankan manual: Actions > Buat APK Android > Run workflow.
+# Hanya membuat file APK (artifact); tidak men-deploy situs dan tidak mengubah package.json.
+# Capacitor dipasang sementara di dalam workflow ini saja (--no-save).
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Install dependensi (sesuai package-lock.json)
+        run: npm ci --no-audit --no-fund
+
+      - name: Build web
+        run: npm run build
+
+      - name: Pasang Capacitor sementara
+        run: npm install --no-save --no-audit --no-fund @capacitor/core@^7 @capacitor/cli@^7 @capacitor/android@^7
+
+      - name: Buat proyek Android dan sinkronkan hasil build
+        run: |
+          npx cap add android
+          npx cap sync android
+
+      - name: Build APK debug
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Unggah APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: dhouse-digital-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
