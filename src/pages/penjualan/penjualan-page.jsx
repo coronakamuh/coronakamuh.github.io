@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react'
-import { Download, FileText, Pencil, Receipt, X } from 'lucide-react'
+import { Download, FileText, Pencil, Receipt } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/data-table'
 import { NamaBarang } from '@/components/ui/nama-barang'
-import { DatePicker } from '@/components/ui/date-picker'
 import { ErrorNotice } from '@/components/ui/notice'
 import { Pager } from '@/components/ui/pager'
 import { Select } from '@/components/ui/select'
@@ -14,24 +13,44 @@ import { EditPenjualanDialog } from '@/features/penjualan/edit-penjualan-dialog'
 import { PenjualanForm } from '@/features/penjualan/penjualan-form'
 import { useAsync } from '@/hooks/use-async'
 import { formatAngka } from '@/lib/format'
-import { todayISO } from '@/lib/date'
+import { addDaysISO, monthNames, monthRange, todayISO } from '@/lib/date'
 import { usePageSize } from '@/lib/preferences'
 import { exportSalesExcel, exportSalesPdf } from '@/features/penjualan/export-penjualan'
-import { getSalesExport, getSalesPage, getStockData } from '@/services/queries'
+import { getSalesExport, getSalesPage, getSalesStartMonth, getStockData } from '@/services/queries'
 
 const DEFAULT_PAGE_SIZE = 20
+
+function buildMonthOptions(startMonth, currentMonth) {
+  const first = startMonth && startMonth <= currentMonth ? startMonth : currentMonth
+  const options = []
+  let [year, month] = first.split('-').map(Number)
+  const [endYear, endMonth] = currentMonth.split('-').map(Number)
+
+  while (year < endYear || (year === endYear && month <= endMonth)) {
+    const value = `${year}-${String(month).padStart(2, '0')}`
+    options.push({ value, label: `${monthNames[month - 1]} ${year}` })
+    month += 1
+    if (month > 12) {
+      month = 1
+      year += 1
+    }
+  }
+  return options
+}
 
 export function PenjualanPage() {
   const PAGE_SIZE = usePageSize(DEFAULT_PAGE_SIZE)
   const [page, setPage] = useState(1)
   const [editing, setEditing] = useState(null)
-  const [from, setFrom] = useState('')
-  const [to, setTo] = useState('')
+  const currentMonth = todayISO().slice(0, 7)
+  const [selectedMonth, setSelectedMonth] = useState(() => todayISO().slice(0, 7))
   const [brand, setBrand] = useState('')
-  const rangeError = from && to && from > to ? 'Tanggal "Dari" tidak boleh setelah "Sampai".' : ''
-  const filter = rangeError ? { from: '', to: '', brand } : { from, to, brand }
+  const salesStart = useAsync(getSalesStartMonth, [])
+  const { start: from, next } = monthRange(`${selectedMonth}-01`)
+  const to = addDaysISO(next, -1)
+  const filter = { from, to, brand }
   const sales = useAsync(() => getSalesPage({ page, pageSize: PAGE_SIZE, ...filter }), [page, filter.from, filter.to, filter.brand, PAGE_SIZE])
-  useEffect(() => setPage(1), [from, to, brand, PAGE_SIZE])
+  useEffect(() => setPage(1), [selectedMonth, brand, PAGE_SIZE])
 
   const [exporting, setExporting] = useState('')
   async function handleExport(kind) {
@@ -53,7 +72,6 @@ export function PenjualanPage() {
   const waiting = sales.loading && !sales.data
 
   const brandOptions = [{ value: '', label: 'Semua brand' }, ...(stock.data?.brands ?? []).map((entry) => ({ value: entry.name, label: entry.name }))]
-  const filtered = Boolean(from || to || brand)
 
   const columns = [
     { key: 'date', label: 'Tgl', render: (row) => <span className="whitespace-nowrap">{row.date.slice(8, 10)}/{row.date.slice(5, 7)}</span> },
@@ -101,11 +119,11 @@ export function PenjualanPage() {
             title="Penjualan Terbaru"
             action={
               <span className="inline-flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => handleExport('xlsx')} disabled={Boolean(exporting) || Boolean(rangeError) || sales.data?.total === 0}>
+                <Button variant="outline" size="sm" onClick={() => handleExport('xlsx')} disabled={Boolean(exporting) || sales.data?.total === 0}>
                   <Download />
                   {exporting === 'xlsx' ? 'Menyiapkan…' : 'Excel'}
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => handleExport('pdf')} disabled={Boolean(exporting) || Boolean(rangeError) || sales.data?.total === 0}>
+                <Button variant="outline" size="sm" onClick={() => handleExport('pdf')} disabled={Boolean(exporting) || sales.data?.total === 0}>
                   <FileText />
                   {exporting === 'pdf' ? 'Menyiapkan…' : 'PDF'}
                 </Button>
@@ -113,18 +131,22 @@ export function PenjualanPage() {
             }
           />
           <div className="filter-bar sales-filter-bar">
-            <div className="filter-dates">
-              <DatePicker id="filter-dari" aria-label="Dari tanggal" placeholder="Dari" value={from} onChange={setFrom} max={todayISO()} />
-              <span aria-hidden="true">—</span>
-              <DatePicker id="filter-sampai" aria-label="Sampai tanggal" placeholder="Sampai" value={to} onChange={setTo} max={todayISO()} />
-            </div>
+            <Select
+              id="filter-bulan"
+              aria-label="Filter bulan dan tahun"
+              value={selectedMonth}
+              onValueChange={setSelectedMonth}
+              options={buildMonthOptions(salesStart.data, currentMonth)}
+              className="sales-month-filter"
+              disabled={salesStart.loading}
+            />
             <Select id="filter-brand" aria-label="Filter brand" value={brand} onValueChange={setBrand} options={brandOptions} className="sales-brand-filter" />
-            <Button variant="ghost" size="sm" className="filter-reset" onClick={() => { setFrom(''); setTo(''); setBrand('') }} disabled={!filtered}>
-              <X />
-              Reset
-            </Button>
           </div>
-          {rangeError ? <p role="alert" className="px-4 pb-3 text-sm text-bahaya sm:px-5">{rangeError}</p> : null}
+          {salesStart.error ? (
+            <div className="px-4 pb-3 sm:px-5">
+              <ErrorNotice error={salesStart.error} onRetry={salesStart.reload} />
+            </div>
+          ) : null}
           {sales.error ? (
             <div className="px-4 pb-4 sm:px-5">
               <ErrorNotice error={sales.error} onRetry={refresh} />
@@ -138,8 +160,8 @@ export function PenjualanPage() {
             tableClassName="sales-history-table"
             empty={{
               icon: Receipt,
-              title: waiting ? 'Memuat data' : filtered ? 'Tidak ada penjualan' : 'Belum ada penjualan',
-              description: waiting ? '' : filtered ? 'Coba ubah tanggal atau brand.' : 'Penjualan yang dicatat akan tampil di sini, yang terbaru paling atas.',
+              title: waiting ? 'Memuat data' : 'Tidak ada penjualan',
+              description: waiting ? '' : 'Belum ada penjualan pada bulan dan brand yang dipilih.',
             }}
           />
           <Pager page={page} pageSize={PAGE_SIZE} total={sales.data?.total ?? 0} onPageChange={setPage} />
