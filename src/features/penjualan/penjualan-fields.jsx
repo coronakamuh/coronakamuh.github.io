@@ -18,7 +18,7 @@ export function PenjualanFields({ idPrefix, items, value, onChange, disabled }) 
     return needle ? options.filter((option) => option.label.toLocaleLowerCase('id').includes(needle)).slice(0, 50) : []
   }, [options, barangQuery])
   useEffect(() => {
-    setBarangQuery(selected?.label ?? '')
+    if (selected) setBarangQuery(selected.label)
   }, [value.barangId, items])
   const q = parseWhole(value.qty)
   const h = parseWhole(value.harga)
