@@ -142,6 +142,7 @@ export function PenjualanPage() {
             columns={columns}
             rows={sales.data ? sales.data.rows : []}
             tableOnMobile
+            tableClassName="sales-history-table"
             empty={{
               icon: Receipt,
               title: waiting ? 'Memuat data' : filtered ? 'Tidak ada penjualan' : 'Belum ada penjualan',
