@@ -23,11 +23,13 @@ const makeColumns = (onDetail) => [
   {
     key: 'date',
     label: 'Tanggal',
+    className: 'w-[12%] whitespace-nowrap',
     render: (row) => <span className="whitespace-nowrap font-medium text-tinta">{formatDisplay(row.date)}</span>,
   },
   {
     key: 'item',
     label: 'Produk',
+    className: 'w-[32%] min-w-0',
     render: (row) => (
       <button type="button" className="text-left font-semibold underline-offset-2 hover:underline" onClick={() => onDetail(row.id)}>
         <NamaBarang name={row.item} />
@@ -37,12 +39,14 @@ const makeColumns = (onDetail) => [
   {
     key: 'label',
     label: 'Jenis transaksi',
+    className: 'w-[20%]',
     render: (row) => <span className="inline-flex rounded-full bg-garis-halus px-2 py-1 text-xs font-medium text-tinta">{row.label}</span>,
   },
   {
     key: 'delta',
     label: 'Jumlah',
     align: 'right',
+    className: 'w-[12%] whitespace-nowrap',
     render: (row) => (
       <span className={row.delta < 0 ? 'inline-flex items-center gap-1 font-semibold text-bahaya' : 'inline-flex items-center gap-1 font-semibold text-sukses'}>
         {row.delta < 0 ? <ArrowDownLeft className="size-3.5" aria-hidden="true" /> : <ArrowUpRight className="size-3.5" aria-hidden="true" />}
@@ -51,7 +55,7 @@ const makeColumns = (onDetail) => [
       </span>
     ),
   },
-  { key: 'note', label: 'Keterangan' },
+  { key: 'note', label: 'Keterangan', className: 'w-[24%]' },
 ]
 
 const typeOptions = [
