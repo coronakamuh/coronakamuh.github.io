@@ -113,7 +113,7 @@ export function exportSalesExcel(rows, filter) {
         result.push({ height: 17, cells: [{ v: brand.toUpperCase(), s: style }, ...blank(5, style)] })
       }
       subtotal += day.total
-      const firstRow = result.length + 2
+      const firstRow = result.length + 1
       day.items.forEach((item, i) => {
         const style = (c) => ({ sz: 8, border: LINE, h: c === 2 ? 'center' : c >= 3 ? 'right' : 'left', rp: c >= 3, wrap: false })
         result.push({ cells: [
@@ -136,8 +136,7 @@ export function exportSalesExcel(rows, filter) {
   }
   const left = buildPanel(panels[0], 0)
   const right = buildPanel(panels[1], 7)
-  const title = 'PENJUALAN ' + reportTitle(filter)
-  const out = [{ height: 17, cells: [{ v: title, s: { sz: 10, b: true } }, ...blank(12)] }]
+  const out = []
   const max = Math.max(left.rows.length, right.rows.length)
   for (let i = 0; i < max; i++) out.push({ cells: [...(left.rows[i]?.cells ?? blank(6)), { v: '' }, ...(right.rows[i]?.cells ?? blank(6))] })
   const merges = [...left.merges, ...right.merges]
