@@ -59,7 +59,7 @@ export function DataTable({ columns, rows, empty, caption, tableOnMobile = false
             const cell = (column) => (column.render ? column.render(row) : row[column.key])
             const titleColumn = columns.find((column) => column.key === 'name' || column.key === 'item') ?? columns[0]
             const actionColumn = columns.find((column) => column.key === 'actions')
-            const rest = columns.filter((column) => column !== titleColumn && column !== actionColumn)
+            const rest = columns.filter((column) => column !== titleColumn && column !== actionColumn && !column.mobileHidden)
             return (
               <li key={row.id ?? index} className="px-3 py-1.5 text-xs leading-snug">
                 <div className="flex items-start justify-between gap-2">
