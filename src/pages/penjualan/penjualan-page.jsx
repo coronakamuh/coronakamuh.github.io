@@ -129,7 +129,7 @@ export function PenjualanPage() {
       align: 'right',
       className: 'w-[10%] whitespace-nowrap',
       render: (row) => (
-        <Button variant="ghost" size="sm" onClick={() => setEditing(row)} disabled={items.length === 0} aria-label="Ubah penjualan" title="Ubah penjualan">
+        <Button variant="ghost" size="icon-sm" onClick={() => setEditing(row)} disabled={items.length === 0} aria-label="Ubah penjualan" title="Ubah penjualan">
           <Pencil size={15} />
         </Button>
       ),
@@ -232,7 +232,6 @@ export function PenjualanPage() {
         ) : null}
         <DataTable
           caption="Transaksi terbaru"
-          tableClassName="text-[13px]"
           columns={columns}
           rows={sales.data ? sales.data.rows : []}
           empty={{
