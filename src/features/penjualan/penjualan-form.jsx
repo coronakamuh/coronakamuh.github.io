@@ -31,6 +31,7 @@ const blank = () => ({ barangId: '', qty: '', harga: '', tanggal: todayISO() })
 export function PenjualanForm({ items, onSaved }) {
   const [value, setValue] = useState(blank)
   const [error, setError] = useState('')
+  const [fieldsReset, setFieldsReset] = useState(0)
   const save = useMutation(catatPenjualan)
 
   async function handleSubmit(event) {
@@ -53,6 +54,7 @@ export function PenjualanForm({ items, onSaved }) {
         toast.warning('Stok kurang', { description: `${formatAngka(result.preorderSetelah)} unit tercatat sebagai pre-order (stok minus).` })
       }
       setValue(blank())
+      setFieldsReset((current) => current + 1)
       onSaved()
     } catch (failure) {
       setError(failure.message)
@@ -61,7 +63,7 @@ export function PenjualanForm({ items, onSaved }) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-4 pt-0 sm:p-5 sm:pt-0" noValidate>
-      <PenjualanFields idPrefix="jual" items={items} value={value} onChange={setValue} disabled={save.pending} />
+      <PenjualanFields key={fieldsReset} idPrefix="jual" items={items} value={value} onChange={setValue} disabled={save.pending} />
       <StockPreview barang={items.find((item) => String(item.id) === value.barangId)} qty={parseWhole(value.qty)} tanggal={value.tanggal} />
       <FormMessage>{error}</FormMessage>
       <Button type="submit" disabled={save.pending}>
