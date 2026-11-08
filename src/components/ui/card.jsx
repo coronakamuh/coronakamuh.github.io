@@ -1,7 +1,7 @@
 import { cn } from '@/lib/cn'
 
 export function Card({ className, ...props }) {
-  return <section className={cn('rounded-lg border border-garis bg-lembar', className)} {...props} />
+  return <section className={cn('rounded-xl border border-garis bg-lembar shadow-[0_1px_3px_rgb(15_23_42/0.045)]', className)} {...props} />
 }
 
 /** Kepala kartu: judul di kiri, aksi (tombol, filter) di kanan. */
@@ -9,8 +9,8 @@ export function CardHeader({ title, description, action, className }) {
   return (
     <div className={cn('flex flex-wrap items-start justify-between gap-3 p-4 sm:p-5', className)}>
       <div className="min-w-0">
-        <h2 className="font-semibold">{title}</h2>
-        {description ? <p className="mt-0.5 text-sm text-tinta-redup">{description}</p> : null}
+        <h2 className="font-semibold tracking-tight text-tinta">{title}</h2>
+        {description ? <p className="mt-1 text-sm leading-relaxed text-tinta-redup">{description}</p> : null}
       </div>
       {action}
     </div>
