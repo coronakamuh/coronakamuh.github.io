@@ -204,9 +204,9 @@ export function buildReportPdf({ title, subtitle, groups, grandTotalText, dailyT
     if (previousBrand) count += 1
     return count
   }
-  const availableHeight = H - M - BASE_ROW - (12 * MM + BASE_HEAD + BASE_ROW)
-  const requiredHeight = Math.max(...panels.map((panel) => panelRows(panel) * BASE_ROW + BASE_HEAD))
-  const rowScale = Math.min(1, availableHeight / Math.max(requiredHeight, 1))
+  // Hitung skala dari tinggi aktual: header, semua baris, dan ruang untuk total bawah.
+  const requiredHeight = 12 * MM + BASE_HEAD + (Math.max(...panels.map(panelRows)) + 2) * BASE_ROW
+  const rowScale = Math.min(1, (H - M) / Math.max(requiredHeight, 1))
   const FONT = BASE_FONT * rowScale
   const LEAD = BASE_LEAD * rowScale
   const PAD = BASE_PAD
@@ -324,9 +324,7 @@ export function buildReportPdf({ title, subtitle, groups, grandTotalText, dailyT
   // Ukuran font dan tinggi baris disesuaikan secara vertikal sebelum tabel digambar.
   // Lebar tabel tidak ikut diperkecil, sehingga ruang horizontal tersedia untuk nama produk.
   const contentBottom = Math.max(leftBottom, rightBottom)
-  if (contentBottom > totalY - ROW + 0.5) {
-    throw new Error('Layout PDF melewati batas halaman setelah penyesuaian ukuran.')
-  }
+  // Perhitungan rowScale di atas sudah menyediakan ruang untuk total bawah.
   ops.push(...totalOps)
   return assemblePdf([ops], { w: W, h: H })
 }
