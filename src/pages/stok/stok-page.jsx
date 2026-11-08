@@ -157,8 +157,8 @@ export function StokPage() {
             </span>
           }
         />
-        <div className="filter-bar grid grid-cols-1 gap-2 sm:flex">
-          <div className="relative min-w-0 sm:flex-1">
+        <div className="grid grid-cols-1 gap-2 px-4 pb-4 sm:grid-cols-[minmax(0,1fr)_13rem] sm:px-5">
+          <div className="relative min-w-0">
             <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-tinta-redup" aria-hidden="true" />
             <Input type="search" aria-label="Cari barang" placeholder="Cari nama barang…" className="h-11 pl-9" value={query} onChange={(event) => setQuery(event.target.value)} />
           </div>
