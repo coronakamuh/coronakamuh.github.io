@@ -162,7 +162,7 @@ export function RekapBulanan({ month, onMonthChange, monthOptions, startMonth, o
           </Card>
 
           <Card>
-            <CardHeader title="Total penjualan per brand" description="Omzet dan jumlah unit terjual per brand bulan ini." />
+            <CardHeader title="Total penjualan per brand" description="Omzet per brand bulan ini." />
             <CardBody>
               {brandList.length === 0 ? (
                 <p className="text-sm text-tinta-redup">{waiting ? 'Memuat data' : 'Belum ada penjualan.'}</p>
@@ -178,9 +178,6 @@ export function RekapBulanan({ month, onMonthChange, monthOptions, startMonth, o
                           <span className="min-w-0 truncate font-semibold">{brand.name}</span>
                           <span className="shrink-0 font-semibold tabular-nums">{formatRupiah(brand.revenue)}</span>
                         </div>
-                        <p className="mt-0.5 text-xs text-tinta-redup tabular-nums">
-                          {formatAngka(brand.units)} pcs
-                        </p>
                         {hasTarget ? (
                           <>
                             <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-garis-halus" role="presentation">
