@@ -14,6 +14,7 @@ import { toast } from 'sonner'
 import { useAsync } from '@/hooks/use-async'
 import { useMutation } from '@/hooks/use-mutation'
 import { BarangDialog } from '@/features/stok/barang-dialog'
+import { Modal } from '@/components/ui/dialog'
 import { DetailBarangDialog } from '@/features/stok/detail-barang-dialog'
 import { MutasiDialog } from '@/features/stok/mutasi-dialog'
 import { formatAngka } from '@/lib/format'
@@ -65,6 +66,12 @@ export function StokPage() {
   const poTotal = items.reduce((total, item) => total + need(item), 0)
   const brandOptions = [{ value: '', label: 'Semua brand' }, ...(data?.brandNames ?? []).map((name) => ({ value: name, label: name }))]
 
+  const actionButtons = (row) => (
+    <Button variant="outline" size="icon-sm" onClick={() => setDialog({ kind: 'kelola', item: row })} aria-label={`Ubah atau mutasi ${row.name}`} title="Ubah barang / mutasi stok">
+      <Pencil />
+    </Button>
+  )
+
   const columns = [
     {
       key: 'name',
@@ -82,29 +89,9 @@ export function StokPage() {
       label: 'Aksi',
       className: 'w-[20%]',
       align: 'right',
-      render: (row) => (
-        <span className="inline-flex items-center justify-end gap-1">
-          <Button variant="outline" size="icon-sm" onClick={() => setDialog({ kind: 'mutasi', item: row })} aria-label={`Mutasi stok ${row.name}`} title="Mutasi stok">
-            <ArrowLeftRight />
-          </Button>
-          <Button variant="ghost" size="icon-sm" onClick={() => setDialog({ kind: 'ubah', item: row })} aria-label={`Ubah ${row.name}`} title="Ubah barang">
-            <Pencil />
-          </Button>
-        </span>
-      ),
+      render: (row) => <span className="inline-flex items-center justify-end">{actionButtons(row)}</span>,
     },
   ]
-
-  const actionButtons = (row) => (
-    <>
-      <Button variant="outline" size="icon-sm" onClick={() => setDialog({ kind: 'mutasi', item: row })} aria-label={`Mutasi stok ${row.name}`} title="Mutasi stok">
-        <ArrowLeftRight />
-      </Button>
-      <Button variant="ghost" size="icon-sm" onClick={() => setDialog({ kind: 'ubah', item: row })} aria-label={`Ubah ${row.name}`} title="Ubah barang">
-        <Pencil />
-      </Button>
-    </>
-  )
 
   const { run: runRecap, pending: recapPending } = useMutation(async (format) => {
     try {
@@ -178,6 +165,7 @@ export function StokPage() {
           caption="Daftar produk dan stok"
           columns={columns}
           rows={pageRows}
+          striped
           mobileRow={(row) => (
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
@@ -201,6 +189,29 @@ export function StokPage() {
         <Pager page={page} pageSize={PAGE_SIZE} total={filtered.length} onPageChange={setPage} />
       </Card>
 
+      <Modal
+        open={dialog?.kind === 'kelola'}
+        onOpenChange={(open) => !open && setDialog(null)}
+        title={dialog?.item?.name ?? 'Kelola barang'}
+        description="Pilih tindakan untuk barang ini."
+      >
+        <div className="grid gap-2">
+          <Button variant="outline" className="h-auto justify-start gap-3 px-4 py-3 text-left whitespace-normal" onClick={() => setDialog({ kind: 'ubah', item: dialog.item })}>
+            <Pencil />
+            <span>
+              <span className="block">Ubah barang</span>
+              <span className="block text-xs font-normal text-tinta-redup">Ganti nama atau brand</span>
+            </span>
+          </Button>
+          <Button variant="outline" className="h-auto justify-start gap-3 px-4 py-3 text-left whitespace-normal" onClick={() => setDialog({ kind: 'mutasi', item: dialog.item })}>
+            <ArrowLeftRight />
+            <span>
+              <span className="block">Mutasi stok</span>
+              <span className="block text-xs font-normal text-tinta-redup">Barang masuk, keluar, atau adjust</span>
+            </span>
+          </Button>
+        </div>
+      </Modal>
       <BarangDialog
         open={dialog?.kind === 'tambah' || dialog?.kind === 'ubah'}
         item={dialog?.kind === 'ubah' ? dialog.item : null}
