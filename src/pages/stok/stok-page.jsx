@@ -16,7 +16,7 @@ import { useMutation } from '@/hooks/use-mutation'
 import { BarangDialog } from '@/features/stok/barang-dialog'
 import { DetailBarangDialog } from '@/features/stok/detail-barang-dialog'
 import { MutasiDialog } from '@/features/stok/mutasi-dialog'
-import { formatAngka, formatRupiah } from '@/lib/format'
+import { formatAngka } from '@/lib/format'
 import { usePageSize } from '@/lib/preferences'
 import { getStockData } from '@/services/queries'
 
@@ -24,26 +24,22 @@ const DEFAULT_PAGE_SIZE = 50
 
 const need = (row) => Math.max(0, -row.stock)
 
+function StokBadge({ row }) {
+  return (
+    <span className={row.stock < 0
+      ? 'inline-flex min-w-12 justify-end rounded-md bg-bahaya/10 px-2 py-1 font-semibold text-bahaya'
+      : row.stock === 0
+        ? 'inline-flex min-w-12 justify-end rounded-md bg-peringatan/10 px-2 py-1 font-semibold text-peringatan'
+        : 'inline-flex min-w-12 justify-end rounded-md bg-sukses/10 px-2 py-1 font-semibold text-sukses'
+    }>
+      {formatAngka(row.stock)}
+    </span>
+  )
+}
+
 const baseColumns = [
-  { key: 'brand', label: 'Brand', className: 'w-[15%]' },
-  {
-    key: 'stock',
-    label: 'Stok',
-    className: 'w-[10%]',
-    align: 'right',
-    render: (row) => (
-      <span className={row.stock < 0
-        ? 'inline-flex min-w-12 justify-end rounded-md bg-bahaya/10 px-2 py-1 font-semibold text-bahaya'
-        : row.stock === 0
-          ? 'inline-flex min-w-12 justify-end rounded-md bg-peringatan/10 px-2 py-1 font-semibold text-peringatan'
-          : 'inline-flex min-w-12 justify-end rounded-md bg-sukses/10 px-2 py-1 font-semibold text-sukses'
-      }>
-        {formatAngka(row.stock)}
-      </span>
-    ),
-  },
-  { key: 'need', label: 'Kebutuhan PO', align: 'right', className: 'w-[13%]', render: (row) => (need(row) > 0 ? formatAngka(need(row)) : '—') },
-  { key: 'price', label: 'Harga terakhir', align: 'right', className: 'w-[14%]', render: (row) => (row.price === null ? '—' : formatRupiah(row.price)) },
+  { key: 'brand', label: 'Brand', className: 'w-[20%]' },
+  { key: 'stock', label: 'Stok', className: 'w-[14%]', align: 'right', render: (row) => <StokBadge row={row} /> },
 ]
 
 export function StokPage() {
@@ -73,7 +69,7 @@ export function StokPage() {
     {
       key: 'name',
       label: 'Barang',
-      className: 'w-[38%]',
+      className: 'w-[46%]',
       render: (row) => (
         <button type="button" className="text-left font-medium underline-offset-2 hover:underline" onClick={() => setDialog({ kind: 'detail', item: row })}>
           <NamaBarang name={row.name} />
@@ -84,7 +80,7 @@ export function StokPage() {
     {
       key: 'actions',
       label: 'Aksi',
-      className: 'w-[10%]',
+      className: 'w-[20%]',
       align: 'right',
       render: (row) => (
         <span className="inline-flex items-center justify-end gap-1">
@@ -98,6 +94,17 @@ export function StokPage() {
       ),
     },
   ]
+
+  const actionButtons = (row) => (
+    <>
+      <Button variant="outline" size="icon-sm" onClick={() => setDialog({ kind: 'mutasi', item: row })} aria-label={`Mutasi stok ${row.name}`} title="Mutasi stok">
+        <ArrowLeftRight />
+      </Button>
+      <Button variant="ghost" size="icon-sm" onClick={() => setDialog({ kind: 'ubah', item: row })} aria-label={`Ubah ${row.name}`} title="Ubah barang">
+        <Pencil />
+      </Button>
+    </>
+  )
 
   const { run: runRecap, pending: recapPending } = useMutation(async (format) => {
     try {
@@ -171,6 +178,20 @@ export function StokPage() {
           caption="Daftar produk dan stok"
           columns={columns}
           rows={pageRows}
+          mobileRow={(row) => (
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <button type="button" className="block max-w-full text-left text-[13px] leading-snug font-medium break-words" onClick={() => setDialog({ kind: 'detail', item: row })}>
+                  <NamaBarang name={row.name} />
+                </button>
+                <p className="mt-0.5 truncate text-xs text-tinta-redup">{row.brand}</p>
+              </div>
+              <div className="flex shrink-0 items-center gap-1 text-sm">
+                <StokBadge row={row} />
+                {actionButtons(row)}
+              </div>
+            </div>
+          )}
           empty={{
             icon: Package,
             title: waiting ? 'Memuat data' : items.length === 0 ? 'Belum ada barang' : 'Barang tidak ditemukan',
