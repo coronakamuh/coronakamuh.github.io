@@ -77,3 +77,11 @@ export function formatDateTime(iso) {
   )
   return `${Number(parts.day)} ${monthNames[Number(parts.month) - 1].slice(0, 3)} ${parts.year}, ${parts.hour}.${parts.minute}`
 }
+
+const DAY_NAMES = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
+
+/** Contoh: "Senin, 9 Nov". */
+export function dayMonthLabel(text) {
+  const date = parseISO(text)
+  return date ? `${DAY_NAMES[date.getDay()]}, ${date.getDate()} ${monthNames[date.getMonth()].slice(0, 3)}` : text
+}

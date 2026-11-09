@@ -9,25 +9,24 @@ import { Input } from '@/components/ui/field'
 import { NamaBarang } from '@/components/ui/nama-barang'
 import { ErrorNotice } from '@/components/ui/notice'
 import { Pager } from '@/components/ui/pager'
+import { Segmented } from '@/components/ui/segmented'
 import { Select } from '@/components/ui/select'
 import { EditPenjualanDialog } from '@/features/penjualan/edit-penjualan-dialog'
 import { PenjualanForm } from '@/features/penjualan/penjualan-form'
+import { RekapBulanan } from '@/features/penjualan/rekap-bulanan'
 import { useAsync } from '@/hooks/use-async'
 import { cn } from '@/lib/cn'
 import { formatAngka, formatRupiah } from '@/lib/format'
-import { addDaysISO, monthNames, monthRange, parseISO, todayISO } from '@/lib/date'
+import { addDaysISO, dayMonthLabel as dayLabel, monthNames, monthRange, todayISO } from '@/lib/date'
 import { usePageSize } from '@/lib/preferences'
 import { getSalesExport, getSalesPage, getSalesStartMonth, getSalesSummary, getStockData } from '@/services/queries'
 
 const DEFAULT_PAGE_SIZE = 20
-const DAY_NAMES = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
 
-/** Contoh: "Senin, 9 Nov". */
-function dayLabel(text) {
-  const date = parseISO(text)
-  return date ? `${DAY_NAMES[date.getDay()]}, ${date.getDate()} ${monthNames[date.getMonth()].slice(0, 3)}` : text
-}
-
+const tabOptions = [
+  { value: 'transaksi', label: 'Transaksi' },
+  { value: 'rekap', label: 'Rekap bulanan' },
+]
 function buildMonthOptions(startMonth, currentMonth) {
   const first = startMonth && startMonth <= currentMonth ? startMonth : currentMonth
   const options = []
@@ -50,6 +49,7 @@ export function PenjualanPage() {
   const PAGE_SIZE = usePageSize(DEFAULT_PAGE_SIZE)
   const [page, setPage] = useState(1)
   const [editing, setEditing] = useState(null)
+  const [tab, setTab] = useState('transaksi')
   const currentMonth = todayISO().slice(0, 7)
   const [selectedMonth, setSelectedMonth] = useState(() => todayISO().slice(0, 7))
   const [brand, setBrand] = useState('')
@@ -73,16 +73,16 @@ export function PenjualanPage() {
   const todaySummary = useAsync(() => getSalesSummary({ from: todayISO(), to: todayISO() }), [])
 
   const [exporting, setExporting] = useState('')
-  async function handleExport(kind) {
+  async function handleExport(kind, exportFilter = filter) {
     if (exporting) return
     setExporting(kind)
     try {
-      const rows = await getSalesExport(filter) // semua halaman sesuai bulan dan brand yang sedang dipakai
+      const rows = await getSalesExport(exportFilter) // semua halaman sesuai bulan dan brand yang sedang dipakai
       if (rows.length === 0) toast.info('Tidak ada penjualan untuk diekspor')
       else {
         const { exportSalesExcel, exportSalesPdf } = await import('@/features/penjualan/export-penjualan')
-        if (kind === 'xlsx') exportSalesExcel(rows, filter)
-        else exportSalesPdf(rows, filter)
+        if (kind === 'xlsx') exportSalesExcel(rows, exportFilter)
+        else exportSalesPdf(rows, exportFilter)
       }
     } catch (failure) {
       toast.error('Ekspor gagal', { description: failure.message })
@@ -167,6 +167,19 @@ export function PenjualanPage() {
         }
       />
 
+      <Segmented label="Tampilan halaman" value={tab} onValueChange={setTab} options={tabOptions} />
+
+      {tab === 'rekap' ? (
+        <RekapBulanan
+          month={selectedMonth}
+          onMonthChange={setSelectedMonth}
+          monthOptions={buildMonthOptions(salesStart.data, currentMonth)}
+          startMonth={salesStart.data}
+          onExport={(kind) => handleExport(kind, { from, to, brand: '' })}
+          exporting={exporting}
+        />
+      ) : (
+        <>
       {/* Form ringkas */}
       <Card className="p-3">
         {stock.error ? (
@@ -284,6 +297,8 @@ export function PenjualanPage() {
         />
         <Pager page={page} pageSize={PAGE_SIZE} total={sales.data?.total ?? 0} onPageChange={setPage} />
       </Card>
+        </>
+      )}
 
       <EditPenjualanDialog sale={editing} items={items} onOpenChange={(open) => !open && setEditing(null)} onDone={refresh} />
     </div>
