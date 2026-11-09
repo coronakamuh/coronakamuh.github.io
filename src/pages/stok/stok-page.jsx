@@ -142,19 +142,19 @@ export function StokPage() {
           title="Daftar Produk"
           description={data ? `${formatAngka(filtered.length)} dari ${formatAngka(items.length)} barang.` : 'Cari barang dan kelola stok.'}
           action={
-            <span className="flex w-full flex-wrap gap-2 sm:w-auto sm:justify-end">
-              <Button variant="outline" size="sm" className="flex-1 sm:flex-none" onClick={() => runRecap('xlsx')} disabled={recapPending} title="Rekap stok harian, 30 hari terakhir">
+            <span className="inline-flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => runRecap('xlsx')} disabled={recapPending} title="Rekap stok harian, 30 hari terakhir">
                 <Download />
                 Excel
               </Button>
-              <Button variant="outline" size="sm" className="flex-1 sm:flex-none" onClick={() => runRecap('pdf')} disabled={recapPending} title="Rekap stok harian, 30 hari terakhir">
+              <Button variant="outline" size="sm" onClick={() => runRecap('pdf')} disabled={recapPending} title="Rekap stok harian, 30 hari terakhir">
                 <FileText />
                 PDF
               </Button>
             </span>
           }
         />
-        <div className="grid grid-cols-1 gap-2 px-4 pb-4 sm:grid-cols-[minmax(0,1fr)_13rem] sm:px-5">
+        <div className="grid grid-cols-[minmax(0,1fr)_8.5rem] gap-2 px-4 pb-4 sm:grid-cols-[minmax(0,1fr)_13rem] sm:px-5">
           <div className="relative min-w-0">
             <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-tinta-redup" aria-hidden="true" />
             <Input type="search" aria-label="Cari barang" placeholder="Cari nama barang…" className="h-11 pl-9" value={query} onChange={(event) => setQuery(event.target.value)} />
