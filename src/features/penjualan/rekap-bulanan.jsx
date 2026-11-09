@@ -162,7 +162,7 @@ export function RekapBulanan({ month, onMonthChange, monthOptions, startMonth, o
           </Card>
 
           <Card>
-            <CardHeader title="Total penjualan per brand" description="Omzet, unit, dan kontribusinya terhadap omzet bulan ini." />
+            <CardHeader title="Total penjualan per brand" description="Omzet dan jumlah unit terjual per brand bulan ini." />
             <CardBody>
               {brandList.length === 0 ? (
                 <p className="text-sm text-tinta-redup">{waiting ? 'Memuat data' : 'Belum ada penjualan.'}</p>
@@ -172,7 +172,6 @@ export function RekapBulanan({ month, onMonthChange, monthOptions, startMonth, o
                     const target = targetOf.get(brand.name)
                     const hasTarget = target !== null && target !== undefined && target > 0
                     const reach = hasTarget ? Math.round((brand.revenue / target) * 100) : 0
-                    const share = totals.revenue > 0 ? Math.round((brand.revenue / totals.revenue) * 100) : 0
                     return (
                       <li key={brand.name} className="py-2">
                         <div className="flex items-baseline justify-between gap-3 text-sm">
@@ -180,7 +179,7 @@ export function RekapBulanan({ month, onMonthChange, monthOptions, startMonth, o
                           <span className="shrink-0 font-semibold tabular-nums">{formatRupiah(brand.revenue)}</span>
                         </div>
                         <p className="mt-0.5 text-xs text-tinta-redup tabular-nums">
-                          {formatAngka(brand.units)} pcs · {share}% dari omzet
+                          {formatAngka(brand.units)} pcs
                         </p>
                         {hasTarget ? (
                           <>
