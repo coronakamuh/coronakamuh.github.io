@@ -1,3 +1,4 @@
+import { Fragment } from 'react'
 import { cn } from '@/lib/cn'
 import { EmptyState } from '@/components/ui/empty-state'
 
@@ -9,7 +10,7 @@ import { EmptyState } from '@/components/ui/empty-state'
  * - lebar: tabel biasa.
  * columns: [{ key, label, align?: 'right', className?: string (untuk kolom tabel), render?: (row) => node }]
  */
-export function DataTable({ columns, rows, empty, caption, tableOnMobile = false, tableClassName = '', mobileRow, striped = false }) {
+export function DataTable({ columns, rows, empty, caption, tableOnMobile = false, tableClassName = '', mobileRow, mobileGroup, striped = false }) {
   return (
     <div className={`data-table @container ${tableOnMobile ? 'overflow-x-auto' : ''}`}>
       {/* Tabel: pada halaman tertentu tetap berupa tabel di layar HP. */}
@@ -57,10 +58,13 @@ export function DataTable({ columns, rows, empty, caption, tableOnMobile = false
         <ul aria-label={caption} className="divide-y divide-garis-halus border-t border-garis @xl:hidden">
           {rows.map((row, index) => {
             if (mobileRow) {
+              // mobileGroup (opsional): mengembalikan kepala kelompok (mis. tanggal) di baris pertama tiap kelompok.
+              const header = mobileGroup ? mobileGroup(row, index) : null
               return (
-                <li key={row.id ?? index} className={cn('px-3 py-2', striped && 'even:bg-garis-halus/60')}>
-                  {mobileRow(row)}
-                </li>
+                <Fragment key={row.id ?? index}>
+                  {header ? <li className="bg-garis-halus/70">{header}</li> : null}
+                  <li className={cn('px-3 py-2', striped && !mobileGroup && 'even:bg-garis-halus/60')}>{mobileRow(row)}</li>
+                </Fragment>
               )
             }
             const cell = (column) => (column.render ? column.render(row) : row[column.key])

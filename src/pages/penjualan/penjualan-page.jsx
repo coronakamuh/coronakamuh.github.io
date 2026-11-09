@@ -15,11 +15,18 @@ import { PenjualanForm } from '@/features/penjualan/penjualan-form'
 import { useAsync } from '@/hooks/use-async'
 import { cn } from '@/lib/cn'
 import { formatAngka, formatRupiah } from '@/lib/format'
-import { addDaysISO, monthNames, monthRange, todayISO } from '@/lib/date'
+import { addDaysISO, monthNames, monthRange, parseISO, todayISO } from '@/lib/date'
 import { usePageSize } from '@/lib/preferences'
 import { getSalesExport, getSalesPage, getSalesStartMonth, getSalesSummary, getStockData } from '@/services/queries'
 
 const DEFAULT_PAGE_SIZE = 20
+const DAY_NAMES = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
+
+/** Contoh: "Senin, 9 Nov". */
+function dayLabel(text) {
+  const date = parseISO(text)
+  return date ? `${DAY_NAMES[date.getDay()]}, ${date.getDate()} ${monthNames[date.getMonth()].slice(0, 3)}` : text
+}
 
 function buildMonthOptions(startMonth, currentMonth) {
   const first = startMonth && startMonth <= currentMonth ? startMonth : currentMonth
@@ -131,6 +138,14 @@ export function PenjualanPage() {
   }
 
   const todayText = todaySummary.error ? '—' : todaySummary.data ? formatRupiah(todaySummary.data.revenue) : '…'
+  // Kelompok per tanggal (tampilan HP): jumlah dan total dihitung dari baris yang sedang tampil.
+  const saleRows = sales.data ? sales.data.rows : []
+  const byDate = {}
+  for (const sale of saleRows) {
+    const day = (byDate[sale.date] ??= { count: 0, total: 0 })
+    day.count += 1
+    day.total += sale.total
+  }
   const emptyDescription = search ? 'Tidak ada barang yang cocok dengan pencarian pada bulan dan brand yang dipilih.' : 'Belum ada penjualan pada bulan dan brand yang dipilih.'
 
   return (
@@ -221,32 +236,34 @@ export function PenjualanPage() {
         <DataTable
           caption="Transaksi terbaru"
           columns={columns}
-          rows={sales.data ? sales.data.rows : []}
+          rows={saleRows}
           striped
+          mobileGroup={(row, index) => {
+            if (index > 0 && saleRows[index - 1].date === row.date) return null
+            const day = byDate[row.date]
+            const partial = (row.date === saleRows[0].date && page > 1) || (row.date === saleRows[saleRows.length - 1].date && page * PAGE_SIZE < (sales.data?.total ?? 0))
+            return (
+              <div className="flex items-center justify-between gap-3 px-3 py-1.5 text-[11px] font-semibold text-tinta-redup">
+                <span className="uppercase">{dayLabel(row.date)}</span>
+                <span className="tabular-nums">{partial ? `${day.count} transaksi di halaman ini` : `${day.count} transaksi · ${formatRupiah(day.total)}`}</span>
+              </div>
+            )
+          }}
           mobileRow={(row) => (
-            <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-2">
               <div className="min-w-0 flex-1">
-                <div className="text-[13px] leading-snug font-medium break-words">
+                <div className="text-[13px] leading-snug font-semibold break-words">
                   <NamaBarang name={row.item} />
                 </div>
-                <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-tinta-redup tabular-nums">
-                  <span className="inline-flex items-center gap-1" title="Tanggal">
-                    <CalendarDays className="size-3.5" aria-hidden="true" />
-                    <span className="sr-only">Tanggal</span>
-                    {row.date.slice(8, 10)}/{row.date.slice(5, 7)}
-                  </span>
-                  <span className={cn('inline-flex items-center gap-1', row.stock < 0 && 'text-bahaya')} title="Sisa stok">
-                    <Boxes className="size-3.5" aria-hidden="true" />
-                    Sisa: {formatAngka(row.stock)}
-                  </span>
+                <p className="mt-0.5 text-xs text-tinta-redup tabular-nums">
+                  {formatAngka(row.qty)} × {formatRupiah(row.price)} ·{' '}
+                  <span className={row.stock < 0 ? 'text-bahaya' : row.stock === 0 ? 'text-peringatan' : undefined}>sisa {formatAngka(row.stock)}</span>
                 </p>
               </div>
-              <div className="flex shrink-0 flex-col items-end">
-                <Button variant="ghost" size="icon-sm" className="-my-1" onClick={() => setEditing(row)} disabled={items.length === 0} aria-label="Ubah penjualan" title="Ubah penjualan">
-                  <Pencil size={15} />
-                </Button>
-                <span className="whitespace-nowrap text-xs font-semibold text-tinta tabular-nums">{formatAngka(row.qty)} × {formatRupiah(row.price)} = {formatRupiah(row.total)}</span>
-              </div>
+              <span className="shrink-0 text-[13px] font-semibold tabular-nums">{formatRupiah(row.total)}</span>
+              <Button variant="ghost" size="icon-sm" className="shrink-0" onClick={() => setEditing(row)} disabled={items.length === 0} aria-label="Ubah penjualan" title="Ubah penjualan">
+                <Pencil size={15} />
+              </Button>
             </div>
           )}
           empty={{
