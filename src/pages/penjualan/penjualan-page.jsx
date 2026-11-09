@@ -230,15 +230,14 @@ export function PenjualanPage() {
                   <NamaBarang name={row.item} />
                 </div>
                 <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-tinta-redup tabular-nums">
-                  <span className={cn('inline-flex items-center gap-1', row.stock < 0 && 'text-bahaya')} title="Sisa stok">
-                    <Boxes className="size-3.5" aria-hidden="true" />
-                    <span className="sr-only">Sisa</span>
-                    {formatAngka(row.stock)}
-                  </span>
                   <span className="inline-flex items-center gap-1" title="Tanggal">
                     <CalendarDays className="size-3.5" aria-hidden="true" />
                     <span className="sr-only">Tanggal</span>
                     {row.date.slice(8, 10)}/{row.date.slice(5, 7)}
+                  </span>
+                  <span className={cn('inline-flex items-center gap-1', row.stock < 0 && 'text-bahaya')} title="Sisa stok">
+                    <Boxes className="size-3.5" aria-hidden="true" />
+                    Sisa: {formatAngka(row.stock)}
                   </span>
                 </p>
               </div>
