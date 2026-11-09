@@ -9,7 +9,7 @@ import { EmptyState } from '@/components/ui/empty-state'
  * - lebar: tabel biasa.
  * columns: [{ key, label, align?: 'right', className?: string (untuk kolom tabel), render?: (row) => node }]
  */
-export function DataTable({ columns, rows, empty, caption, tableOnMobile = false, tableClassName = '', mobileRow }) {
+export function DataTable({ columns, rows, empty, caption, tableOnMobile = false, tableClassName = '', mobileRow, striped = false }) {
   return (
     <div className={`data-table @container ${tableOnMobile ? 'overflow-x-auto' : ''}`}>
       {/* Tabel: pada halaman tertentu tetap berupa tabel di layar HP. */}
@@ -34,7 +34,7 @@ export function DataTable({ columns, rows, empty, caption, tableOnMobile = false
         </thead>
         <tbody>
           {rows.map((row, index) => (
-            <tr key={row.id ?? index} className="border-b border-garis-halus last:border-b-0">
+            <tr key={row.id ?? index} className={cn('border-b border-garis-halus last:border-b-0', striped && 'even:bg-garis-halus/60')}>
               {columns.map((column) => (
                 <td
                   key={column.key}
@@ -58,7 +58,7 @@ export function DataTable({ columns, rows, empty, caption, tableOnMobile = false
           {rows.map((row, index) => {
             if (mobileRow) {
               return (
-                <li key={row.id ?? index} className="px-3 py-2">
+                <li key={row.id ?? index} className={cn('px-3 py-2', striped && 'even:bg-garis-halus/60')}>
                   {mobileRow(row)}
                 </li>
               )
