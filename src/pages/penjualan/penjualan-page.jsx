@@ -256,7 +256,7 @@ export function PenjualanPage() {
                   <NamaBarang name={row.item} />
                 </div>
                 <div className="mt-1 flex items-center gap-2.5">
-                  <span className="inline-flex items-center rounded-full bg-pena/10 px-2.5 py-0.5 text-xs font-semibold text-pena tabular-nums" title="Jumlah laku">
+                  <span className="text-[11px] font-semibold text-tinta-redup tabular-nums" title="Jumlah laku">
                     Laku: {formatAngka(row.qty)}pcs
                   </span>
                   <span
