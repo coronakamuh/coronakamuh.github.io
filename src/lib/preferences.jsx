@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { DEFAULT_PREFS, STORAGE_KEY, pageSizeFor, parsePrefs, rootFontSize } from '@/lib/prefs'
+import { DEFAULT_PREFS, STORAGE_KEY, THEME_COLOR, pageSizeFor, parsePrefs, resolveTheme, rootFontSize } from '@/lib/prefs'
 
 const PreferencesContext = createContext(null)
 
@@ -11,8 +11,41 @@ function load() {
   }
 }
 
+const DARK_QUERY = '(prefers-color-scheme: dark)'
+
+function systemPrefersDark() {
+  try {
+    return window.matchMedia(DARK_QUERY).matches
+  } catch {
+    return false
+  }
+}
+
 export function PreferencesProvider({ children }) {
   const [prefs, setPrefs] = useState(load)
+  const [systemDark, setSystemDark] = useState(systemPrefersDark)
+  const resolvedTheme = resolveTheme(prefs.theme, systemDark)
+
+  // Ikuti perubahan tema perangkat (dipakai bila memilih "Sistem").
+  useEffect(() => {
+    let query
+    try {
+      query = window.matchMedia(DARK_QUERY)
+    } catch {
+      return undefined
+    }
+    const onChange = (event) => setSystemDark(event.matches)
+    query.addEventListener?.('change', onChange)
+    return () => query.removeEventListener?.('change', onChange)
+  }, [])
+
+  // Terapkan tema ke <html>: token warna, warna bawaan peramban (scrollbar, isian), dan warna bilah status.
+  useEffect(() => {
+    const root = document.documentElement
+    root.dataset.theme = resolvedTheme
+    root.style.colorScheme = resolvedTheme === 'gelap' ? 'dark' : 'light'
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_COLOR[resolvedTheme])
+  }, [resolvedTheme])
 
   useEffect(() => {
     document.documentElement.style.fontSize = rootFontSize(prefs.textSize)
@@ -25,7 +58,7 @@ export function PreferencesProvider({ children }) {
 
   const setPref = useCallback((key, value) => setPrefs((current) => ({ ...current, [key]: value })), [])
   const reset = useCallback(() => setPrefs({ ...DEFAULT_PREFS }), [])
-  const value = useMemo(() => ({ prefs, setPref, reset }), [prefs, setPref, reset])
+  const value = useMemo(() => ({ prefs, setPref, reset, resolvedTheme }), [prefs, setPref, reset, resolvedTheme])
   return <PreferencesContext.Provider value={value}>{children}</PreferencesContext.Provider>
 }
 

@@ -99,7 +99,7 @@ export function DatePicker({ id, value, onChange, min, max, placeholder = 'Pilih
                   className={cn(
                     'flex size-9 items-center justify-center rounded-lg text-sm tabular-nums disabled:pointer-events-none disabled:opacity-30',
                     selected
-                      ? 'bg-pena font-medium text-white'
+                      ? 'bg-tombol font-medium text-white'
                       : 'hover:bg-garis-halus',
                     !selected && !inMonth && 'text-tinta-redup/60',
                     !selected && iso === todayISO && 'font-semibold text-pena ring-1 ring-pena/40 ring-inset',

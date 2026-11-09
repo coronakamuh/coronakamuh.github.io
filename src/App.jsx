@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { Toaster } from 'sonner'
-import { PreferencesProvider } from '@/lib/preferences'
+import { PreferencesProvider, usePreferences } from '@/lib/preferences'
 import { configProblem } from '@/config/supabase'
 import { AppShell } from '@/components/layout/app-shell'
 import { AuthProvider, useAuth } from '@/lib/auth-context'
@@ -50,13 +50,18 @@ function Gate() {
   }
 }
 
+function ThemedToaster() {
+  const { resolvedTheme } = usePreferences()
+  return <Toaster theme={resolvedTheme === 'gelap' ? 'dark' : 'light'} position="top-center" closeButton duration={3000} />
+}
+
 export default function App() {
   if (configProblem) return <ConfigErrorScreen problem={configProblem} />
   return (
     <PreferencesProvider>
       <AuthProvider>
         <Gate />
-        <Toaster position="top-center" closeButton duration={3000} />
+        <ThemedToaster />
       </AuthProvider>
     </PreferencesProvider>
   )

@@ -27,6 +27,10 @@
   --color-peringatan: #b7791f;
   --color-kertas: #f8fafc;
   --color-info: #1d4ed8;
+  /* Latar tombol utama/aktif (teks putih di atasnya) dan tombol bahaya; dibedakan dari warna aksen teks agar kontras tetap cukup di tema gelap. */
+  --color-tombol: #1e3a8a;
+  --color-tombol-tua: #172e70;
+  --color-bahaya-solid: #b42318;
   --shadow-kartu: 0 1px 2px rgb(15 23 42 / 0.04), 0 1px 3px rgb(15 23 42 / 0.05);
   --shadow-pop: 0 10px 30px -8px rgb(15 23 42 / 0.18), 0 2px 6px rgb(15 23 42 / 0.06);
   --radius-kartu: 0.875rem;
@@ -48,6 +52,31 @@
   }
   ::selection { background: #dbeafe; color: #172e70; }
 }
+
+/* Tema gelap: hanya mengganti nilai token. Dipilih lewat atribut data-theme pada <html> (lihat src/lib/preferences.jsx). */
+:root { color-scheme: light; }
+:root[data-theme="gelap"] {
+  color-scheme: dark;
+  --color-latar: #0b1220;
+  --color-lembar: #131c2e;
+  --color-kertas: #0f1726;
+  --color-tinta: #e6ebf5;
+  --color-tinta-redup: #97a4ba;
+  --color-pena: #6e9cf6;
+  --color-pena-tua: #8fb2f8;
+  --color-tombol: #2f5fd0;
+  --color-tombol-tua: #3a6ae0;
+  --color-garis: #26334a;
+  --color-garis-halus: #1b2740;
+  --color-bahaya: #f87171;
+  --color-bahaya-solid: #dc2626;
+  --color-sukses: #34d399;
+  --color-peringatan: #fbbf24;
+  --color-info: #60a5fa;
+  --shadow-kartu: 0 1px 2px rgb(0 0 0 / 0.35), 0 1px 3px rgb(0 0 0 / 0.3);
+  --shadow-pop: 0 12px 32px -8px rgb(0 0 0 / 0.65), 0 0 0 1px rgb(255 255 255 / 0.05);
+}
+:root[data-theme="gelap"] ::selection { background: #1e3a8a; color: #dbeafe; }
 
 @layer components {
   .dh-card {

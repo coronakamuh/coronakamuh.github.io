@@ -2,7 +2,7 @@ import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
-const overlayClass = 'fixed inset-0 z-40 bg-tinta/40 backdrop-blur-[2px]'
+const overlayClass = 'fixed inset-0 z-40 bg-black/50 backdrop-blur-[2px]'
 
 /** Jendela di tengah layar (untuk formulir singkat). */
 export function Modal({ open, onOpenChange, title, description, children, wide = false }) {

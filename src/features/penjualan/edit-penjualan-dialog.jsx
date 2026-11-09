@@ -85,14 +85,14 @@ export function EditPenjualanDialog({ sale, items, onOpenChange, onDone }) {
             <p className="mt-1">Catatan penjualan dan transaksi stok terkait akan dihapus. Stok barang akan bertambah kembali.</p>
             <div className="mt-3 flex gap-2">
               <Button type="button" variant="outline" disabled={remove.pending} onClick={() => setConfirmDelete(false)}>Batal</Button>
-              <Button type="button" disabled={remove.pending} onClick={handleDelete} className="bg-red-600 text-white hover:bg-red-700">
+              <Button type="button" disabled={remove.pending} onClick={handleDelete} className="bg-bahaya-solid text-white hover:bg-bahaya-solid/90">
                 <Trash2 size={16} />
                 {remove.pending ? 'Menghapus…' : 'Ya, Hapus'}
               </Button>
             </div>
           </div>
         ) : (
-          <Button type="button" variant="outline" disabled={save.pending || remove.pending} onClick={() => setConfirmDelete(true)} className="border-red-200 text-red-600 hover:border-red-300 hover:bg-red-50 hover:text-red-700">
+          <Button type="button" variant="outline" disabled={save.pending || remove.pending} onClick={() => setConfirmDelete(true)} className="border-bahaya/30 text-bahaya hover:border-bahaya/50 hover:bg-bahaya/5 hover:text-bahaya">
             <Trash2 size={16} />
             Hapus Penjualan
           </Button>

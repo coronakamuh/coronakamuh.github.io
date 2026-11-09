@@ -1,5 +1,6 @@
 import { LogOut } from 'lucide-react'
 import { LogoMark } from '@/components/brand/logo-mark'
+import { ThemeToggle } from '@/components/layout/theme-toggle'
 import { navItems } from '@/config/navigation'
 import { site } from '@/config/site'
 import { useAuth } from '@/lib/auth-context'
@@ -49,6 +50,7 @@ export function SidebarNav({ route }) {
       </nav>
 
       <div className="border-t border-garis p-3">
+        <ThemeToggle variant="row" />
         <button
           type="button"
           onClick={signOut}

@@ -4,6 +4,23 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#ffffff" />
+    <script>
+      // Terapkan tema tersimpan sebelum halaman digambar, supaya tidak berkedip terang saat memuat.
+      (function () {
+        try {
+          var theme = 'terang'
+          try {
+            var saved = JSON.parse(localStorage.getItem('dhouse.prefs'))
+            if (saved && (saved.theme === 'gelap' || saved.theme === 'sistem' || saved.theme === 'terang')) theme = saved.theme
+          } catch (e) {}
+          var dark = theme === 'gelap' || (theme === 'sistem' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches)
+          var root = document.documentElement
+          root.setAttribute('data-theme', dark ? 'gelap' : 'terang')
+          root.style.colorScheme = dark ? 'dark' : 'light'
+          if (dark) document.querySelector('meta[name="theme-color"]').setAttribute('content', '#131c2e')
+        } catch (e) {}
+      })()
+    </script>
     <meta
       name="description"
       content="Dhouse Digital: aplikasi pencatatan penjualan, barang, stok, mutasi, dan laporan."
@@ -21,7 +38,7 @@
           if (!box) {
             box = document.createElement('pre')
             box.id = 'diag'
-            box.style.cssText = 'white-space:pre-wrap;word-break:break-word;padding:16px;margin:0;font:13px/1.5 monospace;color:#b42318'
+            box.style.cssText = 'white-space:pre-wrap;word-break:break-word;padding:16px;margin:0;font:13px/1.5 monospace;color:var(--color-bahaya,#b42318)'
             document.body.appendChild(box)
           }
           box.textContent = 'Dhouse Digital gagal tampil.\n\n' + msgs.join('\n')

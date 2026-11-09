@@ -2,6 +2,7 @@ import { LogOut } from 'lucide-react'
 import { LogoMark } from '@/components/brand/logo-mark'
 import { BottomNav } from '@/components/layout/bottom-nav'
 import { SidebarNav } from '@/components/layout/sidebar-nav'
+import { ThemeToggle } from '@/components/layout/theme-toggle'
 import { Button } from '@/components/ui/button'
 import { site } from '@/config/site'
 import { useAuth } from '@/lib/auth-context'
@@ -14,7 +15,7 @@ export function AppShell({ route, children }) {
     <div className="min-h-svh lg:grid lg:grid-cols-[14rem_minmax(0,1fr)]">
       <a
         href="#utama"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-pena focus:px-4 focus:py-3 focus:text-sm focus:text-white"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-tombol focus:px-4 focus:py-3 focus:text-sm focus:text-white"
       >
         Lompat ke konten
       </a>
@@ -32,15 +33,12 @@ export function AppShell({ route, children }) {
             <span className="block truncate text-sm font-semibold tracking-tight text-tinta">{site.name}</span>
             <span className="mt-0.5 block truncate text-[9px] font-medium uppercase tracking-[0.08em] text-tinta-redup">Smart Stock &amp; Sales Management</span>
           </span>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="ml-auto size-10 shrink-0"
-            aria-label="Keluar"
-            onClick={signOut}
-          >
-            <LogOut className="size-[18px]" />
-          </Button>
+          <div className="ml-auto flex shrink-0 items-center">
+            <ThemeToggle className="size-10 shrink-0" />
+            <Button variant="ghost" size="icon" className="size-10 shrink-0" aria-label="Keluar" onClick={signOut}>
+              <LogOut className="size-[18px]" />
+            </Button>
+          </div>
         </header>
 
         <main

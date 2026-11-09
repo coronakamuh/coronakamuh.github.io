@@ -9,7 +9,7 @@ export function Segmented({ label, value, onValueChange, options }) {
           <Tabs.Trigger
             key={option.value}
             value={option.value}
-            className="h-8 rounded-md px-3 text-sm font-medium text-tinta-redup transition-colors hover:text-tinta data-[state=active]:bg-pena data-[state=active]:text-white data-[state=active]:shadow-sm"
+            className="h-8 rounded-md px-3 text-sm font-medium text-tinta-redup transition-colors hover:text-tinta data-[state=active]:bg-tombol data-[state=active]:text-white data-[state=active]:shadow-sm"
           >
             {option.label}
           </Tabs.Trigger>
