@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Boxes, CalendarDays, Download, FileText, Pencil, Receipt, Search, ShoppingCart, TrendingUp } from 'lucide-react'
+import { Download, FileText, Pencil, Receipt, Search, ShoppingCart, TrendingUp } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageTitle } from '@/components/layout/page-title'
 import { Button } from '@/components/ui/button'
@@ -257,15 +257,13 @@ export function PenjualanPage() {
                 </div>
                 <div className="mt-1 flex items-center gap-2.5">
                   <span className="inline-flex items-center rounded-full bg-pena/10 px-2.5 py-0.5 text-xs font-semibold text-pena tabular-nums" title="Jumlah laku">
-                    {formatAngka(row.qty)} unit
+                    Laku: {formatAngka(row.qty)}pcs
                   </span>
                   <span
-                    className={cn('inline-flex items-center gap-1 text-[11px] tabular-nums', row.stock < 0 ? 'text-bahaya' : row.stock === 0 ? 'text-peringatan' : 'text-tinta-redup')}
+                    className={cn('text-[11px] tabular-nums', row.stock < 0 ? 'text-bahaya' : row.stock === 0 ? 'text-peringatan' : 'text-tinta-redup')}
                     title="Sisa stok"
                   >
-                    <Boxes className="size-3" aria-hidden="true" />
-                    <span className="sr-only">Sisa</span>
-                    {formatAngka(row.stock)}
+                    Sisa: {formatAngka(row.stock)}pcs
                   </span>
                 </div>
               </div>
