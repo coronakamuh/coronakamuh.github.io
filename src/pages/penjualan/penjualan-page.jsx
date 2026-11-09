@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Banknote, Boxes, CalendarDays, Download, FileText, Pencil, Receipt, Search, ShoppingBag, ShoppingCart, TrendingUp } from 'lucide-react'
+import { Boxes, CalendarDays, Download, FileText, Pencil, Receipt, Search, ShoppingCart, TrendingUp } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageTitle } from '@/components/layout/page-title'
 import { Button } from '@/components/ui/button'
@@ -89,27 +89,15 @@ export function PenjualanPage() {
 
   const brandOptions = [{ value: '', label: 'Semua brand' }, ...(stock.data?.brands ?? []).map((entry) => ({ value: entry.name, label: entry.name }))]
 
-  // Harga satuan ditampilkan bersama jumlah di bawah nama barang; total tetap menonjol di kolom tersendiri.
+  // Rincian qty × harga = total ditempatkan di sisi kanan, tepat di bawah tombol edit.
   const columns = [
     { key: 'date', label: 'Tgl', className: 'w-[8%] whitespace-nowrap', render: (row) => <span className="whitespace-nowrap">{row.date.slice(8, 10)}/{row.date.slice(5, 7)}</span> },
     {
       key: 'item',
       label: 'Barang',
-      className: 'w-[59%] min-w-0',
+      className: 'w-[57%] min-w-0',
       render: (row) => (
-        <>
-          <span className="block min-w-0 overflow-hidden text-ellipsis whitespace-nowrap @xl:overflow-visible @xl:whitespace-normal @xl:break-words" title={row.item}><NamaBarang name={row.item} /></span>
-          <span className="mt-0.5 block text-xs text-tinta-redup tabular-nums">{formatAngka(row.qty)} × {formatRupiah(row.price)}</span>
-        </>
-      ),
-    },
-    {
-      key: 'total',
-      label: 'Total',
-      align: 'right',
-      className: 'w-[18%] whitespace-nowrap',
-      render: (row) => (
-        <span className="font-semibold tabular-nums">{formatRupiah(row.total)}</span>
+        <span className="block min-w-0 overflow-hidden text-ellipsis whitespace-nowrap @xl:overflow-visible @xl:whitespace-normal @xl:break-words" title={row.item}><NamaBarang name={row.item} /></span>
       ),
     },
     {
@@ -122,13 +110,16 @@ export function PenjualanPage() {
     },
     {
       key: 'actions',
-      label: 'Aksi',
+      label: 'Rincian / Aksi',
       align: 'right',
-      className: 'w-[7%] whitespace-nowrap',
+      className: 'w-[27%]',
       render: (row) => (
-        <Button variant="ghost" size="icon-sm" onClick={() => setEditing(row)} disabled={items.length === 0} aria-label="Ubah penjualan" title="Ubah penjualan">
-          <Pencil size={15} />
-        </Button>
+        <div className="flex flex-col items-end gap-0.5">
+          <Button variant="ghost" size="icon-sm" className="-my-1" onClick={() => setEditing(row)} disabled={items.length === 0} aria-label="Ubah penjualan" title="Ubah penjualan">
+            <Pencil size={15} />
+          </Button>
+          <span className="whitespace-nowrap text-xs font-semibold tabular-nums">{formatAngka(row.qty)} × {formatRupiah(row.price)} = {formatRupiah(row.total)}</span>
+        </div>
       ),
     },
   ]
@@ -233,34 +224,31 @@ export function PenjualanPage() {
           rows={sales.data ? sales.data.rows : []}
           striped
           mobileRow={(row) => (
-            <>
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0 flex-1 text-[13px] leading-snug font-medium break-words">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <div className="text-[13px] leading-snug font-medium break-words">
                   <NamaBarang name={row.item} />
                 </div>
-                <div className="flex shrink-0 items-center gap-1">
-                  <span className="text-sm font-semibold text-tinta tabular-nums" title="Total">
-                    {formatRupiah(row.total)}
+                <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-tinta-redup tabular-nums">
+                  <span className={cn('inline-flex items-center gap-1', row.stock < 0 && 'text-bahaya')} title="Sisa stok">
+                    <Boxes className="size-3.5" aria-hidden="true" />
+                    <span className="sr-only">Sisa</span>
+                    {formatAngka(row.stock)}
                   </span>
-                  <Button variant="ghost" size="icon-sm" className="-my-1 shrink-0" onClick={() => setEditing(row)} disabled={items.length === 0} aria-label="Ubah penjualan" title="Ubah penjualan">
-                    <Pencil size={15} />
-                  </Button>
-                </div>
+                  <span className="inline-flex items-center gap-1" title="Tanggal">
+                    <CalendarDays className="size-3.5" aria-hidden="true" />
+                    <span className="sr-only">Tanggal</span>
+                    {row.date.slice(8, 10)}/{row.date.slice(5, 7)}
+                  </span>
+                </p>
               </div>
-              <p className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-tinta-redup tabular-nums">
-                <span title="Jumlah × harga satuan">{formatAngka(row.qty)} × {formatRupiah(row.price)}</span>
-                <span className={cn('inline-flex items-center gap-1', row.stock < 0 && 'text-bahaya')} title="Sisa stok">
-                  <Boxes className="size-3.5" aria-hidden="true" />
-                  <span className="sr-only">Sisa</span>
-                  {formatAngka(row.stock)}
-                </span>
-                <span className="inline-flex items-center gap-1" title="Tanggal">
-                  <CalendarDays className="size-3.5" aria-hidden="true" />
-                  <span className="sr-only">Tanggal</span>
-                  {row.date.slice(8, 10)}/{row.date.slice(5, 7)}
-                </span>
-              </p>
-            </>
+              <div className="flex shrink-0 flex-col items-end">
+                <Button variant="ghost" size="icon-sm" className="-my-1" onClick={() => setEditing(row)} disabled={items.length === 0} aria-label="Ubah penjualan" title="Ubah penjualan">
+                  <Pencil size={15} />
+                </Button>
+                <span className="whitespace-nowrap text-xs font-semibold text-tinta tabular-nums">{formatAngka(row.qty)} × {formatRupiah(row.price)} = {formatRupiah(row.total)}</span>
+              </div>
+            </div>
           )}
           empty={{
             icon: Receipt,
