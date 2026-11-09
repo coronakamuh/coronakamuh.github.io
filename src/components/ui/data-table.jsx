@@ -68,7 +68,7 @@ export function DataTable({ columns, rows, empty, caption, tableOnMobile = false
             const actionColumn = columns.find((column) => column.key === 'actions')
             const rest = columns.filter((column) => column !== titleColumn && column !== actionColumn && !column.mobileHidden)
             return (
-              <li key={row.id ?? index} className="px-3 py-2.5 text-xs leading-normal">
+              <li key={row.id ?? index} className={cn('px-3 py-2.5 text-xs leading-normal', striped && 'even:bg-garis-halus/60')}>
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 text-[13px] font-semibold leading-snug break-words">{cell(titleColumn)}</div>
                   {actionColumn ? <div className="shrink-0">{cell(actionColumn)}</div> : null}

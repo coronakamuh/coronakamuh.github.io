@@ -234,6 +234,7 @@ export function PenjualanPage() {
           caption="Transaksi terbaru"
           columns={columns}
           rows={sales.data ? sales.data.rows : []}
+          striped
           mobileRow={(row) => (
             <>
               <div className="flex items-start gap-2">
