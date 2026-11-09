@@ -255,12 +255,24 @@ export function PenjualanPage() {
                 <div className="text-[13px] leading-snug font-semibold break-words">
                   <NamaBarang name={row.item} />
                 </div>
-                <p className="mt-0.5 text-xs text-tinta-redup tabular-nums">
-                  {formatAngka(row.qty)} × {formatRupiah(row.price)} ·{' '}
-                  <span className={row.stock < 0 ? 'text-bahaya' : row.stock === 0 ? 'text-peringatan' : undefined}>sisa {formatAngka(row.stock)}</span>
-                </p>
+                <div className="mt-1 flex items-center gap-2.5">
+                  <span className="inline-flex items-center rounded-full bg-pena/10 px-2.5 py-0.5 text-xs font-semibold text-pena tabular-nums" title="Jumlah laku">
+                    {formatAngka(row.qty)} unit
+                  </span>
+                  <span
+                    className={cn('inline-flex items-center gap-1 text-[11px] tabular-nums', row.stock < 0 ? 'text-bahaya' : row.stock === 0 ? 'text-peringatan' : 'text-tinta-redup')}
+                    title="Sisa stok"
+                  >
+                    <Boxes className="size-3" aria-hidden="true" />
+                    <span className="sr-only">Sisa</span>
+                    {formatAngka(row.stock)}
+                  </span>
+                </div>
               </div>
-              <span className="shrink-0 text-[13px] font-semibold tabular-nums">{formatRupiah(row.total)}</span>
+              <span className="shrink-0 text-[13px] font-semibold tabular-nums" title="Harga terjual">
+                <span className="sr-only">Harga </span>
+                {formatRupiah(row.price)}
+              </span>
               <Button variant="ghost" size="icon-sm" className="shrink-0" onClick={() => setEditing(row)} disabled={items.length === 0} aria-label="Ubah penjualan" title="Ubah penjualan">
                 <Pencil size={15} />
               </Button>
