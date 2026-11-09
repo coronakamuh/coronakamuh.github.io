@@ -89,28 +89,25 @@ export function PenjualanPage() {
 
   const brandOptions = [{ value: '', label: 'Semua brand' }, ...(stock.data?.brands ?? []).map((entry) => ({ value: entry.name, label: entry.name }))]
 
-  // Di HP: Tgl, Barang (dengan sisa stok di bawah nama), Jml, Total, Aksi. Harga dan Sisa menjadi kolom sendiri di layar lebih lebar.
+  // Harga satuan ditampilkan bersama jumlah di bawah nama barang; total tetap menonjol di kolom tersendiri.
   const columns = [
     { key: 'date', label: 'Tgl', className: 'w-[8%] whitespace-nowrap', render: (row) => <span className="whitespace-nowrap">{row.date.slice(8, 10)}/{row.date.slice(5, 7)}</span> },
     {
       key: 'item',
       label: 'Barang',
-      className: 'w-[42%] min-w-0',
+      className: 'w-[59%] min-w-0',
       render: (row) => (
         <>
           <span className="block min-w-0 overflow-hidden text-ellipsis whitespace-nowrap @xl:overflow-visible @xl:whitespace-normal @xl:break-words" title={row.item}><NamaBarang name={row.item} /></span>
-          <span className={cn('mt-0.5 block text-xs sm:hidden', row.stock < 0 ? 'text-bahaya' : 'text-tinta-redup')}>sisa {formatAngka(row.stock)}</span>
+          <span className="mt-0.5 block text-xs text-tinta-redup tabular-nums">{formatAngka(row.qty)} × {formatRupiah(row.price)}</span>
         </>
       ),
     },
-    { key: 'qty', label: 'Jml', align: 'right', className: 'w-[6%] whitespace-nowrap', render: (row) => formatAngka(row.qty) },
-    { key: 'price', label: 'Harga', align: 'right', className: 'w-[14%] whitespace-nowrap hidden sm:table-cell',
-      mobileHidden: true, render: (row) => formatRupiah(row.price) },
     {
       key: 'total',
       label: 'Total',
       align: 'right',
-      className: 'w-[16%] whitespace-nowrap',
+      className: 'w-[18%] whitespace-nowrap',
       render: (row) => (
         <span className="font-semibold tabular-nums">{formatRupiah(row.total)}</span>
       ),
@@ -119,7 +116,7 @@ export function PenjualanPage() {
       key: 'stock',
       label: 'Sisa',
       align: 'right',
-      className: 'w-[7%] whitespace-nowrap hidden sm:table-cell',
+      className: 'w-[8%] whitespace-nowrap hidden sm:table-cell',
       mobileHidden: true,
       render: (row) => <span className={row.stock < 0 ? 'text-bahaya' : undefined}>{formatAngka(row.stock)}</span>,
     },
@@ -237,23 +234,21 @@ export function PenjualanPage() {
           striped
           mobileRow={(row) => (
             <>
-              <div className="flex items-start gap-2">
+              <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1 text-[13px] leading-snug font-medium break-words">
                   <NamaBarang name={row.item} />
                 </div>
-                <span
-                  className="inline-flex shrink-0 items-center gap-1 rounded-full bg-pena/10 px-2.5 py-0.5 text-xs font-semibold text-pena tabular-nums"
-                  title="Jumlah laku"
-                  aria-label={`Laku ${formatAngka(row.qty)} unit`}
-                >
-                  <ShoppingBag className="size-3" aria-hidden="true" />
-                  {formatAngka(row.qty)}
-                </span>
-                <Button variant="ghost" size="icon-sm" className="-my-1 shrink-0" onClick={() => setEditing(row)} disabled={items.length === 0} aria-label="Ubah penjualan" title="Ubah penjualan">
-                  <Pencil size={15} />
-                </Button>
+                <div className="flex shrink-0 items-center gap-1">
+                  <span className="text-sm font-semibold text-tinta tabular-nums" title="Total">
+                    {formatRupiah(row.total)}
+                  </span>
+                  <Button variant="ghost" size="icon-sm" className="-my-1 shrink-0" onClick={() => setEditing(row)} disabled={items.length === 0} aria-label="Ubah penjualan" title="Ubah penjualan">
+                    <Pencil size={15} />
+                  </Button>
+                </div>
               </div>
               <p className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-tinta-redup tabular-nums">
+                <span title="Jumlah × harga satuan">{formatAngka(row.qty)} × {formatRupiah(row.price)}</span>
                 <span className={cn('inline-flex items-center gap-1', row.stock < 0 && 'text-bahaya')} title="Sisa stok">
                   <Boxes className="size-3.5" aria-hidden="true" />
                   <span className="sr-only">Sisa</span>
@@ -263,11 +258,6 @@ export function PenjualanPage() {
                   <CalendarDays className="size-3.5" aria-hidden="true" />
                   <span className="sr-only">Tanggal</span>
                   {row.date.slice(8, 10)}/{row.date.slice(5, 7)}
-                </span>
-                <span className="inline-flex items-center gap-1 font-semibold text-tinta" title="Total">
-                  <Banknote className="size-3.5 text-tinta-redup" aria-hidden="true" />
-                  <span className="sr-only">Total</span>
-                  {formatRupiah(row.total)}
                 </span>
               </p>
             </>
