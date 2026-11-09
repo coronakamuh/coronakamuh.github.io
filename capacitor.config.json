@@ -3,6 +3,8 @@
   "appName": "D'House Digital",
   "webDir": "dist",
   "server": {
-    "androidScheme": "https"
+    "url": "https://coronakamuh.github.io",
+    "androidScheme": "https",
+    "cleartext": false
   }
 }
