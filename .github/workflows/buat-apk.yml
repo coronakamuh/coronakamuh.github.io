@@ -2,7 +2,7 @@ name: Buat APK Android
 
 # Dijalankan manual: Actions > Buat APK Android > Run workflow.
 # Hanya membuat file APK (artifact); tidak men-deploy situs dan tidak mengubah package.json.
-# Capacitor dipasang sementara di dalam workflow ini saja (--no-save).
+# Capacitor dan plugin dipasang sementara di dalam workflow ini saja (tidak di-commit).
 on:
   workflow_dispatch:
 
@@ -30,8 +30,10 @@ jobs:
       - name: Build web
         run: npm run build
 
-      - name: Pasang Capacitor sementara
-        run: npm install --no-save --no-audit --no-fund @capacitor/core@^7 @capacitor/cli@^7 @capacitor/android@^7
+      # Tanpa --no-save: plugin harus tercatat di package.json milik runner ini (sementara, tidak di-commit)
+      # agar `cap sync` mengenalinya.
+      - name: Pasang Capacitor dan plugin sementara
+        run: npm install --no-audit --no-fund @capacitor/core@^7 @capacitor/cli@^7 @capacitor/android@^7 @capacitor/filesystem@^7 @capacitor/share@^7
 
       - name: Buat proyek Android dan sinkronkan hasil build
         run: |

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Download, FileText, Pencil, Receipt, Search, ShoppingCart, TrendingUp } from 'lucide-react'
+import { Banknote, Boxes, CalendarDays, Download, FileText, Pencil, Receipt, Search, ShoppingBag, ShoppingCart, TrendingUp } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageTitle } from '@/components/layout/page-title'
 import { Button } from '@/components/ui/button'
@@ -151,7 +151,7 @@ export function PenjualanPage() {
       <PageTitle
         icon={ShoppingCart}
         title="Penjualan"
-        description="Catat penjualan, stok otomatis berkurang"
+        description="Pencatatan transaksi dengan stok yang diperbarui otomatis"
         inlineActions
         actions={
           <div className="flex items-center gap-2 rounded-lg border border-garis bg-lembar px-3 py-1.5">
@@ -234,6 +234,43 @@ export function PenjualanPage() {
           caption="Transaksi terbaru"
           columns={columns}
           rows={sales.data ? sales.data.rows : []}
+          mobileRow={(row) => (
+            <>
+              <div className="flex items-start gap-2">
+                <div className="min-w-0 flex-1 text-[13px] leading-snug font-medium break-words">
+                  <NamaBarang name={row.item} />
+                </div>
+                <span
+                  className="inline-flex shrink-0 items-center gap-1 rounded-full bg-pena/10 px-2.5 py-0.5 text-xs font-semibold text-pena tabular-nums"
+                  title="Jumlah laku"
+                  aria-label={`Laku ${formatAngka(row.qty)} unit`}
+                >
+                  <ShoppingBag className="size-3" aria-hidden="true" />
+                  {formatAngka(row.qty)}
+                </span>
+                <Button variant="ghost" size="icon-sm" className="-my-1 shrink-0" onClick={() => setEditing(row)} disabled={items.length === 0} aria-label="Ubah penjualan" title="Ubah penjualan">
+                  <Pencil size={15} />
+                </Button>
+              </div>
+              <p className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-tinta-redup tabular-nums">
+                <span className={cn('inline-flex items-center gap-1', row.stock < 0 && 'text-bahaya')} title="Sisa stok">
+                  <Boxes className="size-3.5" aria-hidden="true" />
+                  <span className="sr-only">Sisa</span>
+                  {formatAngka(row.stock)}
+                </span>
+                <span className="inline-flex items-center gap-1" title="Tanggal">
+                  <CalendarDays className="size-3.5" aria-hidden="true" />
+                  <span className="sr-only">Tanggal</span>
+                  {row.date.slice(8, 10)}/{row.date.slice(5, 7)}
+                </span>
+                <span className="inline-flex items-center gap-1 font-semibold text-tinta" title="Total">
+                  <Banknote className="size-3.5 text-tinta-redup" aria-hidden="true" />
+                  <span className="sr-only">Total</span>
+                  {formatRupiah(row.total)}
+                </span>
+              </p>
+            </>
+          )}
           empty={{
             icon: Receipt,
             title: waiting ? 'Memuat data' : 'Belum ada transaksi',

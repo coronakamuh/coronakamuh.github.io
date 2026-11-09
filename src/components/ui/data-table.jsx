@@ -9,7 +9,7 @@ import { EmptyState } from '@/components/ui/empty-state'
  * - lebar: tabel biasa.
  * columns: [{ key, label, align?: 'right', className?: string (untuk kolom tabel), render?: (row) => node }]
  */
-export function DataTable({ columns, rows, empty, caption, tableOnMobile = false, tableClassName = '' }) {
+export function DataTable({ columns, rows, empty, caption, tableOnMobile = false, tableClassName = '', mobileRow }) {
   return (
     <div className={`data-table @container ${tableOnMobile ? 'overflow-x-auto' : ''}`}>
       {/* Tabel: pada halaman tertentu tetap berupa tabel di layar HP. */}
@@ -56,6 +56,13 @@ export function DataTable({ columns, rows, empty, caption, tableOnMobile = false
       {!tableOnMobile && rows.length > 0 ? (
         <ul aria-label={caption} className="divide-y divide-garis-halus border-t border-garis @xl:hidden">
           {rows.map((row, index) => {
+            if (mobileRow) {
+              return (
+                <li key={row.id ?? index} className="px-3 py-2">
+                  {mobileRow(row)}
+                </li>
+              )
+            }
             const cell = (column) => (column.render ? column.render(row) : row[column.key])
             const titleColumn = columns.find((column) => column.key === 'name' || column.key === 'item') ?? columns[0]
             const actionColumn = columns.find((column) => column.key === 'actions')

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Calendar, Hash, Package, Tag } from 'lucide-react'
+import { Calendar, Hash, Package, Tag, X } from 'lucide-react'
 import { DatePicker } from '@/components/ui/date-picker'
 import { Field, Input } from '@/components/ui/field'
 import { cn } from '@/lib/cn'
@@ -59,7 +59,23 @@ export function PenjualanFields({ idPrefix, items, value, onChange, disabled, co
     <div className="static @xl:relative">
       <Input id={`${idPrefix}-barang`} type="text" autoComplete="off" placeholder="Ketik nama barang…" value={barangQuery}
         onChange={(event) => { setBarangQuery(event.target.value); setShowMatches(true); if (value.barangId) onChange({ ...value, barangId: '' }) }}
-        disabled={disabled} role="combobox" aria-autocomplete="list" aria-expanded={showMatches && matches.length > 0} aria-controls={`${idPrefix}-barang-list`} />
+        disabled={disabled} role="combobox" aria-autocomplete="list" aria-expanded={showMatches && matches.length > 0} aria-controls={`${idPrefix}-barang-list`} className="pr-9" />
+      {barangQuery && !disabled ? (
+        <button
+          type="button"
+          aria-label="Hapus nama barang"
+          title="Hapus"
+          onClick={() => {
+            setBarangQuery('')
+            setShowMatches(false)
+            if (value.barangId) onChange({ ...value, barangId: '' })
+            document.getElementById(`${idPrefix}-barang`)?.focus()
+          }}
+          className="absolute top-1/2 right-1.5 flex size-7 -translate-y-1/2 items-center justify-center rounded-md text-tinta-redup transition-colors hover:bg-garis-halus hover:text-tinta"
+        >
+          <X className="size-4" aria-hidden="true" />
+        </button>
+      ) : null}
       {showMatches && matches.length > 0 ? (
         <ul id={`${idPrefix}-barang-list`} role="listbox" className="absolute left-0 z-50 mt-1 max-h-52 w-full overflow-y-auto rounded-xl border border-garis bg-lembar p-1 shadow-pop">
           {matches.map((option) => (
