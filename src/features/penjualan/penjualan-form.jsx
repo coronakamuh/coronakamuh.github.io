@@ -89,7 +89,7 @@ export function PenjualanForm({ items, onSaved }) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3" noValidate>
       <PenjualanFields key={fieldsReset} compact idPrefix="jual" items={items} value={value} onChange={setValue} disabled={save.pending}>
-        <div className="col-span-1 flex min-w-0 flex-col items-stretch gap-2 @xl:col-span-5 @xl:flex-row @xl:items-end">
+        <div className="col-span-2 flex min-w-0 flex-col items-stretch gap-2 @xl:col-span-5 @xl:flex-row @xl:items-end">
           <div className="flex h-11 min-w-0 flex-1 items-center justify-between gap-2 rounded-lg bg-garis-halus px-3 text-sm" aria-live="polite">
             <span className="text-xs text-tinta-redup">Subtotal</span>
             <span className="truncate font-semibold tabular-nums">{formatRupiah(subtotal)}</span>

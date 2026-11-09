@@ -56,12 +56,12 @@ export function PenjualanFields({ idPrefix, items, value, onChange, disabled, co
   )
 
   const barangControl = (
-    <div className="relative">
+    <div className="static @xl:relative">
       <Input id={`${idPrefix}-barang`} type="text" autoComplete="off" placeholder="Ketik nama barang…" value={barangQuery}
         onChange={(event) => { setBarangQuery(event.target.value); setShowMatches(true); if (value.barangId) onChange({ ...value, barangId: '' }) }}
         disabled={disabled} role="combobox" aria-autocomplete="list" aria-expanded={showMatches && matches.length > 0} aria-controls={`${idPrefix}-barang-list`} />
       {showMatches && matches.length > 0 ? (
-        <ul id={`${idPrefix}-barang-list`} role="listbox" className="absolute z-50 mt-1 max-h-52 w-full overflow-y-auto rounded-xl border border-garis bg-lembar p-1 shadow-pop">
+        <ul id={`${idPrefix}-barang-list`} role="listbox" className="absolute left-0 z-50 mt-1 max-h-52 w-full overflow-y-auto rounded-xl border border-garis bg-lembar p-1 shadow-pop">
           {matches.map((option) => (
             <li key={option.value} role="option" aria-selected={false}>
               <button type="button" className="flex min-h-11 w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-left text-sm hover:bg-garis-halus" onClick={() => pickItem(option.value)}>
@@ -81,8 +81,8 @@ export function PenjualanFields({ idPrefix, items, value, onChange, disabled, co
   if (compact) {
     // Lebar ditentukan oleh lebar kartunya (container query), bukan lebar layar: aman bila ada sidebar.
     return (
-      <div className="@container">
-        <div className="grid grid-cols-1 gap-x-3 gap-y-3 @xl:grid-cols-12 [&_button[id]]:h-10 [&_input]:h-11">
+      <div className="@container relative">
+        <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-x-3 gap-y-3 @xl:grid-cols-12 [&_button[id]]:h-10 [&_input]:h-11">
           <CompactField icon={Calendar} label="Tanggal penjualan" htmlFor={`${idPrefix}-tanggal`} className="col-span-1 @xl:col-span-3">
             {tanggalControl}
           </CompactField>
