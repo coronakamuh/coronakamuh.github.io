@@ -164,7 +164,7 @@ export function RekapBulanan({ month, onMonthChange, monthOptions, startMonth, o
           </Card>
 
           <Card>
-            <CardHeader title="Total penjualan per brand" description="Omzet per brand bulan ini." />
+            <CardHeader title={<span className="text-base font-semibold tracking-tight sm:text-lg">Omzet Bulan {monthName}</span>} />
             <CardBody>
               {brandList.length === 0 ? (
                 <p className="text-sm text-tinta-redup">{waiting ? 'Memuat data' : 'Belum ada penjualan.'}</p>
