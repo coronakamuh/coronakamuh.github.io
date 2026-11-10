@@ -282,7 +282,7 @@ export function PenjualanPage() {
                 <span className="ml-auto tabular-nums">{partial ? `${day.count} transaksi di halaman ini` : `${day.count} transaksi · ${formatRupiah(day.total)}`}</span>
                 <Button
                   variant="outline"
-                  size="xs"
+                  size="sm"
                   className="h-7 gap-1 px-2 text-[11px]"
                   onClick={() => handleCopyDay(row.date)}
                   disabled={Boolean(copyingDay)}
