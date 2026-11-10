@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ArrowDownLeft, ArrowUpRight, History, Plus, RotateCcw, X } from 'lucide-react'
+import { ArrowDownLeft, ArrowUpRight, History, Plus, RotateCcw, Search, X } from 'lucide-react'
 import { PageTitle } from '@/components/layout/page-title'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -7,6 +7,7 @@ import { Card, CardHeader } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/data-table'
 import { NamaBarang } from '@/components/ui/nama-barang'
 import { DatePicker } from '@/components/ui/date-picker'
+import { Input } from '@/components/ui/field'
 import { ErrorNotice } from '@/components/ui/notice'
 import { Pager } from '@/components/ui/pager'
 import { useAsync } from '@/hooks/use-async'
@@ -15,6 +16,7 @@ import { cn } from '@/lib/cn'
 import { formatDisplay, monthNames, todayISO } from '@/lib/date'
 import { DetailMutasiDialog } from '@/features/riwayat/detail-mutasi-dialog'
 import { MutasiDialog } from '@/features/stok/mutasi-dialog'
+import { usePencarianAwal } from '@/lib/pencarian-awal'
 import { usePageSize } from '@/lib/preferences'
 import { getMovementsPage, getStockData } from '@/services/queries'
 
@@ -81,23 +83,33 @@ export function RiwayatPage() {
   const [to, setTo] = useState('')
   const [group, setGroup] = useState('')
   const [page, setPage] = useState(1)
+  // Pencarian nama barang: `query` mengikuti ketikan, `search` dipakai untuk mengambil data (jeda 0,3 detik).
+  const [query, setQuery] = useState('')
+  const [search, setSearch] = useState('')
+  usePencarianAwal('riwayat', setQuery)
+  useEffect(() => {
+    const timer = setTimeout(() => setSearch(query.trim()), 300)
+    return () => clearTimeout(timer)
+  }, [query])
   const { data, error, loading, reload } = useAsync(
-    () => getMovementsPage({ page, pageSize: PAGE_SIZE, from, to, group }),
-    [page, from, to, group, PAGE_SIZE],
+    () => getMovementsPage({ page, pageSize: PAGE_SIZE, from, to, group, q: search }),
+    [page, from, to, group, search, PAGE_SIZE],
   )
   const stock = useAsync(() => getStockData(), [])
   const [detailId, setDetailId] = useState(null)
   const [catat, setCatat] = useState(false)
   const columns = makeColumns(setDetailId)
   const waiting = loading && !data
-  const filtering = Boolean(from || to || group)
+  const filtering = Boolean(from || to || group || search)
 
-  useEffect(() => setPage(1), [from, to, group])
+  useEffect(() => setPage(1), [from, to, group, search])
 
   function resetFilters() {
     setFrom('')
     setTo('')
     setGroup('')
+    setQuery('')
+    setSearch('')
   }
 
   return (
@@ -129,6 +141,21 @@ export function RiwayatPage() {
         />
 
         <div className="space-y-2 px-3 pb-3 sm:px-5">
+          <div className="relative sm:max-w-md">
+            <Search className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-tinta-redup" aria-hidden="true" />
+            <Input id="cari-riwayat" type="text" autoComplete="off" aria-label="Cari barang" placeholder="Cari barang…" value={query} onChange={(event) => setQuery(event.target.value)} className="h-10 pl-8" />
+            {query ? (
+              <button
+                type="button"
+                aria-label="Hapus pencarian"
+                title="Hapus"
+                onClick={() => setQuery('')}
+                className="absolute top-1/2 right-1.5 flex size-7 -translate-y-1/2 items-center justify-center rounded-md text-tinta-redup transition-colors hover:bg-garis-halus hover:text-tinta"
+              >
+                <X className="size-4" aria-hidden="true" />
+              </button>
+            ) : null}
+          </div>
           <div className="grid grid-cols-2 gap-2 sm:max-w-md">
             <DatePicker id="riwayat-dari" aria-label="Dari tanggal" placeholder="Dari tanggal" value={from} onChange={setFrom} max={to || undefined} />
             <DatePicker id="riwayat-sampai" aria-label="Sampai tanggal" placeholder="Sampai tanggal" value={to} onChange={setTo} min={from || undefined} />
@@ -188,7 +215,7 @@ export function RiwayatPage() {
           empty={{
             icon: History,
             title: waiting ? 'Memuat data' : filtering ? 'Tidak ada riwayat yang cocok' : 'Belum ada riwayat',
-            description: waiting ? '' : filtering ? 'Ubah tanggal atau jenis transaksi.' : 'Barang masuk dan keluar akan tercatat di sini.',
+            description: waiting ? '' : filtering ? 'Ubah kata pencarian, tanggal, atau jenis transaksi.' : 'Barang masuk dan keluar akan tercatat di sini.',
           }}
         />
         <Pager page={page} pageSize={PAGE_SIZE} total={data?.total ?? 0} onPageChange={setPage} />

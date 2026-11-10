@@ -2,8 +2,10 @@ import { Settings, Tags } from 'lucide-react'
 import { PageTitle } from '@/components/layout/page-title'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorNotice } from '@/components/ui/notice'
+import { CadanganData } from '@/features/pengaturan/cadangan-data'
 import { GantiPassword } from '@/features/pengaturan/ganti-password'
 import { IdentitasInfo } from '@/features/pengaturan/identitas-card'
+import { KelolaBrand } from '@/features/pengaturan/kelola-brand'
 import { PreferensiCard } from '@/features/pengaturan/preferensi-card'
 import { ProfilCard } from '@/features/pengaturan/profil-card'
 import { Disclosure, SettingGroup } from '@/features/pengaturan/setting-ui'
@@ -23,6 +25,8 @@ export function PengaturanPage() {
         <ProfilCard />
         <PreferensiCard />
 
+        <KelolaBrand onChanged={reload} />
+
         <SettingGroup title="Target penjualan brand">
           <p className="px-3.5 py-2 text-xs text-tinta-redup">Target omzet per bulan. Kosongkan isian untuk menandai belum diatur.</p>
           {error ? (
@@ -38,6 +42,9 @@ export function PengaturanPage() {
         </SettingGroup>
 
         <SettingGroup title="Akun dan sistem">
+          <Disclosure title="Cadangan data">
+            <CadanganData />
+          </Disclosure>
           <Disclosure title="Ganti password">
             <p className="mb-3 text-xs text-tinta-redup">Akun yang sama dipakai di aplikasi lama.</p>
             <GantiPassword />

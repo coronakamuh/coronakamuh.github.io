@@ -280,10 +280,13 @@ export function describeMovement(row) {
   }
 }
 
-export async function getMovementsPage({ page, pageSize, from, to, group }) {
+/** `q`: cari nama barang (tidak peduli huruf besar/kecil), sama seperti pencarian di Penjualan. */
+export async function getMovementsPage({ page, pageSize, from, to, group, q }) {
+  const search = (q ?? '').trim()
   let query = supabase
     .from('transaksi')
-    .select('id, tanggal, type, qty, penjualan_id, barang_id, barang(nama)', { count: 'exact' })
+    .select(`id, tanggal, type, qty, penjualan_id, barang_id, ${search ? 'barang!inner(nama)' : 'barang(nama)'}`, { count: 'exact' })
+  if (search) query = query.ilike('barang.nama', `%${search.replace(/[\\%_]/g, '\\$&')}%`)
   if (from) query = query.gte('tanggal', from)
   if (to) query = query.lte('tanggal', to)
   if (group && typeGroups[group]) query = query.in('type', typeGroups[group])

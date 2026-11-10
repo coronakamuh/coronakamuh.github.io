@@ -1,15 +1,31 @@
-import { LogOut } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { LogOut, Search } from 'lucide-react'
 import { LogoMark } from '@/components/brand/logo-mark'
 import { BottomNav } from '@/components/layout/bottom-nav'
+import { OfflineBanner } from '@/components/layout/offline-banner'
 import { SidebarNav } from '@/components/layout/sidebar-nav'
 import { ThemeToggle } from '@/components/layout/theme-toggle'
 import { Button } from '@/components/ui/button'
+import { PencarianGlobal } from '@/features/pencarian/pencarian-global'
 import { site } from '@/config/site'
 import { useAuth } from '@/lib/auth-context'
 
 /** Layout utama, sidebar untuk desktop dan navigasi bawah untuk HP. */
 export function AppShell({ route, children }) {
   const { signOut } = useAuth()
+  const [searching, setSearching] = useState(false)
+
+  // Pintasan papan ketik: Ctrl+K atau Cmd+K membuka pencarian.
+  useEffect(() => {
+    const onKey = (event) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault()
+        setSearching(true)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
 
   return (
     <div className="min-h-svh lg:grid lg:grid-cols-[14rem_minmax(0,1fr)]">
@@ -22,7 +38,7 @@ export function AppShell({ route, children }) {
 
       <aside className="hidden border-r border-garis bg-lembar lg:block">
         <div className="sticky top-0 h-svh">
-          <SidebarNav route={route} />
+          <SidebarNav route={route} onSearch={() => setSearching(true)} />
         </div>
       </aside>
 
@@ -34,12 +50,17 @@ export function AppShell({ route, children }) {
             <span className="mt-0.5 block truncate text-[9px] font-medium uppercase tracking-[0.08em] text-tinta-redup">Smart Stock &amp; Sales Management</span>
           </span>
           <div className="ml-auto flex shrink-0 items-center">
+            <Button variant="ghost" size="icon" className="size-10 shrink-0" aria-label="Cari" onClick={() => setSearching(true)}>
+              <Search className="size-[18px]" />
+            </Button>
             <ThemeToggle className="size-10 shrink-0" />
             <Button variant="ghost" size="icon" className="size-10 shrink-0" aria-label="Keluar" onClick={signOut}>
               <LogOut className="size-[18px]" />
             </Button>
           </div>
         </header>
+
+        <OfflineBanner />
 
         <main
           id="utama"
@@ -50,6 +71,7 @@ export function AppShell({ route, children }) {
       </div>
 
       <BottomNav route={route} />
+      <PencarianGlobal open={searching} onOpenChange={setSearching} />
     </div>
   )
 }

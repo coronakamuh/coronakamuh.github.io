@@ -18,6 +18,7 @@ import { Modal } from '@/components/ui/dialog'
 import { DetailBarangDialog } from '@/features/stok/detail-barang-dialog'
 import { MutasiDialog } from '@/features/stok/mutasi-dialog'
 import { formatAngka } from '@/lib/format'
+import { usePencarianAwal } from '@/lib/pencarian-awal'
 import { usePageSize } from '@/lib/preferences'
 import { getStockData } from '@/services/queries'
 
@@ -48,6 +49,7 @@ export function StokPage() {
   const { data, error, loading, reload } = useAsync(getStockData, [])
   const [dialog, setDialog] = useState(null) // { kind: 'tambah' | 'ubah' | 'mutasi' | 'detail', item? }
   const [query, setQuery] = useState('')
+  usePencarianAwal('stok', setQuery)
   const [brand, setBrand] = useState('')
   const [page, setPage] = useState(1)
   const waiting = loading && !data
