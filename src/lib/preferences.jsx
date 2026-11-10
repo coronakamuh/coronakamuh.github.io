@@ -43,9 +43,10 @@ export function PreferencesProvider({ children }) {
   useEffect(() => {
     const root = document.documentElement
     root.dataset.theme = resolvedTheme
+    root.dataset.accent = prefs.accent
     root.style.colorScheme = resolvedTheme === 'gelap' ? 'dark' : 'light'
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_COLOR[resolvedTheme])
-  }, [resolvedTheme])
+  }, [resolvedTheme, prefs.accent])
 
   useEffect(() => {
     document.documentElement.style.fontSize = rootFontSize(prefs.textSize)

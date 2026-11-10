@@ -12,6 +12,7 @@
           try {
             var saved = JSON.parse(localStorage.getItem('dhouse.prefs'))
             if (saved && (saved.theme === 'gelap' || saved.theme === 'sistem' || saved.theme === 'terang')) theme = saved.theme
+            if (saved && /^(navy|zamrud|indigo|oranye|grafit)$/.test(saved.accent)) document.documentElement.setAttribute('data-accent', saved.accent)
           } catch (e) {}
           var dark = theme === 'gelap' || (theme === 'sistem' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches)
           var root = document.documentElement
