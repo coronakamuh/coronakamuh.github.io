@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Download, FileText, Package, Plus, Search, TriangleAlert, Boxes, ShoppingCart, Pencil, ArrowLeftRight } from 'lucide-react'
+import { Download, Package, Plus, Search, TriangleAlert, Boxes, ShoppingCart, Pencil, ArrowLeftRight } from 'lucide-react'
 import { PageTitle } from '@/components/layout/page-title'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader } from '@/components/ui/card'
@@ -16,6 +16,7 @@ import { useMutation } from '@/hooks/use-mutation'
 import { BarangDialog } from '@/features/stok/barang-dialog'
 import { Modal } from '@/components/ui/dialog'
 import { DetailBarangDialog } from '@/features/stok/detail-barang-dialog'
+import { ExportRekapDialog } from '@/features/stok/export-rekap-dialog'
 import { MutasiDialog } from '@/features/stok/mutasi-dialog'
 import { formatAngka } from '@/lib/format'
 import { usePencarianAwal } from '@/lib/pencarian-awal'
@@ -95,16 +96,18 @@ export function StokPage() {
     },
   ]
 
-  const { run: runRecap, pending: recapPending } = useMutation(async (format) => {
+  const [exportOpen, setExportOpen] = useState(false)
+  const { run: runRecap, pending: recapPending } = useMutation(async (format, range) => {
     try {
       const { loadRecap, exportRecapPdf, exportRecapExcel } = await import('@/features/stok/export-rekap')
-      const recap = await loadRecap()
+      const recap = await loadRecap(range)
       if (!recap) {
         toast.info('Tidak ada barang dengan stok pada periode ini')
         return
       }
       if (format === 'pdf') exportRecapPdf(recap)
       else exportRecapExcel(recap)
+      setExportOpen(false)
     } catch (failure) {
       toast.error('Rekap stok gagal dibuat', { description: failure.message })
     }
@@ -144,16 +147,10 @@ export function StokPage() {
           title="Daftar Produk"
           description={data ? `${formatAngka(filtered.length)} dari ${formatAngka(items.length)} barang.` : 'Cari barang dan kelola stok.'}
           action={
-            <span className="inline-flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => runRecap('xlsx')} disabled={recapPending} title="Rekap stok harian, 30 hari terakhir">
-                <Download />
-                Excel
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => runRecap('pdf')} disabled={recapPending} title="Rekap stok harian, 30 hari terakhir">
-                <FileText />
-                PDF
-              </Button>
-            </span>
+            <Button variant="outline" size="sm" onClick={() => setExportOpen(true)} disabled={recapPending} title="Export rekap stok (PDF atau Excel)">
+              <Download />
+              Export
+            </Button>
           }
         />
         <div className="grid grid-cols-[minmax(0,1fr)_8.5rem] gap-2 px-4 pb-4 sm:grid-cols-[minmax(0,1fr)_13rem] sm:px-5">
@@ -228,6 +225,7 @@ export function StokPage() {
         onMutasi={(item) => setDialog({ kind: 'mutasi', item })}
         onUbah={(item) => setDialog({ kind: 'ubah', item })}
       />
+      <ExportRekapDialog open={exportOpen} onOpenChange={setExportOpen} pending={recapPending} onExport={runRecap} />
       <MutasiDialog item={dialog?.kind === 'mutasi' ? dialog.item : null} onOpenChange={(open) => !open && setDialog(null)} onDone={reload} />
     </div>
   )

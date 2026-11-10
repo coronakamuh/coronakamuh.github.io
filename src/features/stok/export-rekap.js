@@ -3,15 +3,16 @@ import { buildRecapPdf, buildReportXlsx } from '@/lib/export-laporan'
 import { cellDisplay, dayLabel, lastDays, periodLabel, RECAP_LEGEND, buildStockRecap } from '@/lib/rekap-stok'
 import { formatAngka } from '@/lib/format'
 import { todayISO } from '@/lib/date'
+import { rangeDays } from '@/lib/rekap-rentang'
 import { getRecapSource } from '@/services/queries'
 
 const XLSX_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 export const RECAP_DAYS = 30
 
-/** Membaca data lalu menyusun rekap 30 hari terakhir. Mengembalikan null bila tidak ada barang. */
-export async function loadRecap() {
+/** Membaca data lalu menyusun rekap. Tanpa `range` (kosong): 30 hari terakhir. range: { from, to } tanggal ISO. Mengembalikan null bila tidak ada barang. */
+export async function loadRecap(range) {
   const source = await getRecapSource()
-  const dates = lastDays(todayISO(), RECAP_DAYS)
+  const dates = range ? lastDays(range.to, rangeDays(range.from, range.to)) : lastDays(todayISO(), RECAP_DAYS)
   const groups = buildStockRecap({ items: source.items, movements: source.movements, dates })
   const count = groups.reduce((sum, group) => sum + group.rows.length, 0)
   if (count === 0) return null
