@@ -3,6 +3,7 @@ import { buildRecapPdf, buildReportXlsx } from '@/lib/export-laporan'
 import { cellDisplay, dayLabel, lastDays, periodLabel, RECAP_LEGEND, buildStockRecap } from '@/lib/rekap-stok'
 import { formatAngka } from '@/lib/format'
 import { todayISO } from '@/lib/date'
+import { singkatNama } from '@/lib/singkatan'
 import { rangeDays } from '@/lib/rekap-rentang'
 import { getRecapSource } from '@/services/queries'
 
@@ -22,14 +23,8 @@ export async function loadRecap(range) {
 const fileBase = (label) => `Rekap-Stok-${label.replace(/[^A-Za-z0-9]+/g, '-')}`
 const countText = (count) => `JUMLAH BARANG: ${formatAngka(count)}`
 
-// Hilangkan awalan brand dari nama barang khusus pada file rekap.
-const recapItemName = (name, brand) => {
-  const value = String(name ?? '')
-  const prefix = String(brand ?? '').trim()
-  if (!prefix || value.slice(0, prefix.length).toLowerCase() !== prefix.toLowerCase()) return value
-  const rest = value.slice(prefix.length)
-  return rest && ' -:|'.includes(rest[0]) ? rest.trimStart().replace(/^[-:|]+/, '').trimStart() : value
-}
+// Nama barang di file rekap: awalan brand menjadi singkatan brand dan kata panjang dipendekkan (lihat lib/singkatan).
+const recapItemName = singkatNama
 export function exportRecapExcel({ dates, groups, count, label }) {
   const columns = dates.length + 1
   const BORDER = true
