@@ -102,7 +102,7 @@ export function PenjualanPage() {
       }
       const dateLabel = `${date.slice(8, 10)}/${date.slice(5, 7)}`
       const lines = rows.map((row) => `*${row.item}* [${formatAngka(row.qty)}] _${formatRupiah(row.price)}_`)
-      await navigator.clipboard.writeText([`*${dateLabel}*`, ...lines].join('\n'))
+      await navigator.clipboard.writeText([`*${dateLabel}*`, lines.join('\n\n')].join('\n'))
       toast.success('Daftar penjualan berhasil disalin', { description: dateLabel })
     } catch (failure) {
       toast.error('Gagal menyalin daftar penjualan', { description: failure.message || 'Clipboard tidak dapat diakses' })
