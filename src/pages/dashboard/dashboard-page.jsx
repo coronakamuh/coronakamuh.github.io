@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Banknote, Boxes, Package, RefreshCw, Tags, TriangleAlert } from 'lucide-react'
+import { Banknote, Boxes, LayoutDashboard, Package, RefreshCw, Tags, TriangleAlert } from 'lucide-react'
 import { LineChart } from '@/components/charts/line-chart'
-import { PageHeader } from '@/components/layout/page-header'
+import { PageTitle } from '@/components/layout/page-title'
 import { Button } from '@/components/ui/button'
 import { Card, CardBody, CardHeader } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/data-table'
@@ -89,9 +89,11 @@ export function DashboardPage() {
 
   return (
     <>
-      <PageHeader
+      <PageTitle
+        icon={LayoutDashboard}
         title="Dashboard"
-        description={data ? `Ringkasan stok dan penjualan, ${formatDisplay(data.today)}.` : 'Ringkasan stok dan penjualan.'}
+        description={data ? `Pantau performa penjualan dan kondisi stok, ${formatDisplay(data.today)}.` : 'Pantau performa penjualan dan kondisi stok dalam satu ringkasan.'}
+        inlineActions
         actions={
           <Button variant="outline" size="sm" onClick={reload} disabled={loading}>
             <RefreshCw className={loading ? 'animate-spin' : undefined} />
