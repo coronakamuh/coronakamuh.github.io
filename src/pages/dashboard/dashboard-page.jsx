@@ -89,7 +89,8 @@ export function DashboardPage() {
 
   return (
     <>
-      <PageTitle
+      <div className="mb-6">
+        <PageTitle
         icon={LayoutDashboard}
         title="Dashboard"
         description={data ? `Pantau performa penjualan dan kondisi stok, ${formatDisplay(data.today)}.` : 'Pantau performa penjualan dan kondisi stok dalam satu ringkasan.'}
@@ -100,7 +101,8 @@ export function DashboardPage() {
             {loading ? 'Memuat…' : updatedAt ? `Perbarui · ${clock(updatedAt)}` : 'Perbarui'}
           </Button>
         }
-      />
+        />
+      </div>
 
       {error ? (
         <div className="mb-4">
