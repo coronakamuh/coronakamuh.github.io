@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { ArrowDownLeft, ArrowUpRight, History, Plus, RotateCcw, X } from 'lucide-react'
-import { PageHeader } from '@/components/layout/page-header'
+import { PageTitle } from '@/components/layout/page-title'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/data-table'
@@ -93,9 +93,10 @@ export function RiwayatPage() {
 
   return (
     <div className="space-y-4">
-      <PageHeader
+      <PageTitle
+        icon={History}
         title="Riwayat Transaksi"
-        description="Pantau barang masuk, keluar, dan penyesuaian stok."
+        description="Telusuri pergerakan stok dan pantau setiap aktivitas transaksi dengan lebih mudah."
         actions={
           <Button onClick={() => setCatat(true)} disabled={!stock.data} className="w-full sm:w-auto">
             <Plus />
