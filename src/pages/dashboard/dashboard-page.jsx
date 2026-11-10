@@ -89,7 +89,7 @@ export function DashboardPage() {
 
   return (
     <>
-      <div className="mb-6">
+      <div className="mb-10 sm:mb-6 [&_h1+p]:mt-1">
         <PageTitle
         icon={LayoutDashboard}
         title="Dashboard"
