@@ -171,12 +171,14 @@ export function RekapBulanan({ month, onMonthChange, monthOptions, startMonth, o
               ) : (
                 <ul className="divide-y divide-garis-halus">
                   {brandList.map((brand) => {
-                    const share = totals.revenue > 0 ? (brand.revenue / totals.revenue) * 100 : 0
+                    const target = targetOf.get(brand.name)
+                    const hasTarget = target !== null && target !== undefined && Number(target) > 0
+                    const reach = hasTarget ? Math.round((brand.revenue / Number(target)) * 100) : 0
                     return (
                       <li key={brand.name} className="flex items-center gap-2 py-2 text-sm">
                         <span className="min-w-0 flex-1 truncate font-semibold">{brand.name}</span>
                         <span className="shrink-0 font-semibold tabular-nums">{formatRupiah(brand.revenue)}</span>
-                        <span className="w-12 shrink-0 text-right text-xs font-medium text-tinta-redup tabular-nums">{share.toFixed(1)}%</span>
+                        <span className="w-12 shrink-0 text-right text-xs font-medium text-tinta-redup tabular-nums">{hasTarget ? `${reach}%` : '-'}</span>
                       </li>
                     )
                   })}
