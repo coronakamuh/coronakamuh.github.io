@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ArrowDownLeft, ArrowUpRight, History, Plus, RotateCcw, X } from 'lucide-react'
 import { PageTitle } from '@/components/layout/page-title'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/data-table'
@@ -8,10 +9,10 @@ import { NamaBarang } from '@/components/ui/nama-barang'
 import { DatePicker } from '@/components/ui/date-picker'
 import { ErrorNotice } from '@/components/ui/notice'
 import { Pager } from '@/components/ui/pager'
-import { Select } from '@/components/ui/select'
 import { useAsync } from '@/hooks/use-async'
 import { formatAngka } from '@/lib/format'
-import { formatDisplay } from '@/lib/date'
+import { cn } from '@/lib/cn'
+import { formatDisplay, monthNames, todayISO } from '@/lib/date'
 import { DetailMutasiDialog } from '@/features/riwayat/detail-mutasi-dialog'
 import { MutasiDialog } from '@/features/stok/mutasi-dialog'
 import { usePageSize } from '@/lib/preferences'
@@ -59,12 +60,20 @@ const makeColumns = (onDetail) => [
 ]
 
 const typeOptions = [
-  { value: '', label: 'Semua jenis' },
-  { value: 'masuk', label: 'Barang masuk' },
-  { value: 'terjual', label: 'Terjual (dari penjualan)' },
-  { value: 'keluar', label: 'Barang keluar (manual)' },
-  { value: 'koreksi', label: 'Koreksi stok' },
+  { value: '', label: 'Semua' },
+  { value: 'masuk', label: 'Masuk' },
+  { value: 'terjual', label: 'Terjual' },
+  { value: 'keluar', label: 'Keluar' },
+  { value: 'koreksi', label: 'Koreksi' },
 ]
+
+const toneOf = (label) => (label === 'Masuk' ? 'sukses' : label === 'Terjual' ? 'info' : label === 'Keluar' ? 'peringatan' : 'netral')
+
+/** "2026-11-09" menjadi "9 Nov"; tahun ditambahkan bila bukan tahun ini. */
+function shortDate(text) {
+  const [year, month, day] = text.split('-').map(Number)
+  return `${day} ${monthNames[month - 1].slice(0, 3)}${String(year) === todayISO().slice(0, 4) ? '' : ` ${year}`}`
+}
 
 export function RiwayatPage() {
   const PAGE_SIZE = usePageSize(DEFAULT_PAGE_SIZE)
@@ -109,31 +118,40 @@ export function RiwayatPage() {
         <CardHeader
           title="Riwayat Mutasi"
           description={data ? `${formatAngka(data.total)} catatan transaksi` : 'Daftar seluruh pergerakan stok.'}
+          action={
+            filtering ? (
+              <Button type="button" variant="ghost" size="sm" onClick={resetFilters}>
+                <X />
+                Reset
+              </Button>
+            ) : null
+          }
         />
 
-        <div className="space-y-2.5 px-3 pb-4 sm:px-5">
-          <div className="flex items-center justify-between gap-2">
-            <p className="text-xs font-semibold uppercase tracking-wide text-tinta-redup">Filter transaksi</p>
-            {filtering ? (
-              <Button type="button" variant="ghost" size="sm" className="h-8 px-2 text-xs" onClick={resetFilters}>
-                <X className="size-3.5" />
-                Reset filter
-              </Button>
-            ) : null}
+        <div className="space-y-2 px-3 pb-3 sm:px-5">
+          <div className="grid grid-cols-2 gap-2 sm:max-w-md">
+            <DatePicker id="riwayat-dari" aria-label="Dari tanggal" placeholder="Dari tanggal" value={from} onChange={setFrom} max={to || undefined} />
+            <DatePicker id="riwayat-sampai" aria-label="Sampai tanggal" placeholder="Sampai tanggal" value={to} onChange={setTo} min={from || undefined} />
           </div>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(11rem,0.9fr)]">
-            <div className="min-w-0 space-y-1">
-              <label htmlFor="riwayat-dari" className="text-xs font-medium text-tinta-redup">Dari tanggal</label>
-              <DatePicker id="riwayat-dari" aria-label="Dari tanggal" placeholder="Pilih tanggal awal" value={from} onChange={setFrom} max={to || undefined} />
-            </div>
-            <div className="min-w-0 space-y-1">
-              <label htmlFor="riwayat-sampai" className="text-xs font-medium text-tinta-redup">Sampai tanggal</label>
-              <DatePicker id="riwayat-sampai" aria-label="Sampai tanggal" placeholder="Pilih tanggal akhir" value={to} onChange={setTo} min={from || undefined} />
-            </div>
-            <div className="min-w-0 space-y-1">
-              <label htmlFor="riwayat-jenis" className="text-xs font-medium text-tinta-redup">Jenis transaksi</label>
-              <Select id="riwayat-jenis" aria-label="Jenis mutasi" value={group} onValueChange={setGroup} options={typeOptions} className="w-full" />
-            </div>
+          <div role="radiogroup" aria-label="Jenis transaksi" className="-mx-3 flex gap-1.5 overflow-x-auto px-3 pb-1 [scrollbar-width:none] sm:mx-0 sm:px-0">
+            {typeOptions.map((option) => {
+              const active = group === option.value
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  role="radio"
+                  aria-checked={active}
+                  onClick={() => setGroup(option.value)}
+                  className={cn(
+                    'h-8 shrink-0 rounded-full border px-3.5 text-xs font-semibold transition-colors',
+                    active ? 'border-tombol bg-tombol text-white' : 'border-garis bg-lembar text-tinta-redup hover:bg-garis-halus hover:text-tinta',
+                  )}
+                >
+                  {option.label}
+                </button>
+              )
+            })}
           </div>
         </div>
 
@@ -146,6 +164,27 @@ export function RiwayatPage() {
           caption="Riwayat barang masuk dan keluar"
           columns={columns}
           rows={data ? data.rows : []}
+          mobileCards
+          mobileRow={(row) => (
+            <>
+              <div className="flex items-baseline justify-between gap-3">
+                <button type="button" className="min-w-0 text-left text-[13px] leading-snug font-semibold break-words" onClick={() => setDetailId(row.id)}>
+                  <NamaBarang name={row.item} />
+                </button>
+                <span className={cn('shrink-0 text-sm font-bold tabular-nums', row.delta < 0 ? 'text-bahaya' : 'text-sukses')}>
+                  {row.delta > 0 ? '+' : ''}
+                  {formatAngka(row.delta)}
+                </span>
+              </div>
+              <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-tinta-redup">
+                <Badge tone={toneOf(row.label)} className="rounded-md px-1.5 text-[11px] font-semibold">
+                  {row.label}
+                </Badge>
+                {row.note !== '—' ? <span>{row.note.replace('Penjualan ', '')}</span> : null}
+                <span className="ml-auto">{shortDate(row.date)}</span>
+              </div>
+            </>
+          )}
           empty={{
             icon: History,
             title: waiting ? 'Memuat data' : filtering ? 'Tidak ada riwayat yang cocok' : 'Belum ada riwayat',

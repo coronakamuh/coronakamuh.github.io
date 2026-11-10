@@ -10,7 +10,7 @@ import { EmptyState } from '@/components/ui/empty-state'
  * - lebar: tabel biasa.
  * columns: [{ key, label, align?: 'right', className?: string (untuk kolom tabel), render?: (row) => node }]
  */
-export function DataTable({ columns, rows, empty, caption, tableOnMobile = false, tableClassName = '', mobileRow, mobileGroup, striped = false }) {
+export function DataTable({ columns, rows, empty, caption, tableOnMobile = false, tableClassName = '', mobileRow, mobileGroup, mobileCards = false, striped = false }) {
   return (
     <div className={`data-table @container ${tableOnMobile ? 'overflow-x-auto' : ''}`}>
       {/* Tabel: pada halaman tertentu tetap berupa tabel di layar HP. */}
@@ -55,7 +55,7 @@ export function DataTable({ columns, rows, empty, caption, tableOnMobile = false
 
       {/* Daftar ringkas: saat kartu sempit (HP). Baris judul (nama + aksi), lalu isi lain dalam 2 kolom. */}
       {!tableOnMobile && rows.length > 0 ? (
-        <ul aria-label={caption} className="divide-y divide-garis-halus border-t border-garis @xl:hidden">
+        <ul aria-label={caption} className={cn(mobileCards ? 'space-y-2 px-3 pt-1 pb-3' : 'divide-y divide-garis-halus border-t border-garis', '@xl:hidden')}>
           {rows.map((row, index) => {
             if (mobileRow) {
               // mobileGroup (opsional): mengembalikan kepala kelompok (mis. tanggal) di baris pertama tiap kelompok.
@@ -63,7 +63,7 @@ export function DataTable({ columns, rows, empty, caption, tableOnMobile = false
               return (
                 <Fragment key={row.id ?? index}>
                   {header ? <li className="bg-garis-halus/70">{header}</li> : null}
-                  <li className={cn('px-3 py-2', striped && !mobileGroup && 'even:bg-garis-halus/60')}>{mobileRow(row)}</li>
+                  <li className={cn(mobileCards ? 'rounded-xl border border-garis bg-lembar px-3 py-2.5' : 'px-3 py-2', striped && !mobileGroup && !mobileCards && 'even:bg-garis-halus/60')}>{mobileRow(row)}</li>
                 </Fragment>
               )
             }
