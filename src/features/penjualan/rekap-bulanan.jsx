@@ -100,7 +100,9 @@ export function RekapBulanan({ month, onMonthChange, monthOptions, startMonth, o
     brands.set(name, entry)
   }
   const targetOf = new Map((targets.data ?? []).map((entry) => [entry.brand, entry.target]))
-  const brandList = [...brands.values()].sort((a, b) => b.revenue - a.revenue)
+  const hasTargetOf = (name) => Number(targetOf.get(name)) > 0
+  // Terbesar dulu; brand tanpa target di urutan paling bawah.
+  const brandList = [...brands.values()].sort((a, b) => Number(hasTargetOf(b.name)) - Number(hasTargetOf(a.name)) || b.revenue - a.revenue)
 
   const items = new Map()
   for (const row of rows) {
@@ -187,8 +189,6 @@ export function RekapBulanan({ month, onMonthChange, monthOptions, startMonth, o
                               {reach}% dari target {formatRupiah(target)}
                             </p>
                           </>
-                        ) : targets.data ? (
-                          <p className="mt-1 text-xs text-tinta-redup">Target belum diatur</p>
                         ) : null}
                       </li>
                     )
