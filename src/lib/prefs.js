@@ -9,6 +9,7 @@ export const ACCENT_OPTIONS = [
   { value: 'indigo', label: 'Indigo', color: '#4338ca' },
   { value: 'oranye', label: 'Oranye', color: '#b45309' },
   { value: 'grafit', label: 'Grafit', color: '#1f2937' },
+  { value: 'maroon', label: 'Maroon', color: '#7a1b2d' },
 ]
 export const ACCENTS = ACCENT_OPTIONS.map((option) => option.value)
 export const DEFAULT_PREFS = { textSize: 'normal', rows: 'auto', theme: 'terang', accent: 'navy' }
