@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Download, FileText, Pencil, Receipt, Search, ShoppingCart, TrendingUp } from 'lucide-react'
+import { Copy, Download, FileText, Pencil, Receipt, Search, ShoppingCart, TrendingUp } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageTitle } from '@/components/layout/page-title'
 import { Button } from '@/components/ui/button'
@@ -73,6 +73,7 @@ export function PenjualanPage() {
   const todaySummary = useAsync(() => getSalesSummary({ from: todayISO(), to: todayISO() }), [])
 
   const [exporting, setExporting] = useState('')
+  const [copyingDay, setCopyingDay] = useState('')
   async function handleExport(kind, exportFilter = filter) {
     if (exporting) return
     setExporting(kind)
@@ -90,6 +91,26 @@ export function PenjualanPage() {
       setExporting('')
     }
   }
+  async function handleCopyDay(date) {
+    if (copyingDay) return
+    setCopyingDay(date)
+    try {
+      const rows = await getSalesExport({ from: date, to: date, brand })
+      if (rows.length === 0) {
+        toast.info('Tidak ada penjualan pada tanggal ini')
+        return
+      }
+      const dateLabel = `${date.slice(8, 10)}/${date.slice(5, 7)}`
+      const lines = rows.map((row) => `*${row.item}* [${formatAngka(row.qty)}] _${formatRupiah(row.price)}_`)
+      await navigator.clipboard.writeText([`*${dateLabel}*`, ...lines].join('\n'))
+      toast.success('Daftar penjualan berhasil disalin', { description: dateLabel })
+    } catch (failure) {
+      toast.error('Gagal menyalin daftar penjualan', { description: failure.message || 'Clipboard tidak dapat diakses' })
+    } finally {
+      setCopyingDay('')
+    }
+  }
+
   const stock = useAsync(getStockData, [])
   const items = stock.data?.items ?? []
   const waiting = sales.loading && !sales.data
@@ -258,7 +279,19 @@ export function PenjualanPage() {
             return (
               <div className="flex items-center justify-between gap-3 px-3 py-1.5 text-[11px] font-semibold text-tinta-redup">
                 <span className="uppercase">{dayLabel(row.date)}</span>
-                <span className="tabular-nums">{partial ? `${day.count} transaksi di halaman ini` : `${day.count} transaksi · ${formatRupiah(day.total)}`}</span>
+                <span className="ml-auto tabular-nums">{partial ? `${day.count} transaksi di halaman ini` : `${day.count} transaksi · ${formatRupiah(day.total)}`}</span>
+                <Button
+                  variant="outline"
+                  size="xs"
+                  className="h-7 gap-1 px-2 text-[11px]"
+                  onClick={() => handleCopyDay(row.date)}
+                  disabled={Boolean(copyingDay)}
+                  aria-label={`Salin penjualan tanggal ${dayLabel(row.date)}`}
+                  title="Salin daftar penjualan hari ini"
+                >
+                  <Copy size={13} />
+                  {copyingDay === row.date ? 'Menyalin…' : 'Copy'}
+                </Button>
               </div>
             )
           }}
