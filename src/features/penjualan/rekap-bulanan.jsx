@@ -171,25 +171,12 @@ export function RekapBulanan({ month, onMonthChange, monthOptions, startMonth, o
               ) : (
                 <ul className="divide-y divide-garis-halus">
                   {brandList.map((brand) => {
-                    const target = targetOf.get(brand.name)
-                    const hasTarget = target !== null && target !== undefined && target > 0
-                    const reach = hasTarget ? Math.round((brand.revenue / target) * 100) : 0
+                    const share = totals.revenue > 0 ? (brand.revenue / totals.revenue) * 100 : 0
                     return (
-                      <li key={brand.name} className="py-2">
-                        <div className="flex items-baseline justify-between gap-3 text-sm">
-                          <span className="min-w-0 truncate font-semibold">{brand.name}</span>
-                          <span className="shrink-0 font-semibold tabular-nums">{formatRupiah(brand.revenue)}</span>
-                        </div>
-                        {hasTarget ? (
-                          <>
-                            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-garis-halus" role="presentation">
-                              <div className="h-full rounded-full bg-pena" style={{ width: `${Math.min(100, reach)}%` }} />
-                            </div>
-                            <p className="mt-1 text-xs text-tinta-redup tabular-nums">
-                              {reach}% dari target {formatRupiah(target)}
-                            </p>
-                          </>
-                        ) : null}
+                      <li key={brand.name} className="flex items-center gap-2 py-2 text-sm">
+                        <span className="min-w-0 flex-1 truncate font-semibold">{brand.name}</span>
+                        <span className="shrink-0 font-semibold tabular-nums">{formatRupiah(brand.revenue)}</span>
+                        <span className="w-12 shrink-0 text-right text-xs font-medium text-tinta-redup tabular-nums">{share.toFixed(1)}%</span>
                       </li>
                     )
                   })}
