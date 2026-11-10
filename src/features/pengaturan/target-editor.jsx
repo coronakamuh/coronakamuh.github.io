@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Check } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/field'
+import { MoneyInput } from '@/components/ui/money-input'
 import { FormMessage } from '@/components/ui/form-error'
 import { useMutation } from '@/hooks/use-mutation'
 import { parseTarget } from '@/lib/validation'
@@ -36,12 +36,11 @@ function TargetRow({ row, onSaved }) {
         <label htmlFor={`target-${row.id}`} className="min-w-0 flex-1 truncate text-sm font-medium">
           {row.brand}
         </label>
-        <Input
+        <MoneyInput
           id={`target-${row.id}`}
-          inputMode="numeric"
           placeholder="Belum diatur"
           value={text}
-          onChange={(event) => setText(event.target.value)}
+          onChange={setText}
           className="h-9 w-32 text-right"
         />
         <Button

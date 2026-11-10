@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Calendar, Hash, Package, Tag, X } from 'lucide-react'
 import { DatePicker } from '@/components/ui/date-picker'
 import { Field, Input } from '@/components/ui/field'
+import { MoneyInput } from '@/components/ui/money-input'
 import { cn } from '@/lib/cn'
 import { formatAngka, formatRupiah } from '@/lib/format'
 import { todayISO } from '@/lib/date'
@@ -113,7 +114,7 @@ export function PenjualanFields({ idPrefix, items, value, onChange, disabled, co
               <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-xs text-tinta-redup" aria-hidden="true">
                 Rp
               </span>
-              <Input id={`${idPrefix}-harga`} inputMode="numeric" placeholder="0" value={value.harga} onChange={(event) => onChange({ ...value, harga: event.target.value })} disabled={disabled} className="h-11 pl-9" />
+              <MoneyInput id={`${idPrefix}-harga`} placeholder="0" value={value.harga} onChange={(harga) => onChange({ ...value, harga })} disabled={disabled} className="h-11 pl-9" />
             </div>
           </CompactField>
           {children}
@@ -135,7 +136,7 @@ export function PenjualanFields({ idPrefix, items, value, onChange, disabled, co
           {qtyControl}
         </Field>
         <Field label="Harga satuan" htmlFor={`${idPrefix}-harga`}>
-          <Input id={`${idPrefix}-harga`} inputMode="numeric" placeholder="0" value={value.harga} onChange={(event) => onChange({ ...value, harga: event.target.value })} disabled={disabled} />
+          <MoneyInput id={`${idPrefix}-harga`} placeholder="0" value={value.harga} onChange={(harga) => onChange({ ...value, harga })} disabled={disabled} />
         </Field>
       </div>
       {q !== null && h !== null ? (
