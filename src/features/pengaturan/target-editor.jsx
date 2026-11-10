@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Check } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/field'
@@ -30,19 +31,32 @@ function TargetRow({ row, onSaved }) {
   }
 
   return (
-    <li className="py-3">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-2 sm:flex-row sm:items-center" noValidate>
+    <li className="px-3.5 py-2">
+      <form onSubmit={handleSubmit} className="flex items-center gap-2" noValidate>
         <label htmlFor={`target-${row.id}`} className="min-w-0 flex-1 truncate text-sm font-medium">
           {row.brand}
         </label>
-        <div className="flex gap-2 sm:w-80">
-          <Input id={`target-${row.id}`} inputMode="numeric" placeholder="Belum diatur" value={text} onChange={(event) => setText(event.target.value)} />
-          <Button type="submit" variant="outline" disabled={!changed || save.pending}>
-            Simpan
-          </Button>
-        </div>
+        <Input
+          id={`target-${row.id}`}
+          inputMode="numeric"
+          placeholder="Belum diatur"
+          value={text}
+          onChange={(event) => setText(event.target.value)}
+          className="h-9 w-32 text-right"
+        />
+        <Button
+          type="submit"
+          variant={changed ? 'primary' : 'outline'}
+          size="icon-sm"
+          className="size-9"
+          disabled={!changed || save.pending}
+          aria-label={`Simpan target ${row.brand}`}
+          title="Simpan"
+        >
+          <Check />
+        </Button>
       </form>
-      <div className="mt-2 empty:hidden">
+      <div className="mt-1.5 empty:hidden">
         <FormMessage>{error}</FormMessage>
       </div>
     </li>
@@ -52,7 +66,7 @@ function TargetRow({ row, onSaved }) {
 /** Satu baris per brand aktif. Kosongkan isian untuk "belum diatur". */
 export function TargetEditor({ rows, onSaved }) {
   return (
-    <ul className="divide-y divide-garis-halus px-4 pb-2 sm:px-5">
+    <ul className="divide-y divide-garis-halus">
       {rows.map((row) => (
         <TargetRow key={`${row.id}-${row.target}`} row={row} onSaved={onSaved} />
       ))}

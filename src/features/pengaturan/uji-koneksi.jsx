@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { CardBody } from '@/components/ui/card'
 import { formatAngka } from '@/lib/format'
 import { testConnection } from '@/services/health'
 
@@ -21,7 +20,7 @@ export function UjiKoneksi() {
   const allOk = result?.every((row) => row.ok)
 
   return (
-    <CardBody className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       <div>
         <Button variant="outline" onClick={run} disabled={running}>
           {running ? 'Menguji…' : 'Uji koneksi'}
@@ -44,6 +43,6 @@ export function UjiKoneksi() {
           </ul>
         </>
       ) : null}
-    </CardBody>
+    </div>
   )
 }

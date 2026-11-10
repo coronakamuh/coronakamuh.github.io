@@ -1,67 +1,56 @@
-import { LogOut, Tags } from 'lucide-react'
-import { PageHeader } from '@/components/layout/page-header'
-import { Button } from '@/components/ui/button'
-import { Card, CardBody, CardHeader } from '@/components/ui/card'
+import { Settings, Tags } from 'lucide-react'
+import { PageTitle } from '@/components/layout/page-title'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorNotice } from '@/components/ui/notice'
 import { GantiPassword } from '@/features/pengaturan/ganti-password'
-import { IdentitasCard } from '@/features/pengaturan/identitas-card'
+import { IdentitasInfo } from '@/features/pengaturan/identitas-card'
 import { PreferensiCard } from '@/features/pengaturan/preferensi-card'
 import { ProfilCard } from '@/features/pengaturan/profil-card'
-import { UjiKoneksi } from '@/features/pengaturan/uji-koneksi'
+import { Disclosure, SettingGroup } from '@/features/pengaturan/setting-ui'
 import { TargetEditor } from '@/features/pengaturan/target-editor'
+import { UjiKoneksi } from '@/features/pengaturan/uji-koneksi'
 import { useAsync } from '@/hooks/use-async'
-import { useAuth } from '@/lib/auth-context'
 import { getTargetRows } from '@/services/queries'
 
 export function PengaturanPage() {
-  const { signOut } = useAuth()
   const { data, error, loading, reload } = useAsync(getTargetRows, [])
 
   return (
-    <>
-      <PageHeader title="Pengaturan" description="Identitas, profil, tampilan, target brand, dan akun." />
+    <div className="space-y-4">
+      <PageTitle icon={Settings} title="Pengaturan" description="Profil, tampilan, target brand, dan akun" />
 
-      <div className="flex max-w-3xl flex-col gap-6">
-        <IdentitasCard />
+      <div className="flex max-w-3xl flex-col gap-4">
         <ProfilCard />
         <PreferensiCard />
 
-        <Card>
-          <CardHeader title="Target Penjualan Brand" description="Target omzet per bulan. Kosongkan isian untuk menandai belum diatur." />
+        <SettingGroup title="Target penjualan brand">
+          <p className="px-3.5 py-2 text-xs text-tinta-redup">Target omzet per bulan. Kosongkan isian untuk menandai belum diatur.</p>
           {error ? (
-            <CardBody>
+            <div className="px-3.5 py-3">
               <ErrorNotice error={error} onRetry={reload} />
-            </CardBody>
+            </div>
           ) : null}
           {data && data.length > 0 ? (
             <TargetEditor rows={data} onSaved={reload} />
           ) : !error ? (
             <EmptyState icon={Tags} title={loading ? 'Memuat data' : 'Belum ada brand aktif'} />
           ) : null}
-        </Card>
+        </SettingGroup>
 
-        <Card>
-          <CardHeader title="Pengaturan Akun" description="Ganti password akun ini. Akun yang sama dipakai di aplikasi lama." />
-          <GantiPassword />
-        </Card>
-
-        {/* Terpisah dari form di atas supaya klik ganda pada "Ganti Password" tidak pernah mengenai Keluar saat tata letak bergeser. */}
-        <Card>
-          <CardHeader title="Sesi" description="Keluar hanya dari perangkat ini. Perangkat lain dan aplikasi lama tetap masuk." />
-          <CardBody>
-            <Button variant="outline" onClick={signOut}>
-              <LogOut />
-              Keluar
-            </Button>
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardHeader title="Koneksi Database" description="Memeriksa bahwa data bisa dibaca. Hanya membaca, tidak mengubah apa pun." />
-          <UjiKoneksi />
-        </Card>
+        <SettingGroup title="Akun dan sistem">
+          <Disclosure title="Ganti password">
+            <p className="mb-3 text-xs text-tinta-redup">Akun yang sama dipakai di aplikasi lama.</p>
+            <GantiPassword />
+          </Disclosure>
+          <Disclosure title="Uji koneksi database">
+            <p className="mb-3 text-xs text-tinta-redup">Memeriksa bahwa data bisa dibaca. Hanya membaca, tidak mengubah apa pun.</p>
+            <UjiKoneksi />
+          </Disclosure>
+          <Disclosure title="Tentang aplikasi">
+            <IdentitasInfo />
+          </Disclosure>
+        </SettingGroup>
       </div>
-    </>
+    </div>
   )
 }

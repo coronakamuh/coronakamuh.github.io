@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
-import { CardBody } from '@/components/ui/card'
 import { Field, Input } from '@/components/ui/field'
 import { FormMessage } from '@/components/ui/form-error'
 import { useMutation } from '@/hooks/use-mutation'
@@ -34,7 +33,7 @@ export function GantiPassword() {
   }
 
   return (
-    <CardBody>
+    <div>
       <form onSubmit={handleSubmit} className="flex max-w-sm flex-col gap-4" noValidate>
         <Field label="Password saat ini" htmlFor="pw-current">
           <Input id="pw-current" type="password" autoComplete="current-password" value={value.current} onChange={set('current')} />
@@ -52,6 +51,6 @@ export function GantiPassword() {
           </Button>
         </div>
       </form>
-    </CardBody>
+    </div>
   )
 }

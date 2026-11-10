@@ -1,8 +1,7 @@
-import { Button } from '@/components/ui/button'
-import { Card, CardBody, CardHeader } from '@/components/ui/card'
 import { Segmented } from '@/components/ui/segmented'
-import { usePreferences } from '@/lib/preferences'
+import { SettingGroup, SettingRow } from '@/features/pengaturan/setting-ui'
 import { cn } from '@/lib/cn'
+import { usePreferences } from '@/lib/preferences'
 import { ACCENT_OPTIONS, DEFAULT_PREFS } from '@/lib/prefs'
 
 const themeOptions = [
@@ -24,72 +23,61 @@ const rowOptions = [
 /** Preferensi hanya berlaku di perangkat ini (disimpan di browser), tidak mengubah database. */
 export function PreferensiCard() {
   const { prefs, setPref, reset } = usePreferences()
-  const isDefault = prefs.textSize === DEFAULT_PREFS.textSize && prefs.rows === DEFAULT_PREFS.rows && prefs.theme === DEFAULT_PREFS.theme && prefs.accent === DEFAULT_PREFS.accent
+  const isDefault =
+    prefs.textSize === DEFAULT_PREFS.textSize && prefs.rows === DEFAULT_PREFS.rows && prefs.theme === DEFAULT_PREFS.theme && prefs.accent === DEFAULT_PREFS.accent
   return (
-    <Card>
-      <CardHeader title="Preferensi Tampilan" description="Hanya berlaku di perangkat dan browser ini." />
-      <CardBody className="flex flex-col gap-5">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm font-medium">Tema</p>
-            <p className="text-xs text-tinta-redup">Sistem mengikuti pengaturan terang atau gelap di perangkat.</p>
-          </div>
-          <Segmented label="Tema" value={prefs.theme} onValueChange={(value) => setPref('theme', value)} options={themeOptions} />
+    <SettingGroup
+      title="Tampilan"
+      action={
+        <button
+          type="button"
+          onClick={reset}
+          disabled={isDefault}
+          className="text-xs font-semibold text-pena transition-opacity disabled:pointer-events-none disabled:opacity-0"
+        >
+          Kembalikan ke bawaan
+        </button>
+      }
+    >
+      <SettingRow label="Tema" hint="Sistem mengikuti pengaturan terang atau gelap di perangkat. Hanya berlaku di perangkat ini.">
+        <Segmented label="Tema" size="sm" value={prefs.theme} onValueChange={(value) => setPref('theme', value)} options={themeOptions} />
+      </SettingRow>
+      <SettingRow label="Warna aksen" hint="Warna tombol, tab aktif, dan grafik.">
+        <div role="radiogroup" aria-label="Warna aksen" className="flex items-center gap-0.5">
+          {ACCENT_OPTIONS.map((option) => {
+            const selected = prefs.accent === option.value
+            return (
+              <button
+                key={option.value}
+                type="button"
+                role="radio"
+                aria-checked={selected}
+                aria-label={option.label}
+                title={option.label}
+                onClick={() => setPref('accent', option.value)}
+                className="flex size-7 items-center justify-center rounded-full"
+              >
+                <span
+                  className={cn('size-5 rounded-full border border-black/10 transition-shadow', selected && 'ring-2 ring-pena ring-offset-2 ring-offset-lembar')}
+                  style={{ background: option.color }}
+                />
+              </button>
+            )
+          })}
         </div>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm font-medium">Warna aksen</p>
-            <p className="text-xs text-tinta-redup">Warna tombol, tab aktif, dan grafik. Berlaku di tema terang maupun gelap.</p>
-          </div>
-          <div role="radiogroup" aria-label="Warna aksen" className="flex flex-wrap items-center gap-2">
-            {ACCENT_OPTIONS.map((option) => {
-              const selected = prefs.accent === option.value
-              return (
-                <button
-                  key={option.value}
-                  type="button"
-                  role="radio"
-                  aria-checked={selected}
-                  aria-label={option.label}
-                  title={option.label}
-                  onClick={() => setPref('accent', option.value)}
-                  className={cn(
-                    'flex h-10 items-center gap-2 rounded-full border px-3 text-xs font-medium transition-colors',
-                    selected ? 'border-pena bg-pena/10 text-pena' : 'border-garis text-tinta-redup hover:bg-garis-halus hover:text-tinta',
-                  )}
-                >
-                  <span className="size-4 rounded-full border border-black/10" style={{ background: option.color }} aria-hidden="true" />
-                  {option.label}
-                </button>
-              )
-            })}
-          </div>
-        </div>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm font-medium">Ukuran teks</p>
-            <p className="text-xs text-tinta-redup">Besar memperbesar seluruh tampilan sekitar 12%.</p>
-          </div>
-          <Segmented label="Ukuran teks" value={prefs.textSize} onValueChange={(value) => setPref('textSize', value)} options={sizeOptions} />
-        </div>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm font-medium">Baris per halaman</p>
-            <p className="text-xs text-tinta-redup">Bawaan: Stok 50 baris; Penjualan dan Riwayat 20 baris.</p>
-          </div>
-          <Segmented
-            label="Baris per halaman"
-            value={String(prefs.rows)}
-            onValueChange={(value) => setPref('rows', value === 'auto' ? 'auto' : Number(value))}
-            options={rowOptions}
-          />
-        </div>
-        <div>
-          <Button variant="ghost" size="sm" onClick={reset} disabled={isDefault}>
-            Kembalikan ke bawaan
-          </Button>
-        </div>
-      </CardBody>
-    </Card>
+      </SettingRow>
+      <SettingRow label="Ukuran teks" hint="Besar memperbesar seluruh tampilan sekitar 12%.">
+        <Segmented label="Ukuran teks" size="sm" value={prefs.textSize} onValueChange={(value) => setPref('textSize', value)} options={sizeOptions} />
+      </SettingRow>
+      <SettingRow label="Baris per halaman" hint="Bawaan: Stok 50 baris; Penjualan dan Riwayat 20 baris.">
+        <Segmented
+          label="Baris per halaman"
+          size="sm"
+          value={String(prefs.rows)}
+          onValueChange={(value) => setPref('rows', value === 'auto' ? 'auto' : Number(value))}
+          options={rowOptions}
+        />
+      </SettingRow>
+    </SettingGroup>
   )
 }
