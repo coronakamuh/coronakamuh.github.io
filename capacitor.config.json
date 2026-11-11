@@ -1,10 +1,9 @@
 {
   "appId": "com.dhouse.digital",
-  "appName": "D'House Digital",
+  "appName": "SOLUSI RUMAH IDAMAN",
   "webDir": "dist",
+  "backgroundColor": "#0e1320",
   "server": {
-    "url": "https://coronakamuh.github.io",
-    "androidScheme": "https",
-    "cleartext": false
+    "androidScheme": "https"
   }
 }

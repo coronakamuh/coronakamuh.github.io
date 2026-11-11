@@ -40,6 +40,9 @@ jobs:
           npx cap add android
           npx cap sync android
 
+      - name: Pasang ikon dan splash
+        run: sh apk-aset/terapkan.sh
+
       - name: Build APK debug
         working-directory: android
         run: ./gradlew assembleDebug --no-daemon
@@ -47,6 +50,6 @@ jobs:
       - name: Unggah APK
         uses: actions/upload-artifact@v4
         with:
-          name: dhouse-digital-apk
+          name: solusi-rumah-idaman-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
