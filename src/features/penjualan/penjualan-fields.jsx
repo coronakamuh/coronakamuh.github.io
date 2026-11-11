@@ -112,12 +112,7 @@ export function PenjualanFields({ idPrefix, items, value, onChange, disabled, co
             {qtyControl}
           </CompactField>
           <CompactField icon={Tag} label="Harga per unit" htmlFor={`${idPrefix}-harga`} className="col-span-1 @xl:col-span-4">
-            <div className="relative">
-              <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-xs text-tinta-redup" aria-hidden="true">
-                Rp
-              </span>
-              <MoneyInput clearable id={`${idPrefix}-harga`} placeholder="0" value={value.harga} onChange={(harga) => onChange({ ...value, harga })} disabled={disabled} className="h-11 pl-9" />
-            </div>
+            <MoneyInput clearable prefix="Rp" id={`${idPrefix}-harga`} placeholder="0" value={value.harga} onChange={(harga) => onChange({ ...value, harga })} disabled={disabled} className="h-11" />
           </CompactField>
           {children}
         </div>
@@ -138,7 +133,7 @@ export function PenjualanFields({ idPrefix, items, value, onChange, disabled, co
           {qtyControl}
         </Field>
         <Field label="Harga satuan" htmlFor={`${idPrefix}-harga`}>
-          <MoneyInput clearable id={`${idPrefix}-harga`} placeholder="0" value={value.harga} onChange={(harga) => onChange({ ...value, harga })} disabled={disabled} />
+          <MoneyInput clearable prefix="Rp" id={`${idPrefix}-harga`} placeholder="0" value={value.harga} onChange={(harga) => onChange({ ...value, harga })} disabled={disabled} />
         </Field>
       </div>
       {q !== null && h !== null ? (

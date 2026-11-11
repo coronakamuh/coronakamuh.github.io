@@ -1,6 +1,8 @@
 // Preferensi tampilan (disimpan di perangkat, bukan di database). Fungsi murni supaya mudah diuji.
-export const TEXT_SIZES = ['normal', 'besar']
-export const ROW_OPTIONS = ['auto', 25, 50, 100]
+export const TEXT_SIZES = ['kecil', 'normal', 'besar']
+export const ROW_OPTIONS = ['auto', 20, 30, 50]
+/** Jumlah baris per halaman bila memilih "Bawaan". */
+export const DEFAULT_ROWS = 7
 export const THEMES = ['terang', 'gelap', 'sistem']
 /** Tema warna aksen. `color` hanya untuk bulatan pilihan di Pengaturan (warna tombol versi terang). */
 export const ACCENT_OPTIONS = [
@@ -34,6 +36,6 @@ export function parsePrefs(raw) {
   }
 }
 
-/** "Bawaan" memakai ukuran asli tiap tabel (Stok 50, Penjualan dan Riwayat 20). */
-export const pageSizeFor = (rows, fallback) => (rows === 'auto' ? fallback : rows)
-export const rootFontSize = (textSize) => (textSize === 'besar' ? '112.5%' : '')
+/** "Bawaan" = 7 baris per halaman untuk semua tabel (Stok, Penjualan, Riwayat). */
+export const pageSizeFor = (rows) => (rows === 'auto' ? DEFAULT_ROWS : rows)
+export const rootFontSize = (textSize) => (textSize === 'besar' ? '112.5%' : textSize === 'kecil' ? '87.5%' : '')

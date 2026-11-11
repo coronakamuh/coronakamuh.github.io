@@ -14,7 +14,7 @@ export function groupDigits(text) {
  * Isian nominal uang: tampil 1.000, tetapi value/onChange tetap berupa digit polos ("1000"),
  * sehingga validasi dan penyimpanan tidak berubah.
  */
-export function MoneyInput({ value, onChange, clearable = false, className, disabled, ...props }) {
+export function MoneyInput({ value, onChange, clearable = false, prefix, className, disabled, ...props }) {
   const input = (
     <Input
       {...props}
@@ -23,14 +23,19 @@ export function MoneyInput({ value, onChange, clearable = false, className, disa
       autoComplete="off"
       value={groupDigits(value)}
       onChange={(event) => onChange(event.target.value.replace(/\D/g, '').replace(/^0+(?=\d)/, ''))}
-      className={cn(className, clearable && 'pr-9')}
+      className={cn(className, clearable && 'pr-9', prefix && 'pl-9')}
     />
   )
-  if (!clearable) return input
+  if (!clearable && !prefix) return input
   return (
     <div className="relative">
       {input}
-      {value && !disabled ? (
+      {prefix ? (
+        <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-xs font-medium text-tinta-redup" aria-hidden="true">
+          {prefix}
+        </span>
+      ) : null}
+      {clearable && value && !disabled ? (
         <button
           type="button"
           aria-label="Hapus harga"

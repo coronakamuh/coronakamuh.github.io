@@ -69,7 +69,7 @@ export function usePreferences() {
   return value
 }
 
-/** Jumlah baris per halaman sesuai preferensi; `fallback` dipakai bila memilih "Bawaan". */
+/** Jumlah baris per halaman sesuai preferensi; "Bawaan" = 7 baris. Argumen `fallback` tidak lagi dipakai (dibiarkan agar pemanggil tidak berubah). */
 export function usePageSize(fallback) {
-  return pageSizeFor(usePreferences().prefs.rows, fallback)
+  return pageSizeFor(usePreferences().prefs.rows)
 }

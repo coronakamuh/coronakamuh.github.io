@@ -10,14 +10,15 @@ const themeOptions = [
   { value: 'sistem', label: 'Sistem' },
 ]
 const sizeOptions = [
+  { value: 'kecil', label: 'Kecil' },
   { value: 'normal', label: 'Normal' },
   { value: 'besar', label: 'Besar' },
 ]
 const rowOptions = [
-  { value: 'auto', label: 'Bawaan' },
-  { value: '25', label: '25' },
+  { value: 'auto', label: 'Bawaan 7' },
+  { value: '20', label: '20' },
+  { value: '30', label: '30' },
   { value: '50', label: '50' },
-  { value: '100', label: '100' },
 ]
 
 /** Preferensi hanya berlaku di perangkat ini (disimpan di browser), tidak mengubah database. */
@@ -66,10 +67,10 @@ export function PreferensiCard() {
           })}
         </div>
       </SettingRow>
-      <SettingRow label="Ukuran teks" hint="Besar memperbesar seluruh tampilan sekitar 12%.">
+      <SettingRow label="Ukuran teks" hint="Kecil memperkecil sekitar 12%, Besar memperbesar sekitar 12% seluruh tampilan.">
         <Segmented label="Ukuran teks" size="sm" value={prefs.textSize} onValueChange={(value) => setPref('textSize', value)} options={sizeOptions} />
       </SettingRow>
-      <SettingRow label="Baris per halaman" hint="Bawaan: Stok 50 baris; Penjualan dan Riwayat 20 baris.">
+      <SettingRow label="Baris per halaman" hint="Bawaan: 7 baris per halaman di Stok, Penjualan, dan Riwayat.">
         <Segmented
           label="Baris per halaman"
           size="sm"
