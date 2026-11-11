@@ -6,11 +6,11 @@ const RUMAH =
   'M460 94 309 0 155 88 153 90 153 362 182 346 209 336 237 330 264 329 265 189 301 189 327 194 341 203 351 213 358 225 361 236 363 262 361 287 354 303 329 338 349 339 367 342 406 355 435 360 460 360Z'
 
 const css = `
-.splash-awal{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:#0e1320;transition:opacity .45s ease}
+.splash-awal{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:#0e1320;transition:opacity .3s ease}
 .splash-awal.keluar{opacity:0;pointer-events:none}
 .splash-awal svg{width:min(62vw,300px);height:auto;overflow:visible}
-.splash-awal path{fill-opacity:0;stroke:#ffc400;stroke-width:5;stroke-dasharray:1;stroke-dashoffset:1;animation:sa-garis 1.3s ease-in-out forwards,sa-isi .5s 1.2s forwards}
-.splash-awal .sa-nama{color:#f3efe4;font-weight:700;letter-spacing:.14em;font-size:15px;opacity:0;text-align:center;padding:0 24px;animation:sa-muncul .6s 1.5s forwards}
+.splash-awal path{fill-opacity:0;stroke:#ffc400;stroke-width:5;stroke-dasharray:1;stroke-dashoffset:1;animation:sa-garis .9s ease-in-out forwards,sa-isi .35s .8s forwards}
+.splash-awal .sa-nama{color:#f3efe4;font-weight:700;letter-spacing:.14em;font-size:15px;opacity:0;text-align:center;padding:0 24px;animation:sa-muncul .4s 1s forwards}
 @keyframes sa-garis{to{stroke-dashoffset:0}}
 @keyframes sa-isi{to{fill-opacity:1;stroke-opacity:0}}
 @keyframes sa-muncul{to{opacity:1}}
@@ -24,8 +24,8 @@ export function SplashAwal() {
 
   useEffect(() => {
     if (!native) return undefined
-    const keluar = setTimeout(() => setFase('keluar'), 2700)
-    const selesai = setTimeout(() => setFase('selesai'), 3200)
+    const keluar = setTimeout(() => setFase('keluar'), 1700)
+    const selesai = setTimeout(() => setFase('selesai'), 2000)
     return () => {
       clearTimeout(keluar)
       clearTimeout(selesai)
