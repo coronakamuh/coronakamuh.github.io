@@ -18,6 +18,18 @@ export async function ubahBarang({ id, nama, brandId }) {
   return true
 }
 
+/** Arsipkan (true) atau kembalikan (false) banyak barang. Riwayat tetap utuh; barang arsip hanya disembunyikan dari daftar dan pilihan. */
+export async function arsipkanBarang(ids, arsip) {
+  for (let i = 0; i < ids.length; i += 200) {
+    const { error } = await supabase
+      .from('barang')
+      .update({ diarsipkan: arsip })
+      .in('id', ids.slice(i, i + 200))
+    if (error) throw friendlyError(error)
+  }
+  return ids.length
+}
+
 /** Hapus banyak barang sekaligus (maks. 200). Database menolak semuanya bila ada barang berriwayat. Mengembalikan jumlah terhapus. */
 export async function hapusBarang(ids) {
   const { data, error } = await supabase.rpc('hapus_barang_aman', { p_ids: ids })

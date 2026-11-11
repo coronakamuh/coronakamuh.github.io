@@ -44,9 +44,10 @@ async function getLastPrices() {
 }
 
 /** Daftar barang lengkap dengan brand, stok saat ini (view v_stock), dan harga jual terakhir. */
-export async function getStockData() {
+/** Barang yang diarsipkan disembunyikan, kecuali termasukArsip: true. */
+export async function getStockData({ termasukArsip = false } = {}) {
   const [barang, stock, brands, prices] = await Promise.all([
-    fetchAll(() => supabase.from('barang').select('id, nama, brand_id').order('id')),
+    fetchAll(() => supabase.from('barang').select('id, nama, brand_id, diarsipkan').order('id')),
     fetchAll(() => supabase.from('v_stock').select('id, stok').order('id')),
     getBrands(),
     getLastPrices(),
@@ -55,8 +56,10 @@ export async function getStockData() {
   const brandActive = new Map(brands.map((brand) => [brand.id, brand.active]))
   const stockOf = new Map(stock.map((row) => [row.id, Number(row.stok)]))
   const items = barang
+    .filter((row) => termasukArsip || !row.diarsipkan)
     .map((row) => ({
       id: row.id,
+      archived: row.diarsipkan === true,
       name: row.nama,
       brandId: row.brand_id,
       brandActive: brandActive.get(row.brand_id) === true,

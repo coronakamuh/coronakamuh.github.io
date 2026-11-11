@@ -3,6 +3,7 @@ import { ChevronRight, Settings } from 'lucide-react'
 import { PageTitle } from '@/components/layout/page-title'
 import { BrandTarget } from '@/features/pengaturan/brand-target'
 import { CadanganData } from '@/features/pengaturan/cadangan-data'
+import { ArsipBarang } from '@/features/pengaturan/arsip-barang'
 import { HapusBarang } from '@/features/pengaturan/hapus-barang'
 import { GantiPassword } from '@/features/pengaturan/ganti-password'
 import { IdentitasInfo } from '@/features/pengaturan/identitas-card'
@@ -58,6 +59,7 @@ export function PengaturanPage() {
           </SettingGroup>
           <SettingGroup title="Data">
             <CadanganData />
+            <ArsipBarang />
             <HapusBarang />
             <UjiKoneksi />
           </SettingGroup>

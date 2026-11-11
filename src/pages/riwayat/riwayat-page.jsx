@@ -95,7 +95,7 @@ export function RiwayatPage() {
     () => getMovementsPage({ page, pageSize: PAGE_SIZE, from, to, group, q: search }),
     [page, from, to, group, search, PAGE_SIZE],
   )
-  const stock = useAsync(() => getStockData(), [])
+  const stock = useAsync(() => getStockData({ termasukArsip: true }), [])
   const [detailId, setDetailId] = useState(null)
   const [catat, setCatat] = useState(false)
   const columns = makeColumns(setDetailId)
@@ -224,7 +224,7 @@ export function RiwayatPage() {
       <DetailMutasiDialog id={detailId} onOpenChange={(open) => !open && setDetailId(null)} />
       <MutasiDialog
         open={catat}
-        items={stock.data?.items}
+        items={stock.data?.items.filter((item) => !item.archived)}
         onOpenChange={setCatat}
         onDone={() => {
           reload()

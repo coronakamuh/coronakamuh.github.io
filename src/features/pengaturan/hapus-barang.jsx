@@ -17,7 +17,7 @@ const MAKS = 200
 const AMBANG_KONFIRMASI = 10
 
 async function muat() {
-  const [stok, riwayat] = await Promise.all([getStockData(), getRiwayatBarang()])
+  const [stok, riwayat] = await Promise.all([getStockData({ termasukArsip: true }), getRiwayatBarang()])
   const items = stok.items.map((item) => ({ ...item, riwayat: riwayat.get(item.id) ?? null }))
   return { items, brandNames: stok.brandNames }
 }

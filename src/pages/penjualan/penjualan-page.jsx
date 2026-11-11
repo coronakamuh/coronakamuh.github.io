@@ -118,8 +118,9 @@ export function PenjualanPage() {
     }
   }
 
-  const stock = useAsync(getStockData, [])
+  const stock = useAsync(() => getStockData({ termasukArsip: true }), [])
   const items = stock.data?.items ?? []
+  const itemsAktif = items.filter((item) => !item.archived)
   const waiting = sales.loading && !sales.data
 
   const brandOptions = [{ value: '', label: 'Semua brand' }, ...(stock.data?.brands ?? []).map((entry) => ({ value: entry.name, label: entry.name }))]
@@ -215,7 +216,7 @@ export function PenjualanPage() {
         {stock.error ? (
           <ErrorNotice error={stock.error} onRetry={refresh} />
         ) : (
-          <PenjualanForm items={items} onSaved={refresh} />
+          <PenjualanForm items={itemsAktif} onSaved={refresh} />
         )}
       </Card>
 
