@@ -18,7 +18,7 @@ export function SidebarNav({ route, onSearch }) {
   const initial = (username || email || '?')[0].toUpperCase()
 
   return (
-    <div className="relative flex h-full flex-col overflow-hidden bg-linear-to-b from-tombol to-tombol-tua text-white">
+    <div className="relative flex h-full flex-col overflow-hidden text-white" style={{ backgroundImage: 'linear-gradient(180deg, var(--sidebar-a), var(--sidebar-b))' }}>
       <div className="pointer-events-none absolute -right-16 -bottom-20 size-60 rounded-full bg-white/6" aria-hidden="true" />
       <div className="pointer-events-none absolute -top-24 -left-20 size-52 rounded-full bg-white/4" aria-hidden="true" />
 
@@ -54,7 +54,7 @@ export function SidebarNav({ route, onSearch }) {
                   aria-current={active ? 'page' : undefined}
                   className={cn(
                     'flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white',
-                    active ? 'bg-white font-semibold text-tombol shadow-sm' : 'text-white/85 hover:bg-white/10 hover:text-white',
+                    active ? 'sidebar-aktif font-semibold' : 'text-white/85 hover:bg-white/10 hover:text-white',
                   )}
                 >
                   <Icon className="size-[18px] shrink-0" aria-hidden="true" />
@@ -74,7 +74,7 @@ export function SidebarNav({ route, onSearch }) {
 
       <div className="relative border-t border-white/15 p-3">
         <div className="mb-2 flex items-center gap-2.5 rounded-xl bg-white/10 px-3 py-2.5">
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white text-sm font-extrabold text-tombol" aria-hidden="true">
+          <span className="sidebar-avatar flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-extrabold" aria-hidden="true">
             {initial}
           </span>
           <span className="min-w-0 leading-tight">

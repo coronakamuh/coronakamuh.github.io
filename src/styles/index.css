@@ -165,3 +165,17 @@
 @media (min-width: 40rem) {
   .sales-history-table :is(th, td):nth-child(5) { width: 7.5rem; }
 }
+
+/* Menu samping desktop: gradasi warna aksen. Di tema gelap dibuat lebih gelap agar tidak menyilaukan. */
+:root {
+  --sidebar-a: var(--color-tombol);
+  --sidebar-b: var(--color-tombol-tua);
+}
+:root[data-theme="gelap"] {
+  --sidebar-a: color-mix(in srgb, var(--color-tombol) 42%, #0b1220);
+  --sidebar-b: color-mix(in srgb, var(--color-tombol) 24%, #0b1220);
+}
+.sidebar-aktif { background: #fff; color: var(--color-tombol); box-shadow: 0 1px 2px rgb(0 0 0 / 0.12); }
+.sidebar-avatar { background: #fff; color: var(--color-tombol); }
+:root[data-theme="gelap"] .sidebar-aktif { background: rgb(255 255 255 / 0.16); color: #fff; box-shadow: none; }
+:root[data-theme="gelap"] .sidebar-avatar { background: rgb(255 255 255 / 0.2); color: #fff; }
