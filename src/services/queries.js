@@ -392,3 +392,23 @@ export async function getPanelPenjualan() {
     top: [...units.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'id')).slice(0, 3).map(([name, qty]) => ({ name, qty })),
   }
 }
+
+/** Jumlah penjualan dan mutasi per barang (hanya barang yang punya riwayat). Dipakai untuk menentukan barang yang boleh dihapus. */
+export async function getRiwayatBarang() {
+  const [penjualan, transaksi] = await Promise.all([
+    fetchAll(() => supabase.from('penjualan').select('id, barang_id').order('id')),
+    fetchAll(() => supabase.from('transaksi').select('id, barang_id').order('id')),
+  ])
+  const map = new Map()
+  for (const row of penjualan) {
+    const entry = map.get(row.barang_id) ?? { penjualan: 0, mutasi: 0 }
+    entry.penjualan += 1
+    map.set(row.barang_id, entry)
+  }
+  for (const row of transaksi) {
+    const entry = map.get(row.barang_id) ?? { penjualan: 0, mutasi: 0 }
+    entry.mutasi += 1
+    map.set(row.barang_id, entry)
+  }
+  return map
+}
