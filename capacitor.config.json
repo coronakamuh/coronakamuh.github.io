@@ -5,5 +5,10 @@
   "backgroundColor": "#0e1320",
   "server": {
     "androidScheme": "https"
+  },
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    }
   }
 }
