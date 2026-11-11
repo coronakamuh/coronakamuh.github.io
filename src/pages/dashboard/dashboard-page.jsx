@@ -6,12 +6,12 @@ import { Button } from '@/components/ui/button'
 import { Card, CardBody, CardHeader } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/data-table'
 import { NamaBarang } from '@/components/ui/nama-barang'
+import { Perubahan } from '@/components/ui/perubahan'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorNotice } from '@/components/ui/notice'
 import { Segmented } from '@/components/ui/segmented'
 import { StatCard } from '@/components/ui/stat-card'
 import { useAsync } from '@/hooks/use-async'
-import { cn } from '@/lib/cn'
 import { formatAngka, formatRupiah } from '@/lib/format'
 import { formatDisplay } from '@/lib/date'
 import { getDashboard } from '@/services/queries'
@@ -31,20 +31,6 @@ const minusColumns = [
 const REFRESH_AFTER_MS = 30_000
 
 const clock = (date) => date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' })
-
-/** Selisih terhadap periode pembanding, mis. ▲ 12%. Kosong bila periode pembanding belum punya penjualan. */
-function Perubahan({ now, before }) {
-  if (!before) return null
-  const change = Math.round(((now - before) / before) * 100)
-  const tone = change > 0 ? 'bg-sukses/15 text-sukses' : change < 0 ? 'bg-bahaya/10 text-bahaya' : 'bg-garis-halus text-tinta-redup'
-  return (
-    <span className={cn('inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold tabular-nums', tone)}>
-      <span aria-hidden="true">{change > 0 ? '▲' : change < 0 ? '▼' : '•'}</span>
-      <span className="sr-only">{change > 0 ? 'Naik' : change < 0 ? 'Turun' : 'Sama'}</span>
-      {Math.abs(change)}%
-    </span>
-  )
-}
 
 function BrandRow({ brand }) {
   const hasTarget = brand.target !== null && brand.target > 0

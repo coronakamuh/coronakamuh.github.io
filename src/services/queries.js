@@ -1,7 +1,7 @@
 // Lapisan data BACA SAJA. Tidak ada insert, update, atau delete di file ini (penulisan ada di sales.js, movements.js, items.js, brands.js).
 // Nama tabel dan kolom mengikuti database yang sudah ada (hasil audit tahap 3).
 import { bucketSales, previousSince, previousTotals } from '@/lib/series'
-import { addDaysISO, monthRange, todayISO } from '@/lib/date'
+import { addDaysISO, monthRange, shortDayMonth, todayISO } from '@/lib/date'
 import { friendlyError } from '@/services/errors'
 import { supabase } from '@/services/supabase'
 
@@ -345,5 +345,50 @@ export async function getMovementDetail(id) {
     sale: penjualan
       ? { id: penjualan.id, date: penjualan.tanggal_pembelian, brand: penjualan.brand, qty: Number(penjualan.qty), price: Number(penjualan.harga) }
       : null,
+  }
+}
+
+/** Jumlah barang dengan stok minus (untuk lencana di menu samping). Gagal membaca = 0. */
+export async function getMinusCount() {
+  const { count, error } = await supabase.from('v_stock').select('id', { count: 'exact', head: true }).lt('stok', 0)
+  return error ? 0 : (count ?? 0)
+}
+
+/** Ringkasan untuk panel di halaman Penjualan (desktop): hari ini, 7 hari terakhir, dan barang terlaris bulan ini. Hanya membaca. */
+export async function getPanelPenjualan() {
+  const today = todayISO()
+  const monthStart = monthRange(today).start
+  const weekStart = addDaysISO(today, -6)
+  const rows = await fetchAll(() =>
+    supabase
+      .from('penjualan')
+      .select('id, tanggal_pembelian, qty, harga, barang(nama)')
+      .gte('tanggal_pembelian', monthStart < weekStart ? monthStart : weekStart)
+      .order('id'),
+  )
+  const perDay = new Map()
+  const units = new Map()
+  let todayCount = 0
+  let todayUnits = 0
+  for (const row of rows) {
+    const date = row.tanggal_pembelian
+    const qty = Number(row.qty)
+    perDay.set(date, (perDay.get(date) ?? 0) + qty * Number(row.harga))
+    if (date === today) {
+      todayCount += 1
+      todayUnits += qty
+    }
+    if (date >= monthStart && row.barang?.nama) units.set(row.barang.nama, (units.get(row.barang.nama) ?? 0) + qty)
+  }
+  const days = Array.from({ length: 7 }, (_, index) => {
+    const date = addDaysISO(today, index - 6)
+    return { date, label: shortDayMonth(date), value: perDay.get(date) ?? 0 }
+  })
+  return {
+    today: { total: perDay.get(today) ?? 0, count: todayCount, units: todayUnits },
+    yesterday: perDay.get(addDaysISO(today, -1)) ?? 0,
+    average: days.reduce((total, day) => total + day.value, 0) / 7,
+    days,
+    top: [...units.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'id')).slice(0, 3).map(([name, qty]) => ({ name, qty })),
   }
 }

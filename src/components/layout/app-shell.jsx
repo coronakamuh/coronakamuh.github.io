@@ -8,7 +8,9 @@ import { ThemeToggle } from '@/components/layout/theme-toggle'
 import { Button } from '@/components/ui/button'
 import { PencarianGlobal } from '@/features/pencarian/pencarian-global'
 import { site } from '@/config/site'
+import { navItems } from '@/config/navigation'
 import { useAuth } from '@/lib/auth-context'
+import { dayMonthLabel, todayISO } from '@/lib/date'
 
 /** Layout utama, sidebar untuk desktop dan navigasi bawah untuk HP. */
 export function AppShell({ route, children }) {
@@ -64,9 +66,28 @@ export function AppShell({ route, children }) {
 
         <main
           id="utama"
-          className="min-w-0 flex-1 px-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-5 sm:px-5 sm:pt-6 lg:px-8 lg:py-8 xl:px-10"
+          className="relative min-w-0 flex-1 px-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-5 sm:px-5 sm:pt-6 lg:px-8 lg:py-8 xl:px-10"
         >
-          <div className="mx-auto w-full max-w-screen-2xl">{children}</div>
+          {/* Pita latar lembut di belakang judul (hanya desktop). */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 top-0 hidden h-44 bg-linear-to-br from-pena/12 via-pena/5 to-transparent lg:block"
+            style={{
+              backgroundImage: 'radial-gradient(color-mix(in srgb, var(--color-pena) 22%, transparent) 1.2px, transparent 1.2px)',
+              backgroundSize: '18px 18px',
+              WebkitMaskImage: 'linear-gradient(90deg, transparent 35%, #000 100%)',
+              maskImage: 'linear-gradient(90deg, transparent 35%, #000 100%)',
+            }}
+          />
+          <div className="relative mx-auto w-full max-w-screen-2xl">
+            <div className="mb-4 hidden items-center justify-between gap-3 lg:flex">
+              <nav aria-label="Jejak halaman" className="text-xs text-tinta-redup">
+                Beranda / <span className="font-semibold text-tinta">{navItems.find((item) => item.id === route)?.label ?? ''}</span>
+              </nav>
+              <span className="rounded-lg border border-garis bg-lembar px-3 py-1.5 text-xs font-semibold tabular-nums">{dayMonthLabel(todayISO())} {todayISO().slice(0, 4)}</span>
+            </div>
+            {children}
+          </div>
         </main>
       </div>
 

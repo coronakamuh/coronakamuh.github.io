@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { usePreferences } from '@/lib/preferences'
 
 /** Tombol cepat terang/gelap. variant "row" untuk sidebar, "icon" untuk header HP. */
-export function ThemeToggle({ variant = 'icon', className }) {
+export function ThemeToggle({ variant = 'icon', className, onDark = false }) {
   const { resolvedTheme, setPref } = usePreferences()
   const dark = resolvedTheme === 'gelap'
   const Icon = dark ? Sun : Moon
@@ -15,7 +15,9 @@ export function ThemeToggle({ variant = 'icon', className }) {
       <button
         type="button"
         onClick={toggle}
-        className="flex min-h-11 w-full items-center gap-3 rounded-lg px-3 text-sm font-medium text-tinta-redup transition-colors hover:bg-garis-halus hover:text-tinta focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pena"
+        className={`flex min-h-11 w-full items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 ${
+          onDark ? 'text-white/80 hover:bg-white/10 hover:text-white focus-visible:outline-white' : 'text-tinta-redup hover:bg-garis-halus hover:text-tinta focus-visible:outline-pena'
+        }`}
       >
         <Icon className="size-[18px] shrink-0" aria-hidden="true" />
         {label}

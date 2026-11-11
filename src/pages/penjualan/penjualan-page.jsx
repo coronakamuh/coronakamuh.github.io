@@ -12,6 +12,7 @@ import { Pager } from '@/components/ui/pager'
 import { Segmented } from '@/components/ui/segmented'
 import { Select } from '@/components/ui/select'
 import { EditPenjualanDialog } from '@/features/penjualan/edit-penjualan-dialog'
+import { PanelPenjualan } from '@/features/penjualan/panel-penjualan'
 import { PenjualanForm } from '@/features/penjualan/penjualan-form'
 import { RekapBulanan } from '@/features/penjualan/rekap-bulanan'
 import { useAsync } from '@/hooks/use-async'
@@ -50,6 +51,7 @@ export function PenjualanPage() {
   const PAGE_SIZE = usePageSize(DEFAULT_PAGE_SIZE)
   const [page, setPage] = useState(1)
   const [editing, setEditing] = useState(null)
+  const [panelVersion, setPanelVersion] = useState(0)
   const [tab, setTab] = useState('transaksi')
   const currentMonth = todayISO().slice(0, 7)
   const [selectedMonth, setSelectedMonth] = useState(() => todayISO().slice(0, 7))
@@ -161,6 +163,7 @@ export function PenjualanPage() {
     sales.reload()
     stock.reload()
     todaySummary.reload()
+    setPanelVersion((value) => value + 1)
   }
 
   const todayText = todaySummary.error ? '—' : todaySummary.data ? formatRupiah(todaySummary.data.revenue) : '…'
@@ -175,7 +178,8 @@ export function PenjualanPage() {
   const emptyDescription = search ? 'Tidak ada barang yang cocok dengan pencarian pada bulan dan brand yang dipilih.' : 'Belum ada penjualan pada bulan dan brand yang dipilih.'
 
   return (
-    <div className="space-y-3">
+    <div className="xl:grid xl:grid-cols-[minmax(0,1fr)_19rem] xl:items-start xl:gap-5">
+    <div className="min-w-0 space-y-3">
       {/* Judul + ringkasan hari ini */}
       <PageTitle
         icon={ShoppingCart}
@@ -340,6 +344,8 @@ export function PenjualanPage() {
       )}
 
       <EditPenjualanDialog sale={editing} items={items} onOpenChange={(open) => !open && setEditing(null)} onDone={refresh} />
+    </div>
+    <PanelPenjualan version={panelVersion} />
     </div>
   )
 }
