@@ -1,63 +1,77 @@
-import { Settings, Tags } from 'lucide-react'
+import * as Tabs from '@radix-ui/react-tabs'
+import { ChevronRight, Settings } from 'lucide-react'
 import { PageTitle } from '@/components/layout/page-title'
-import { EmptyState } from '@/components/ui/empty-state'
-import { ErrorNotice } from '@/components/ui/notice'
+import { BrandTarget } from '@/features/pengaturan/brand-target'
 import { CadanganData } from '@/features/pengaturan/cadangan-data'
 import { GantiPassword } from '@/features/pengaturan/ganti-password'
 import { IdentitasInfo } from '@/features/pengaturan/identitas-card'
-import { KelolaBrand } from '@/features/pengaturan/kelola-brand'
 import { PreferensiCard } from '@/features/pengaturan/preferensi-card'
 import { ProfilCard } from '@/features/pengaturan/profil-card'
 import { Disclosure, SettingGroup } from '@/features/pengaturan/setting-ui'
-import { TargetEditor } from '@/features/pengaturan/target-editor'
 import { UjiKoneksi } from '@/features/pengaturan/uji-koneksi'
-import { useAsync } from '@/hooks/use-async'
-import { getTargetRows } from '@/services/queries'
+import { useAuth } from '@/lib/auth-context'
+
+const tabClass =
+  'h-9 rounded-lg text-sm font-semibold text-tinta-redup transition-colors hover:text-tinta data-[state=active]:bg-lembar data-[state=active]:text-pena data-[state=active]:shadow-sm'
 
 export function PengaturanPage() {
-  const { data, error, loading, reload } = useAsync(getTargetRows, [])
+  const { signOut } = useAuth()
 
   return (
     <div className="space-y-4">
-      <PageTitle icon={Settings} title="Pengaturan" description="Profil, tampilan, target brand, dan akun" />
+      <PageTitle icon={Settings} title="Pengaturan" description="Tampilan, brand dan target, serta akun" />
 
-      <div className="flex max-w-3xl flex-col gap-4">
-        <ProfilCard />
-        <PreferensiCard />
+      <Tabs.Root defaultValue="umum" className="max-w-3xl">
+        <Tabs.List aria-label="Bagian pengaturan" className="grid grid-cols-3 gap-1 rounded-xl bg-garis-halus p-1">
+          <Tabs.Trigger value="umum" className={tabClass}>
+            Umum
+          </Tabs.Trigger>
+          <Tabs.Trigger value="brand" className={tabClass}>
+            Brand
+          </Tabs.Trigger>
+          <Tabs.Trigger value="akun" className={tabClass}>
+            Akun &amp; Data
+          </Tabs.Trigger>
+        </Tabs.List>
 
-        <KelolaBrand onChanged={reload} />
+        <Tabs.Content value="umum" className="mt-4 flex flex-col gap-4 outline-none">
+          <ProfilCard />
+          <PreferensiCard />
+          <SettingGroup title="Tentang">
+            <Disclosure title="Tentang aplikasi">
+              <IdentitasInfo />
+            </Disclosure>
+          </SettingGroup>
+        </Tabs.Content>
 
-        <SettingGroup title="Target penjualan brand">
-          <p className="px-3.5 py-2 text-xs text-tinta-redup">Target omzet per bulan. Kosongkan isian untuk menandai belum diatur.</p>
-          {error ? (
-            <div className="px-3.5 py-3">
-              <ErrorNotice error={error} onRetry={reload} />
-            </div>
-          ) : null}
-          {data && data.length > 0 ? (
-            <TargetEditor rows={data} onSaved={reload} />
-          ) : !error ? (
-            <EmptyState icon={Tags} title={loading ? 'Memuat data' : 'Belum ada brand aktif'} />
-          ) : null}
-        </SettingGroup>
+        <Tabs.Content value="brand" className="mt-4 outline-none">
+          <BrandTarget />
+        </Tabs.Content>
 
-        <SettingGroup title="Akun dan sistem">
-          <Disclosure title="Cadangan data">
+        <Tabs.Content value="akun" className="mt-4 flex flex-col gap-4 outline-none">
+          <SettingGroup title="Akun">
+            <Disclosure title="Ganti password">
+              <p className="mb-3 text-xs text-tinta-redup">Akun yang sama dipakai di aplikasi lama.</p>
+              <GantiPassword />
+            </Disclosure>
+          </SettingGroup>
+          <SettingGroup title="Data">
             <CadanganData />
-          </Disclosure>
-          <Disclosure title="Ganti password">
-            <p className="mb-3 text-xs text-tinta-redup">Akun yang sama dipakai di aplikasi lama.</p>
-            <GantiPassword />
-          </Disclosure>
-          <Disclosure title="Uji koneksi database">
-            <p className="mb-3 text-xs text-tinta-redup">Memeriksa bahwa data bisa dibaca. Hanya membaca, tidak mengubah apa pun.</p>
             <UjiKoneksi />
-          </Disclosure>
-          <Disclosure title="Tentang aplikasi">
-            <IdentitasInfo />
-          </Disclosure>
-        </SettingGroup>
-      </div>
+          </SettingGroup>
+          <SettingGroup title="Sesi">
+            <button
+              type="button"
+              onClick={signOut}
+              title="Keluar hanya dari perangkat ini"
+              className="flex min-h-11 w-full items-center justify-between gap-3 px-3.5 text-left text-sm font-medium text-bahaya transition-colors hover:bg-garis-halus/60"
+            >
+              Keluar dari perangkat ini
+              <ChevronRight className="size-4" aria-hidden="true" />
+            </button>
+          </SettingGroup>
+        </Tabs.Content>
+      </Tabs.Root>
     </div>
   )
 }

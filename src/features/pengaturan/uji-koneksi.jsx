@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { SettingRow } from '@/features/pengaturan/setting-ui'
 import { formatAngka } from '@/lib/format'
 import { testConnection } from '@/services/health'
 
@@ -20,18 +21,18 @@ export function UjiKoneksi() {
   const allOk = result?.every((row) => row.ok)
 
   return (
-    <div className="flex flex-col gap-3">
-      <div>
-        <Button variant="outline" onClick={run} disabled={running}>
-          {running ? 'Menguji…' : 'Uji koneksi'}
+    <div>
+      <SettingRow label="Uji koneksi database" hint="Membaca jumlah baris tiap sumber data. Hanya membaca, tidak mengubah apa pun.">
+        <Button variant="outline" size="sm" onClick={run} disabled={running}>
+          {running ? 'Menguji…' : 'Uji'}
         </Button>
-      </div>
+      </SettingRow>
       {result ? (
-        <>
+        <div className="px-3.5 pb-3">
           <p role="status" className={allOk ? 'text-sm font-medium' : 'text-sm font-medium text-bahaya'}>
             {allOk ? 'Terhubung. Semua sumber data bisa dibaca.' : 'Ada sumber data yang gagal dibaca.'}
           </p>
-          <ul className="divide-y divide-garis-halus text-sm">
+          <ul className="mt-1 divide-y divide-garis-halus text-sm">
             {result.map((row) => (
               <li key={row.key} className="flex items-baseline justify-between gap-3 py-2">
                 <span className="min-w-0 truncate">{row.label}</span>
@@ -41,7 +42,7 @@ export function UjiKoneksi() {
               </li>
             ))}
           </ul>
-        </>
+        </div>
       ) : null}
     </div>
   )

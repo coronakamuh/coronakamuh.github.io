@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Download } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+import { SettingRow } from '@/features/pengaturan/setting-ui'
 import { todayISO } from '@/lib/date'
 import { downloadFile } from '@/lib/download'
 import { buildWorkbook } from '@/lib/export-cadangan'
@@ -84,14 +85,11 @@ export function CadanganData() {
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <p className="text-xs text-tinta-redup">Unduh seluruh data (barang, penjualan, mutasi, brand, target) ke satu file Excel. Hanya membaca; tidak mengubah data apa pun.</p>
-      <div>
-        <Button variant="outline" size="sm" onClick={handleBackup} disabled={busy}>
-          <Download />
-          {busy ? 'Menyiapkan…' : 'Unduh cadangan (Excel)'}
-        </Button>
-      </div>
-    </div>
+    <SettingRow label="Cadangan data (Excel)" hint="Unduh seluruh data (barang, penjualan, mutasi, brand, target) ke satu file Excel. Hanya membaca.">
+      <Button variant="outline" size="sm" onClick={handleBackup} disabled={busy}>
+        <Download />
+        {busy ? 'Menyiapkan…' : 'Unduh'}
+      </Button>
+    </SettingRow>
   )
 }
