@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Copy, Download, FileText, Pencil, Receipt, Search, ShoppingCart, Trash2, TrendingUp } from 'lucide-react'
+import { Copy, Download, FileText, Pencil, Receipt, Search, ShoppingCart, TrendingUp } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageTitle } from '@/components/layout/page-title'
 import { Button } from '@/components/ui/button'
@@ -12,7 +12,6 @@ import { Pager } from '@/components/ui/pager'
 import { Segmented } from '@/components/ui/segmented'
 import { Select } from '@/components/ui/select'
 import { EditPenjualanDialog } from '@/features/penjualan/edit-penjualan-dialog'
-import { HapusPenjualanDialog } from '@/features/penjualan/hapus-penjualan-dialog'
 import { PenjualanForm } from '@/features/penjualan/penjualan-form'
 import { RekapBulanan } from '@/features/penjualan/rekap-bulanan'
 import { useAsync } from '@/hooks/use-async'
@@ -51,7 +50,6 @@ export function PenjualanPage() {
   const PAGE_SIZE = usePageSize(DEFAULT_PAGE_SIZE)
   const [page, setPage] = useState(1)
   const [editing, setEditing] = useState(null)
-  const [deleting, setDeleting] = useState(null)
   const [tab, setTab] = useState('transaksi')
   const currentMonth = todayISO().slice(0, 7)
   const [selectedMonth, setSelectedMonth] = useState(() => todayISO().slice(0, 7))
@@ -150,14 +148,9 @@ export function PenjualanPage() {
       className: 'w-[27%]',
       render: (row) => (
         <div className="flex flex-col items-end gap-0.5">
-          <div className="-my-1 flex items-center">
-          <Button variant="ghost" size="icon-sm" className="" onClick={() => setEditing(row)} disabled={items.length === 0} aria-label="Ubah penjualan" title="Ubah penjualan">
+          <Button variant="ghost" size="icon-sm" className="-my-1" onClick={() => setEditing(row)} disabled={items.length === 0} aria-label="Ubah penjualan" title="Ubah penjualan">
             <Pencil size={15} />
           </Button>
-          <Button variant="ghost" size="icon-sm" className="text-tinta-redup hover:text-bahaya" onClick={() => setDeleting(row)} aria-label="Hapus penjualan" title="Hapus penjualan">
-            <Trash2 size={15} />
-          </Button>
-          </div>
           <span className="whitespace-nowrap text-xs font-semibold tabular-nums">{formatAngka(row.qty)} × {formatRupiah(row.price)} = {formatRupiah(row.total)}</span>
         </div>
       ),
@@ -329,14 +322,9 @@ export function PenjualanPage() {
                 <span className="sr-only">Harga </span>
                 {formatRupiah(row.price)}
               </span>
-              <div className="flex shrink-0 items-center">
-              <Button variant="ghost" size="icon-sm" className="" onClick={() => setEditing(row)} disabled={items.length === 0} aria-label="Ubah penjualan" title="Ubah penjualan">
+              <Button variant="ghost" size="icon-sm" className="shrink-0" onClick={() => setEditing(row)} disabled={items.length === 0} aria-label="Ubah penjualan" title="Ubah penjualan">
                 <Pencil size={15} />
               </Button>
-              <Button variant="ghost" size="icon-sm" className="text-tinta-redup hover:text-bahaya" onClick={() => setDeleting(row)} aria-label="Hapus penjualan" title="Hapus penjualan">
-            <Trash2 size={15} />
-          </Button>
-              </div>
             </div>
           )}
           empty={{
@@ -350,7 +338,6 @@ export function PenjualanPage() {
         </>
       )}
 
-      <HapusPenjualanDialog sale={deleting} onOpenChange={(open) => !open && setDeleting(null)} onDone={refresh} />
       <EditPenjualanDialog sale={editing} items={items} onOpenChange={(open) => !open && setEditing(null)} onDone={refresh} />
     </div>
   )
