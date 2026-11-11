@@ -10,11 +10,11 @@ import { EmptyState } from '@/components/ui/empty-state'
  * - lebar: tabel biasa.
  * columns: [{ key, label, align?: 'right', className?: string (untuk kolom tabel), render?: (row) => node }]
  */
-export function DataTable({ columns, rows, empty, caption, tableOnMobile = false, tableClassName = '', mobileRow, mobileGroup, mobileCards = false, striped = false }) {
+export function DataTable({ columns, rows, empty, caption, tableOnMobile = false, tableClassName = '', mobileRow, mobileGroup, mobileCards = false, striped = false, alwaysList = false }) {
   return (
     <div className={`data-table @container ${tableOnMobile ? 'overflow-x-auto' : ''}`}>
       {/* Tabel: pada halaman tertentu tetap berupa tabel di layar HP. */}
-      <table className={cn(tableOnMobile ? 'w-full min-w-0' : 'hidden w-full @xl:table', 'table-fixed border-collapse text-[13px]', tableClassName)}>
+      <table className={cn(tableOnMobile ? 'w-full min-w-0' : alwaysList ? 'hidden' : 'hidden w-full @xl:table', 'table-fixed border-collapse text-[13px]', tableClassName)}>
         <caption className="sr-only">{caption}</caption>
         <thead>
           <tr className="border-y border-garis bg-garis-halus/60 text-tinta-redup">
@@ -55,7 +55,7 @@ export function DataTable({ columns, rows, empty, caption, tableOnMobile = false
 
       {/* Daftar ringkas: saat kartu sempit (HP). Baris judul (nama + aksi), lalu isi lain dalam 2 kolom. */}
       {!tableOnMobile && rows.length > 0 ? (
-        <ul aria-label={caption} className={cn(mobileCards ? 'space-y-2 px-3 pt-1 pb-3' : 'divide-y divide-garis-halus border-t border-garis', '@xl:hidden')}>
+        <ul aria-label={caption} className={cn(mobileCards ? 'space-y-2 px-3 pt-1 pb-3' : 'divide-y divide-garis-halus border-t border-garis', !alwaysList && '@xl:hidden')}>
           {rows.map((row, index) => {
             if (mobileRow) {
               // mobileGroup (opsional): mengembalikan kepala kelompok (mis. tanggal) di baris pertama tiap kelompok.

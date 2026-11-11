@@ -277,6 +277,7 @@ export function PenjualanPage() {
           columns={columns}
           rows={saleRows}
           striped
+          alwaysList
           mobileGroup={(row, index) => {
             if (index > 0 && saleRows[index - 1].date === row.date) return null
             const day = byDate[row.date]
