@@ -38,4 +38,4 @@ export function parsePrefs(raw) {
 
 /** "Bawaan" = 7 baris per halaman untuk semua tabel (Stok, Penjualan, Riwayat). */
 export const pageSizeFor = (rows) => (rows === 'auto' ? DEFAULT_ROWS : rows)
-export const rootFontSize = (textSize) => (textSize === 'besar' ? '112.5%' : textSize === 'kecil' ? '87.5%' : '')
+export const rootFontSize = (textSize) => (textSize === 'besar' ? '112.5%' : textSize === 'kecil' ? '93.75%' : '')

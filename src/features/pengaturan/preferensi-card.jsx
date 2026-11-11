@@ -10,8 +10,8 @@ const themeOptions = [
   { value: 'sistem', label: 'Sistem' },
 ]
 const sizeOptions = [
-  { value: 'kecil', label: 'Kecil' },
-  { value: 'normal', label: 'Normal' },
+  { value: 'kecil', label: '15' },
+  { value: 'normal', label: '16' },
   { value: 'besar', label: 'Besar' },
 ]
 const rowOptions = [
@@ -67,7 +67,7 @@ export function PreferensiCard() {
           })}
         </div>
       </SettingRow>
-      <SettingRow label="Ukuran teks" hint="Kecil memperkecil sekitar 12%, Besar memperbesar sekitar 12% seluruh tampilan.">
+      <SettingRow label="Ukuran teks" hint="Ukuran huruf dasar dalam piksel: 15, 16 (bawaan), atau Besar (18). Seluruh tampilan ikut menyesuaikan.">
         <Segmented label="Ukuran teks" size="sm" value={prefs.textSize} onValueChange={(value) => setPref('textSize', value)} options={sizeOptions} />
       </SettingRow>
       <SettingRow label="Baris per halaman" hint="Bawaan: 7 baris per halaman di Stok, Penjualan, dan Riwayat.">
