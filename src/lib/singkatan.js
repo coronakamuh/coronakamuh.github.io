@@ -27,7 +27,7 @@ const WORDS = [
   ['mortise', 'MTS'],
   ['padlock', 'PDL'],
   ['grendel', 'GRD'],
-  ['handle', 'HDL'],
+  ['handle', 'Hdl'],
   ['gembok', 'GMB'],
   ['engsel', 'ENG'],
   ['tempat', 'TPT'],
