@@ -1,6 +1,6 @@
 // Lapisan data BACA SAJA. Tidak ada insert, update, atau delete di file ini (penulisan ada di sales.js, movements.js, items.js, brands.js).
 // Nama tabel dan kolom mengikuti database yang sudah ada (hasil audit tahap 3).
-import { bucketSales } from '@/lib/series'
+import { bucketSales, previousSince, previousTotals } from '@/lib/series'
 import { addDaysISO, monthRange, todayISO } from '@/lib/date'
 import { friendlyError } from '@/services/errors'
 import { supabase } from '@/services/supabase'
@@ -110,7 +110,7 @@ export async function getDashboard() {
       .rpc('get_dashboard_summary', { p_today: today, p_month_start: start, p_month_end: next })
       .then(unwrap),
     supabase.from('penjualan').select('qty, harga').eq('tanggal_pembelian', today).then(unwrap),
-    getSalesSince(start < addDaysISO(today, -6) ? start : addDaysISO(today, -6)),
+    getSalesSince(previousSince(today)),
     supabase.from('v_stock').select('id, nama, stok').lt('stok', 0).order('stok').then(unwrap),
     getBrands(),
     getTargets(),
@@ -152,6 +152,7 @@ export async function getDashboard() {
     omzetHariIni: sum(todaySales, (row) => Number(row.qty) * Number(row.harga)),
     minusItems,
     sales: bucketSales(sales, today),
+    salesPrev: previousTotals(sales, today),
     brandPerformance,
   }
 }

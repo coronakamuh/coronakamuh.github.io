@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Banknote, Boxes, LayoutDashboard, Package, RefreshCw, Tags, TriangleAlert } from 'lucide-react'
-import { LineChart } from '@/components/charts/line-chart'
+import { BarChart } from '@/components/charts/bar-chart'
 import { PageTitle } from '@/components/layout/page-title'
 import { Button } from '@/components/ui/button'
 import { Card, CardBody, CardHeader } from '@/components/ui/card'
@@ -11,6 +11,7 @@ import { ErrorNotice } from '@/components/ui/notice'
 import { Segmented } from '@/components/ui/segmented'
 import { StatCard } from '@/components/ui/stat-card'
 import { useAsync } from '@/hooks/use-async'
+import { cn } from '@/lib/cn'
 import { formatAngka, formatRupiah } from '@/lib/format'
 import { formatDisplay } from '@/lib/date'
 import { getDashboard } from '@/services/queries'
@@ -30,6 +31,20 @@ const minusColumns = [
 const REFRESH_AFTER_MS = 30_000
 
 const clock = (date) => date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' })
+
+/** Selisih terhadap periode pembanding, mis. ▲ 12%. Kosong bila periode pembanding belum punya penjualan. */
+function Perubahan({ now, before }) {
+  if (!before) return null
+  const change = Math.round(((now - before) / before) * 100)
+  const tone = change > 0 ? 'bg-sukses/15 text-sukses' : change < 0 ? 'bg-bahaya/10 text-bahaya' : 'bg-garis-halus text-tinta-redup'
+  return (
+    <span className={cn('inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold tabular-nums', tone)}>
+      <span aria-hidden="true">{change > 0 ? '▲' : change < 0 ? '▼' : '•'}</span>
+      <span className="sr-only">{change > 0 ? 'Naik' : change < 0 ? 'Turun' : 'Sama'}</span>
+      {Math.abs(change)}%
+    </span>
+  )
+}
 
 function BrandRow({ brand }) {
   const hasTarget = brand.target !== null && brand.target > 0
@@ -128,11 +143,20 @@ export function DashboardPage() {
           <CardHeader
             className="gap-2"
             title="Ringkasan Penjualan"
-            description={`${period === 'minggu' ? '7 hari terakhir' : 'Bulan ini'} · Total ${data ? formatRupiah(periodTotal) : '—'}`}
+            description={period === 'minggu' ? '7 hari terakhir' : 'Bulan ini'}
             action={<Segmented label="Periode grafik" value={period} onValueChange={setPeriod} options={periodOptions} />}
           />
           <CardBody className="min-w-0">
-            <LineChart
+            <div className="mb-3">
+              <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <span className="text-2xl font-extrabold tracking-tight tabular-nums">{data ? formatRupiah(periodTotal) : '—'}</span>
+                {data ? <Perubahan now={periodTotal} before={data.salesPrev[period]} /> : null}
+              </p>
+              {data && data.salesPrev[period] ? (
+                <p className="mt-0.5 text-xs text-tinta-redup">{period === 'minggu' ? 'dibanding 7 hari sebelumnya' : 'dibanding periode yang sama bulan lalu'}</p>
+              ) : null}
+            </div>
+            <BarChart
               label={`Penjualan per hari, ${period === 'minggu' ? '7 hari terakhir' : 'bulan ini'}`}
               data={series}
               formatValue={formatRupiah}
