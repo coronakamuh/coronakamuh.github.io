@@ -68,8 +68,8 @@ export function exportRecapExcel({ dates, groups, count, label }) {
   downloadFile(`${fileBase(label)}.xlsx`, bytes, XLSX_MIME)
 }
 
-export function exportRecapPdf({ dates, groups, count, label }) {
-  const bytes = buildRecapPdf({
+export async function exportRecapPdf({ dates, groups, count, label }) {
+  const bytes = await buildRecapPdf({
     headLabel: label,
     dayLabels: dates.map(dayLabel),
     groups: groups.map((group) => ({

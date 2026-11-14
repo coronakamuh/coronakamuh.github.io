@@ -105,7 +105,7 @@ export function StokPage() {
         toast.info('Tidak ada barang dengan stok pada periode ini')
         return
       }
-      if (format === 'pdf') exportRecapPdf(recap)
+      if (format === 'pdf') await exportRecapPdf(recap)
       else exportRecapExcel(recap)
       setExportOpen(false)
     } catch (failure) {

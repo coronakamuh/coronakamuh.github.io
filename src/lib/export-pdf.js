@@ -159,9 +159,36 @@ export function buildPdf({ title, subtitle, summary = [], columns, rows, footer 
   return assemblePdf(pages)
 }
 
-/** Merakit PDF dari halaman-halaman: tiap halaman berupa array perintah gambar (operator PDF). */
-export function assemblePdf(pages, size = { w: PAGE.w, h: PAGE.h }) {
+const toBytes = (text) => {
+  const bytes = new Uint8Array(text.length)
+  for (let i = 0; i < text.length; i++) bytes[i] = text.charCodeAt(i) & 0xff
+  return bytes
+}
+
+/** Kompres (deflate/zlib, yang dipahami PDF sebagai FlateDecode). Mengembalikan null bila peramban tidak mendukung. */
+async function deflate(bytes) {
+  if (typeof CompressionStream === 'undefined') return null
+  try {
+    const packed = new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate'))
+    return new Uint8Array(await new Response(packed).arrayBuffer())
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Merakit PDF dari halaman-halaman: tiap halaman berupa array perintah gambar (operator PDF).
+ * Isi halaman dikompres agar file kecil (rekap stok ribuan barang tanpa kompresi bisa belasan MB). Mengembalikan Promise<Uint8Array>.
+ */
+export async function assemblePdf(pages, size = { w: PAGE.w, h: PAGE.h }) {
   const total = pages.length
+  const streams = await Promise.all(
+    pages.map(async (pageOps) => {
+      const raw = toBytes(pageOps.join('\n'))
+      const packed = await deflate(raw)
+      return packed && packed.length < raw.length ? { bytes: packed, flate: true } : { bytes: raw, flate: false }
+    }),
+  )
   // Susun objek PDF: 1 katalog, 2 daftar halaman, 3 Helvetica, 4 Helvetica-Bold, lalu (halaman, isi) berpasangan.
   const objects = []
   const add = (body) => objects.push(body)
@@ -169,28 +196,31 @@ export function assemblePdf(pages, size = { w: PAGE.w, h: PAGE.h }) {
   add(`<< /Type /Pages /Kids [${pages.map((_, i) => `${5 + i * 2} 0 R`).join(' ')}] /Count ${total} >>`)
   add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>')
   add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>')
-  pages.forEach((pageOps, i) => {
+  streams.forEach((stream, i) => {
     add(
       `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${size.w} ${size.h}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${6 + i * 2} 0 R >>`,
     )
-    const stream = pageOps.join('\n')
-    add({ stream })
+    add(stream)
   })
 
   const chunks = []
   const offsets = []
   let length = 0
-  const push = (text) => {
-    const bytes = new Uint8Array(text.length)
-    for (let i = 0; i < text.length; i++) bytes[i] = text.charCodeAt(i) & 0xff
+  const pushBytes = (bytes) => {
     chunks.push(bytes)
     length += bytes.length
   }
+  const push = (text) => pushBytes(toBytes(text))
   push('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n')
   objects.forEach((object, i) => {
     offsets.push(length)
-    if (typeof object === 'string') push(`${i + 1} 0 obj\n${object}\nendobj\n`)
-    else push(`${i + 1} 0 obj\n<< /Length ${object.stream.length} >>\nstream\n${object.stream}\nendstream\nendobj\n`)
+    if (typeof object === 'string') {
+      push(`${i + 1} 0 obj\n${object}\nendobj\n`)
+      return
+    }
+    push(`${i + 1} 0 obj\n<< /Length ${object.bytes.length}${object.flate ? ' /Filter /FlateDecode' : ''} >>\nstream\n`)
+    pushBytes(object.bytes)
+    push('\nendstream\nendobj\n')
   })
   const xref = length
   push(`xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`)

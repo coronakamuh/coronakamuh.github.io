@@ -90,7 +90,7 @@ export function PenjualanPage() {
       else {
         const { exportSalesExcel, exportSalesPdf } = await import('@/features/penjualan/export-penjualan')
         if (kind === 'xlsx') exportSalesExcel(rows, exportFilter)
-        else exportSalesPdf(rows, exportFilter)
+        else await exportSalesPdf(rows, exportFilter)
       }
     } catch (failure) {
       toast.error('Ekspor gagal', { description: failure.message })

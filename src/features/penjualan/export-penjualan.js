@@ -149,7 +149,7 @@ export function exportSalesExcel(rows, filter) {
   const widths = [...Array.from({ length: 6 }, (_, i) => width(panels[0], i)), 2, ...Array.from({ length: 6 }, (_, i) => width(panels[1], i))]
   downloadFile(fileName(filter, 'xlsx'), buildReportXlsx({ sheetName: 'Penjualan', widths, rows: out, merges, pageSetup: { fitToHeight: 1 } }), XLSX_MIME)
 }
-export function exportSalesPdf(rows, filter) {
+export async function exportSalesPdf(rows, filter) {
   const groups = groupSales(rows)
   let grand = 0
   const mapped = groups.map((group) => {
@@ -164,7 +164,7 @@ export function exportSalesPdf(rows, filter) {
       })),
     }
   })
-  const bytes = buildReportPdf({
+  const bytes = await buildReportPdf({
     title: reportTitle(filter),
     subtitle: 'CATATAN PENJUALAN',
     groups: mapped,
