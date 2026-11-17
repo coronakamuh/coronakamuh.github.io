@@ -232,6 +232,48 @@ export async function getSalesPage({ page, pageSize, from, to, brand, q }) {
   }
 }
 
+/**
+ * Penjualan per hari: satu halaman = `days` hari terbaru yang ada penjualannya (semua transaksi pada hari-hari itu).
+ * `total` = jumlah hari yang punya penjualan (untuk jumlah halaman). `q`: cari nama barang.
+ */
+export async function getSalesDaysPage({ page, days, from, to, brand, q }) {
+  const search = (q ?? '').trim()
+  const joinBarang = search ? 'barang!inner(nama)' : 'barang(nama)'
+  const build = (columns, range) => {
+    let query = filterSales(supabase.from('penjualan').select(`${columns}, ${joinBarang}`), range)
+    if (search) query = query.ilike('barang.nama', `%${search.replace(/[\\%_]/g, '\\$&')}%`)
+    return query.order('tanggal_pembelian', { ascending: false }).order('id', { ascending: false })
+  }
+  // 1. Tanggal-tanggal yang punya penjualan (hanya kolom tanggal), terbaru dulu.
+  const dateRows = await fetchAll(() => build('id, tanggal_pembelian', { from, to, brand }))
+  const allDays = [...new Set(dateRows.map((row) => row.tanggal_pembelian))]
+  const pageDays = allDays.slice((page - 1) * days, page * days)
+  if (pageDays.length === 0) return { total: allDays.length, rows: [] }
+  // 2. Semua transaksi pada hari-hari di halaman ini. Rentang tanpa celah: tiap hari di antaranya pasti ada di daftar tanggal.
+  const data = await fetchAll(() => build('id, tanggal_pembelian, brand, qty, harga, barang_id', { from: pageDays[pageDays.length - 1], to: pageDays[0], brand }))
+  const barangIds = [...new Set(data.map((row) => row.barang_id).filter((id) => id != null))]
+  let stockOf = new Map()
+  if (barangIds.length > 0) {
+    const { data: stockRows, error: stockError } = await supabase.from('v_stock').select('id, stok').in('id', barangIds)
+    if (stockError) throw friendlyError(stockError)
+    stockOf = new Map(stockRows.map((row) => [row.id, Number(row.stok)]))
+  }
+  return {
+    total: allDays.length,
+    rows: data.map((row) => ({
+      id: row.id,
+      date: row.tanggal_pembelian,
+      barangId: row.barang_id,
+      item: row.barang?.nama ?? '—',
+      brand: row.brand,
+      qty: Number(row.qty),
+      stock: stockOf.get(row.barang_id) ?? 0,
+      price: Number(row.harga),
+      total: Number(row.qty) * Number(row.harga),
+    })),
+  }
+}
+
 /** Semua penjualan sesuai filter (semua halaman) untuk ekspor, terbaru dulu. */
 export async function getSalesExport({ from, to, brand }) {
   const rows = await fetchAll(() =>

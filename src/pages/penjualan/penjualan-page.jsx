@@ -20,10 +20,10 @@ import { cn } from '@/lib/cn'
 import { formatAngka, formatRupiah } from '@/lib/format'
 import { addDaysISO, dayMonthLabel as dayLabel, monthNames, monthRange, todayISO } from '@/lib/date'
 import { usePencarianAwal } from '@/lib/pencarian-awal'
-import { usePageSize } from '@/lib/preferences'
-import { getSalesExport, getSalesPage, getSalesStartMonth, getSalesSummary, getStockData } from '@/services/queries'
+import { getSalesExport, getSalesDaysPage, getSalesStartMonth, getSalesSummary, getStockData } from '@/services/queries'
 
-const DEFAULT_PAGE_SIZE = 20
+// Daftar penjualan dibagi per hari: satu halaman = 4 hari (semua transaksi pada hari-hari itu).
+const DAYS_PER_PAGE = 4
 
 const tabOptions = [
   { value: 'transaksi', label: 'Transaksi' },
@@ -48,7 +48,6 @@ function buildMonthOptions(startMonth, currentMonth) {
 }
 
 export function PenjualanPage() {
-  const PAGE_SIZE = usePageSize(DEFAULT_PAGE_SIZE)
   const [page, setPage] = useState(1)
   const [editing, setEditing] = useState(null)
   const [panelVersion, setPanelVersion] = useState(0)
@@ -73,10 +72,10 @@ export function PenjualanPage() {
   const to = addDaysISO(next, -1)
   const filter = { from, to, brand }
   const sales = useAsync(
-    () => getSalesPage({ page, pageSize: PAGE_SIZE, ...filter, q: search }),
-    [page, filter.from, filter.to, filter.brand, search, PAGE_SIZE],
+    () => getSalesDaysPage({ page, days: DAYS_PER_PAGE, ...filter, q: search }),
+    [page, filter.from, filter.to, filter.brand, search],
   )
-  useEffect(() => setPage(1), [selectedMonth, brand, search, PAGE_SIZE])
+  useEffect(() => setPage(1), [selectedMonth, brand, search])
   const todaySummary = useAsync(() => getSalesSummary({ from: todayISO(), to: todayISO() }), [])
 
   const [exporting, setExporting] = useState('')
@@ -286,11 +285,10 @@ export function PenjualanPage() {
           mobileGroup={(row, index) => {
             if (index > 0 && saleRows[index - 1].date === row.date) return null
             const day = byDate[row.date]
-            const partial = (row.date === saleRows[0].date && page > 1) || (row.date === saleRows[saleRows.length - 1].date && page * PAGE_SIZE < (sales.data?.total ?? 0))
             return (
               <div className="flex items-center justify-between gap-3 px-3 py-1.5 text-[11px] font-semibold text-tinta-redup">
                 <span className="uppercase">{dayLabel(row.date)}</span>
-                <span className="ml-auto tabular-nums">{partial ? `${day.count} transaksi di halaman ini` : `${day.count} transaksi · ${formatRupiah(day.total)}`}</span>
+                <span className="ml-auto tabular-nums">{day.count} transaksi · {formatRupiah(day.total)}</span>
                 <Button
                   variant="outline"
                   size="sm"
@@ -339,7 +337,7 @@ export function PenjualanPage() {
             description: waiting ? '' : emptyDescription,
           }}
         />
-        <Pager page={page} pageSize={PAGE_SIZE} total={sales.data?.total ?? 0} onPageChange={setPage} />
+        <Pager page={page} pageSize={DAYS_PER_PAGE} total={sales.data?.total ?? 0} onPageChange={setPage} />
       </Card>
         </>
       )}
