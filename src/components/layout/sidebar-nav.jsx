@@ -18,12 +18,12 @@ export function SidebarNav({ route, onSearch }) {
   const initial = (username || email || '?')[0].toUpperCase()
 
   return (
-    <div className="relative flex h-full flex-col overflow-hidden text-white" style={{ backgroundImage: 'linear-gradient(180deg, var(--sidebar-a), var(--sidebar-b))' }}>
+    <div className="sb relative flex h-full flex-col overflow-hidden text-white" style={{ backgroundImage: 'linear-gradient(180deg, var(--sidebar-a), var(--sidebar-b))' }}>
       <div className="pointer-events-none absolute -right-16 -bottom-20 size-60 rounded-full bg-white/6" aria-hidden="true" />
       <div className="pointer-events-none absolute -top-24 -left-20 size-52 rounded-full bg-white/4" aria-hidden="true" />
 
       <div className="relative flex h-[4.5rem] shrink-0 items-center gap-3 border-b border-white/15 px-5">
-        <LogoMark className="size-7 shrink-0 text-white" />
+        <LogoMark className="sb-logo size-7 shrink-0 text-white" />
         <div className="min-w-0">
           <span className="block truncate text-sm font-semibold tracking-tight">{site.name}</span>
           <span className="mt-0.5 block truncate text-[9px] font-medium uppercase tracking-[0.08em] text-white/70">Smart Stock &amp; Sales Management</span>

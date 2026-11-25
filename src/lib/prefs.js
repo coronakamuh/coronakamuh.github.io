@@ -3,7 +3,7 @@ export const TEXT_SIZES = ['kecil', 'normal', 'besar']
 export const ROW_OPTIONS = ['auto', 20, 30, 50]
 /** Jumlah baris per halaman bila memilih "Bawaan". */
 export const DEFAULT_ROWS = 7
-export const THEMES = ['terang', 'gelap', 'kaca', 'glass', 'sistem']
+export const THEMES = ['terang', 'gelap', 'kaca', 'glass', 'neumorph', 'sistem']
 /** Tema warna aksen. `color` hanya untuk bulatan pilihan di Pengaturan (warna tombol versi terang). */
 export const ACCENT_OPTIONS = [
   { value: 'navy', label: 'Navy', color: '#1e3a8a' },
@@ -16,7 +16,7 @@ export const ACCENT_OPTIONS = [
 export const ACCENTS = ACCENT_OPTIONS.map((option) => option.value)
 export const DEFAULT_PREFS = { textSize: 'normal', rows: 'auto', theme: 'terang', accent: 'navy' }
 /** Warna bilah status peramban (meta theme-color), sama dengan warna header. */
-export const THEME_COLOR = { terang: '#ffffff', gelap: '#131c2e', kaca: '#e6f0f3', glass: '#0a2a21' }
+export const THEME_COLOR = { terang: '#ffffff', gelap: '#131c2e', kaca: '#e6f0f3', glass: '#0a2a21', neumorph: '#e0e5ec' }
 /** "sistem" mengikuti pengaturan terang/gelap perangkat. */
 export const resolveTheme = (theme, systemDark) => (theme === 'sistem' ? (systemDark ? 'gelap' : 'terang') : theme)
 export const STORAGE_KEY = 'dhouse.prefs'

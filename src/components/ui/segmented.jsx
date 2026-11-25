@@ -4,7 +4,7 @@ import * as Tabs from '@radix-ui/react-tabs'
 export function Segmented({ label, value, onValueChange, options, size = 'md' }) {
   return (
     <Tabs.Root value={value} onValueChange={onValueChange}>
-      <Tabs.List aria-label={label} className="inline-flex gap-0.5 rounded-lg border border-garis bg-kertas p-0.5">
+      <Tabs.List aria-label={label} className="inline-flex max-w-full flex-wrap gap-0.5 rounded-lg border border-garis bg-kertas p-0.5">
         {options.map((option) => (
           <Tabs.Trigger
             key={option.value}

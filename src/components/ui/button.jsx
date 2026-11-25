@@ -9,7 +9,7 @@ export const buttonVariants = cva(
       variant: {
         primary: 'btn-primary bg-tombol text-white shadow-sm shadow-tombol/15 hover:bg-tombol-tua hover:shadow-md',
         outline: 'btn-outline border border-garis bg-lembar text-tinta shadow-sm hover:border-pena/40 hover:bg-kertas hover:text-pena',
-        ghost: 'text-tinta-redup hover:bg-garis-halus hover:text-tinta',
+        ghost: 'btn-ghost text-tinta-redup hover:bg-garis-halus hover:text-tinta',
         danger: 'btn-danger bg-bahaya-solid text-white shadow-sm hover:bg-bahaya-solid/90 focus-visible:ring-bahaya/20',
       },
       size: {

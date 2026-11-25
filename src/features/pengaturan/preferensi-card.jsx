@@ -9,6 +9,7 @@ const themeOptions = [
   { value: 'gelap', label: 'Gelap' },
   { value: 'kaca', label: 'Kaca' },
   { value: 'glass', label: 'Glass' },
+  { value: 'neumorph', label: 'Neumorph' },
   { value: 'sistem', label: 'Sistem' },
 ]
 const sizeOptions = [
@@ -42,7 +43,7 @@ export function PreferensiCard() {
         </button>
       }
     >
-      <SettingRow label="Tema" hint="Kaca: terang dengan kartu transparan. Glass: gelap hijau zamrud dengan kaca dan aksen oranye (di Glass, warna Navy tampil oranye). Sistem mengikuti pengaturan terang atau gelap di perangkat. Hanya berlaku di perangkat ini.">
+      <SettingRow label="Tema" hint="Kaca: terang dengan kartu transparan. Glass: gelap hijau zamrud dengan kaca dan aksen oranye (di Glass, warna Navy tampil oranye). Neumorph: satu warna lembut dengan bayangan timbul dan tenggelam. Sistem mengikuti pengaturan terang atau gelap di perangkat. Hanya berlaku di perangkat ini.">
         <Segmented label="Tema" size="sm" value={prefs.theme} onValueChange={(value) => setPref('theme', value)} options={themeOptions} />
       </SettingRow>
       <SettingRow label="Warna aksen" hint="Warna tombol, tab aktif, dan grafik.">

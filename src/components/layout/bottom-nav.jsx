@@ -6,7 +6,7 @@ export function BottomNav({ route }) {
   return (
     <nav
       aria-label="Menu utama"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-garis bg-lembar/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgb(15_23_42/0.05)] backdrop-blur-sm lg:hidden"
+      className="bottom-nav fixed inset-x-0 bottom-0 z-40 border-t border-garis bg-lembar/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgb(15_23_42/0.05)] backdrop-blur-sm lg:hidden"
     >
       <ul className="mx-auto grid max-w-xl grid-cols-5">
         {navItems.map(({ id, label, shortLabel, icon: Icon }) => {
