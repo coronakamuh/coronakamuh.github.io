@@ -266,3 +266,197 @@
 .sidebar-avatar { background: #fff; color: var(--color-tombol); }
 :root[data-theme="gelap"] .sidebar-aktif { background: rgb(255 255 255 / 0.16); color: #fff; box-shadow: none; }
 :root[data-theme="gelap"] .sidebar-avatar { background: rgb(255 255 255 / 0.2); color: #fff; }
+
+/* ==========================================================================
+   Tema Glass (gelap): zamrud tua ke hampir hitam, kaca buram di mana-mana, aksen oranye (acuan: tabung kaca).
+   Mengubah tampilan tema ini cukup di bagian bawah ini:
+   - Warna: blok :root[data-theme="glass"] (token), dan varian aksen di bawahnya.
+   - Latar dan cahaya: "Latar Glass".
+   - Kartu, kolom isian (.ctl), tombol (.btn-primary, .btn-outline, .btn-danger), menu samping, header, jendela, grafik (.bar-col, .bar-fill), login (.login-panel).
+   Penanda kelas itu ada di komponen React; tema lain tidak terpengaruh.
+   ========================================================================== */
+:root[data-theme="glass"] {
+  color-scheme: dark;
+  --color-latar: #06130e;
+  --color-lembar: #0f2a21;
+  --color-kertas: #0b201a;
+  --color-tinta: #eaf5ef;
+  --color-tinta-redup: #b9d2c6;
+  --color-pena: #ff8c55;
+  --color-pena-tua: #ffa77c;
+  --color-tombol: #d94a14;
+  --color-tombol-tua: #b83b0b;
+  --color-garis: #285044;
+  --color-garis-halus: #1a3a2f;
+  --color-bahaya: #ff8a80;
+  --color-bahaya-solid: #d6342a;
+  --color-sukses: #4ade9a;
+  --color-peringatan: #fbbf24;
+  --color-info: #6ab7ff;
+  --shadow-kartu: 0 12px 32px -12px rgb(0 0 0 / 0.65), inset 0 1px 0 rgb(255 255 255 / 0.16);
+  --shadow-pop: 0 20px 48px -12px rgb(0 0 0 / 0.75), 0 0 0 1px rgb(255 255 255 / 0.1);
+  --radius-kartu: 1.25rem;
+  --sidebar-a: rgb(255 255 255 / 0.08);
+  --sidebar-b: rgb(255 255 255 / 0.02);
+}
+:root[data-theme="glass"] ::selection { background: rgb(255 140 85 / 0.35); color: #fff; }
+:root[data-theme="glass"][data-accent="zamrud"] { --color-pena: #5ee0b0; --color-pena-tua: #8aebc7; --color-tombol: #1b8d6a; --color-tombol-tua: #157055; }
+:root[data-theme="glass"][data-accent="indigo"] { --color-pena: #a5b0ff; --color-pena-tua: #c0c8ff; --color-tombol: #5b54e0; --color-tombol-tua: #4a44c4; }
+:root[data-theme="glass"][data-accent="grafit"] { --color-pena: #d1d9e3; --color-pena-tua: #e6ebf1; --color-tombol: #475569; --color-tombol-tua: #364152; }
+:root[data-theme="glass"][data-accent="maroon"] { --color-pena: #ff9fb0; --color-pena-tua: #ffbac6; --color-tombol: #b4304a; --color-tombol-tua: #962640; }
+
+/* Latar Glass: gradasi zamrud ke hitam, dengan cahaya oranye dan hijau yang lembut di belakang kartu. */
+:root[data-theme="glass"] body {
+  background-image:
+    radial-gradient(ellipse at 12% 0%, rgb(24 130 100 / 0.55) 0%, transparent 55%),
+    linear-gradient(135deg, #0d5440 0%, #08281f 45%, #030c09 100%);
+  background-attachment: fixed;
+}
+:root[data-theme="glass"] #root { position: relative; z-index: 1; }
+:root[data-theme="glass"] body::before,
+:root[data-theme="glass"] body::after {
+  content: "";
+  position: fixed;
+  z-index: 0;
+  border-radius: 9999px;
+  pointer-events: none;
+}
+:root[data-theme="glass"] body::before {
+  right: -7rem;
+  bottom: -6rem;
+  width: 22rem;
+  height: 22rem;
+  background: radial-gradient(circle, rgb(240 90 30 / 0.34), transparent 66%);
+}
+:root[data-theme="glass"] body::after {
+  top: -6rem;
+  left: 30%;
+  width: 20rem;
+  height: 20rem;
+  background: radial-gradient(circle, rgb(60 190 150 / 0.22), transparent 66%);
+}
+
+/* Kartu kaca: tepi kiri berkilau seperti tabung. */
+:root[data-theme="glass"] .dh-card {
+  border-color: rgb(255 255 255 / 0.16);
+  background: linear-gradient(100deg, rgb(255 255 255 / 0.14) 0%, rgb(255 255 255 / 0.06) 8%, rgb(255 255 255 / 0.045) 100%);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
+}
+
+/* Kolom isian dan pilihan (kelas .ctl dipasang di src/components/ui/field.jsx). */
+:root[data-theme="glass"] .ctl {
+  background: rgb(255 255 255 / 0.07);
+  border-color: rgb(255 255 255 / 0.18);
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.25);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+:root[data-theme="glass"] .ctl:focus,
+:root[data-theme="glass"] .ctl[data-state="open"] {
+  background: rgb(255 255 255 / 0.11);
+  border-color: color-mix(in srgb, var(--color-pena) 70%, transparent);
+}
+:root[data-theme="glass"] .ctl:disabled { background: rgb(255 255 255 / 0.03); }
+:root[data-theme="glass"] .ctl:-webkit-autofill {
+  -webkit-text-fill-color: var(--color-tinta);
+  box-shadow: inset 0 0 0 100px #12382d;
+}
+
+/* Tombol (kelas .btn-* dipasang di src/components/ui/button.jsx). */
+:root[data-theme="glass"] .btn-primary {
+  background-image: linear-gradient(180deg, color-mix(in srgb, var(--color-tombol) 74%, white), var(--color-tombol));
+  border: 1px solid rgb(255 255 255 / 0.28);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.38), 0 8px 20px -8px color-mix(in srgb, var(--color-tombol) 80%, transparent);
+}
+:root[data-theme="glass"] .btn-primary:hover:not(:disabled) {
+  background-image: linear-gradient(180deg, color-mix(in srgb, var(--color-tombol) 64%, white), var(--color-tombol-tua));
+}
+:root[data-theme="glass"] .btn-outline {
+  background: rgb(255 255 255 / 0.08);
+  border-color: rgb(255 255 255 / 0.2);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.16);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+:root[data-theme="glass"] .btn-outline:hover:not(:disabled) {
+  background: rgb(255 255 255 / 0.15);
+  border-color: color-mix(in srgb, var(--color-pena) 55%, transparent);
+  color: var(--color-pena-tua);
+}
+:root[data-theme="glass"] .btn-danger {
+  background-image: linear-gradient(180deg, color-mix(in srgb, var(--color-bahaya-solid) 74%, white), var(--color-bahaya-solid));
+  border: 1px solid rgb(255 255 255 / 0.25);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.32);
+}
+:root[data-theme="glass"] [role="tablist"] {
+  background: rgb(255 255 255 / 0.07);
+  border-color: rgb(255 255 255 / 0.16);
+}
+
+/* Header HP, menu bawah HP, dan menu samping desktop. */
+:root[data-theme="glass"] :is(header, nav)[class*="backdrop-blur"] {
+  background-color: rgb(8 30 23 / 0.55);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
+  border-color: rgb(255 255 255 / 0.12);
+}
+:root[data-theme="glass"] aside {
+  background-color: rgb(6 24 18 / 0.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  backdrop-filter: blur(20px) saturate(1.4);
+  border-color: rgb(255 255 255 / 0.1);
+}
+:root[data-theme="glass"] .sidebar-aktif {
+  background: rgb(255 255 255 / 0.16);
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.22), 0 6px 16px -8px color-mix(in srgb, var(--color-tombol) 80%, transparent);
+}
+:root[data-theme="glass"] .sidebar-avatar { background: rgb(255 255 255 / 0.2); color: #fff; }
+
+/* Jendela dan menu pilihan melayang: kaca gelap yang lebih pekat agar teks tetap jelas. */
+:root[data-theme="glass"] :is([role="dialog"], [data-radix-popper-content-wrapper] > *) {
+  background: rgb(10 36 28 / 0.82);
+  border-color: rgb(255 255 255 / 0.16);
+  -webkit-backdrop-filter: blur(22px) saturate(1.4);
+  backdrop-filter: blur(22px) saturate(1.4);
+}
+
+/* Grafik batang: tabung kaca dengan isi oranye (kelas dipasang di src/components/charts/bar-chart.jsx). */
+:root[data-theme="glass"] .bar-col { position: relative; }
+:root[data-theme="glass"] .bar-col::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: min(100%, 2.25rem);
+  transform: translateX(-50%);
+  border-radius: 8px;
+  border: 1px solid rgb(255 255 255 / 0.16);
+  background: linear-gradient(90deg, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0.03));
+}
+:root[data-theme="glass"] .bar-fill {
+  position: relative;
+  background-image: linear-gradient(90deg, rgb(255 255 255 / 0.34) 0, rgb(255 255 255 / 0) 30%, rgb(0 0 0 / 0.18) 100%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.4);
+}
+
+/* Halaman login: panel kaca (tema lain tidak berubah). */
+:root[data-theme="kaca"] .login-panel,
+:root[data-theme="glass"] .login-panel {
+  padding: 1.75rem 1.5rem;
+  border-radius: 1.5rem;
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  backdrop-filter: blur(20px) saturate(1.4);
+}
+:root[data-theme="kaca"] .login-panel {
+  border: 1px solid rgb(255 255 255 / 0.75);
+  background: rgb(255 255 255 / 0.5);
+  box-shadow: var(--shadow-kartu);
+}
+:root[data-theme="glass"] .login-panel {
+  border: 1px solid rgb(255 255 255 / 0.16);
+  background: linear-gradient(100deg, rgb(255 255 255 / 0.14) 0%, rgb(255 255 255 / 0.06) 8%, rgb(255 255 255 / 0.045) 100%);
+  box-shadow: 0 24px 60px -20px rgb(0 0 0 / 0.75), inset 0 1px 0 rgb(255 255 255 / 0.18);
+}

@@ -27,6 +27,7 @@ export function LoginPage() {
 
   return (
     <main className="mx-auto flex min-h-svh w-full max-w-sm flex-col justify-center px-5 py-10">
+      <div className="login-panel">
       <div className="flex items-center gap-3">
         <LogoMark className="size-9 text-pena" />
         <span className="text-lg font-semibold tracking-tight">{site.name}</span>
@@ -73,6 +74,7 @@ export function LoginPage() {
           {busy ? 'Memeriksa…' : 'Masuk'}
         </Button>
       </form>
+      </div>
     </main>
   )
 }

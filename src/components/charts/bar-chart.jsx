@@ -70,9 +70,9 @@ export function BarChart({ data, emptyTitle, emptyDescription, formatValue = Str
               const today = index === count - 1
               const on = active === index
               return (
-                <div key={item.date ?? item.label} className="flex h-full min-w-0 flex-1 items-end justify-center">
+                <div key={item.date ?? item.label} className="bar-col flex h-full min-w-0 flex-1 items-end justify-center">
                   <div
-                    className={`w-full max-w-9 transition-colors ${dense ? 'rounded-t-[3px]' : 'rounded-t-[6px]'} ${today || on ? 'bg-pena' : 'bg-pena/30'}`}
+                    className={`bar-fill w-full max-w-9 transition-colors ${dense ? 'rounded-t-[3px]' : 'rounded-t-[6px]'} ${today || on ? 'bg-pena' : 'bg-pena/30'}`}
                     style={{ height: item.value > 0 ? `max(${pct(item.value)}%, 2px)` : '0' }}
                   />
                 </div>

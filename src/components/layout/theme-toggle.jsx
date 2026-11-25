@@ -5,7 +5,7 @@ import { usePreferences } from '@/lib/preferences'
 /** Tombol cepat terang/gelap. variant "row" untuk sidebar, "icon" untuk header HP. */
 export function ThemeToggle({ variant = 'icon', className, onDark = false }) {
   const { resolvedTheme, setPref } = usePreferences()
-  const dark = resolvedTheme === 'gelap'
+  const dark = resolvedTheme === 'gelap' || resolvedTheme === 'glass'
   const Icon = dark ? Sun : Moon
   const label = dark ? 'Tema terang' : 'Tema gelap'
   const toggle = () => setPref('theme', dark ? 'terang' : 'gelap')

@@ -7,10 +7,10 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: 'bg-tombol text-white shadow-sm shadow-tombol/15 hover:bg-tombol-tua hover:shadow-md',
-        outline: 'border border-garis bg-lembar text-tinta shadow-sm hover:border-pena/40 hover:bg-kertas hover:text-pena',
+        primary: 'btn-primary bg-tombol text-white shadow-sm shadow-tombol/15 hover:bg-tombol-tua hover:shadow-md',
+        outline: 'btn-outline border border-garis bg-lembar text-tinta shadow-sm hover:border-pena/40 hover:bg-kertas hover:text-pena',
         ghost: 'text-tinta-redup hover:bg-garis-halus hover:text-tinta',
-        danger: 'bg-bahaya-solid text-white shadow-sm hover:bg-bahaya-solid/90 focus-visible:ring-bahaya/20',
+        danger: 'btn-danger bg-bahaya-solid text-white shadow-sm hover:bg-bahaya-solid/90 focus-visible:ring-bahaya/20',
       },
       size: {
         md: 'h-10 px-4',
