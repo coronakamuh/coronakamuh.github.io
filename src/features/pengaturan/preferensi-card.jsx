@@ -7,6 +7,7 @@ import { ACCENT_OPTIONS, DEFAULT_PREFS } from '@/lib/prefs'
 const themeOptions = [
   { value: 'terang', label: 'Terang' },
   { value: 'gelap', label: 'Gelap' },
+  { value: 'kaca', label: 'Kaca' },
   { value: 'sistem', label: 'Sistem' },
 ]
 const sizeOptions = [
@@ -40,7 +41,7 @@ export function PreferensiCard() {
         </button>
       }
     >
-      <SettingRow label="Tema" hint="Sistem mengikuti pengaturan terang atau gelap di perangkat. Hanya berlaku di perangkat ini.">
+      <SettingRow label="Tema" hint="Kaca: tampilan terang dengan kartu transparan dan latar gradasi. Sistem mengikuti pengaturan terang atau gelap di perangkat. Hanya berlaku di perangkat ini.">
         <Segmented label="Tema" size="sm" value={prefs.theme} onValueChange={(value) => setPref('theme', value)} options={themeOptions} />
       </SettingRow>
       <SettingRow label="Warna aksen" hint="Warna tombol, tab aktif, dan grafik.">
