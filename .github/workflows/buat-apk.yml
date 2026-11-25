@@ -5,14 +5,6 @@ name: Buat APK Android
 # Capacitor dan plugin dipasang sementara di dalam workflow ini saja (tidak di-commit).
 on:
   workflow_dispatch:
-    inputs:
-      mode:
-        description: "langsung = memuat situs dari internet (situs berubah tanpa pasang ulang APK); salinan = situs dibundel di dalam APK"
-        type: choice
-        options:
-          - langsung
-          - salinan
-        default: langsung
 
 permissions:
   contents: read
@@ -42,13 +34,6 @@ jobs:
       # agar `cap sync` mengenalinya.
       - name: Pasang Capacitor dan plugin sementara
         run: npm install --no-audit --no-fund @capacitor/core@^7 @capacitor/cli@^7 @capacitor/android@^7 @capacitor/filesystem@^7 @capacitor/share@^7
-
-      # Mode langsung: aplikasi membuka https://coronakamuh.github.io di WebView (hanya di runner, tidak di-commit).
-      - name: Atur mode APK
-        if: ${{ inputs.mode != 'salinan' }}
-        run: |
-          node -e "const fs=require('fs');const f='capacitor.config.json';const c=JSON.parse(fs.readFileSync(f,'utf8'));c.server={...c.server,url:'https://coronakamuh.github.io',allowNavigation:['coronakamuh.github.io']};fs.writeFileSync(f,JSON.stringify(c,null,2))"
-          cat capacitor.config.json
 
       - name: Buat proyek Android dan sinkronkan hasil build
         run: |
