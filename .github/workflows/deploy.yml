@@ -27,8 +27,8 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install dependensi (sesuai package-lock.json)
-        run: npm ci --no-audit --no-fund
+      - name: Install dependensi
+        run: npm install --no-audit --no-fund
 
       - name: Build
         run: npm run build
