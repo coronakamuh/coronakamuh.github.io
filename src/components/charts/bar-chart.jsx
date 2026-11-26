@@ -56,7 +56,7 @@ export function BarChart({ data, emptyTitle, emptyDescription, formatValue = Str
               />
             }
           />
-          <Bar dataKey="value" fill="var(--color-value)" radius={[6, 6, 0, 0]} maxBarSize={36}>
+          <Bar dataKey="value" fill="var(--color-value)" radius={[6, 6, 0, 0]} maxBarSize={36} background={{ fill: 'transparent' }}>
             {data.map((item, index) => (
               <Cell key={item.date ?? item.label} fill="var(--color-value)" fillOpacity={index === count - 1 ? 1 : 0.3} />
             ))}

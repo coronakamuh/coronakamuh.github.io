@@ -54,46 +54,17 @@
 }
 
 /* Warna aksen (tema warna). Navy adalah bawaan, jadi tidak perlu blok sendiri.
-   Mengganti warna sebuah tema: ubah empat nilai di blok tema itu (terang di sini, gelap di blok "Gelap + aksen" di bawah).
+   Mengganti warna sebuah aksen: ubah empat nilai di blok aksen itu. Tiap tema (Kaca, Glass, Neumorph) punya varian aksennya sendiri di bagian temanya.
    pena = warna teks/garis aksen; tombol = latar tombol utama dan tab aktif (teks putih di atasnya). */
 :root[data-accent="zamrud"] { --color-pena: #0f7a5a; --color-pena-tua: #0b5c44; --color-tombol: #0f6b4f; --color-tombol-tua: #0b5640; }
 :root[data-accent="indigo"] { --color-pena: #4f46e5; --color-pena-tua: #3730a3; --color-tombol: #4338ca; --color-tombol-tua: #3730a3; }
 :root[data-accent="oranye"] { --color-pena: #c2570c; --color-pena-tua: #9a4509; --color-tombol: #b45309; --color-tombol-tua: #92400e; }
 :root[data-accent="grafit"] { --color-pena: #374151; --color-pena-tua: #1f2937; --color-tombol: #1f2937; --color-tombol-tua: #111827; }
 :root[data-accent="maroon"] { --color-pena: #9b1c31; --color-pena-tua: #6e1626; --color-tombol: #7a1b2d; --color-tombol-tua: #5f1423; }
+:root[data-accent="tosca"] { --color-pena: #0f766e; --color-pena-tua: #115e59; --color-tombol: #0f766e; --color-tombol-tua: #115e59; }
 :root[data-accent]:not([data-accent="navy"]) ::selection { background: color-mix(in srgb, var(--color-pena) 28%, transparent); color: inherit; }
 
-/* Tema gelap: hanya mengganti nilai token. Dipilih lewat atribut data-theme pada <html> (lihat src/lib/preferences.jsx). */
 :root { color-scheme: light; }
-:root[data-theme="gelap"] {
-  color-scheme: dark;
-  --color-latar: #0b1220;
-  --color-lembar: #131c2e;
-  --color-kertas: #0f1726;
-  --color-tinta: #e6ebf5;
-  --color-tinta-redup: #97a4ba;
-  --color-pena: #6e9cf6;
-  --color-pena-tua: #8fb2f8;
-  --color-tombol: #2f5fd0;
-  --color-tombol-tua: #3a6ae0;
-  --color-garis: #26334a;
-  --color-garis-halus: #1b2740;
-  --color-bahaya: #f87171;
-  --color-bahaya-solid: #dc2626;
-  --color-sukses: #34d399;
-  --color-peringatan: #fbbf24;
-  --color-info: #60a5fa;
-  --shadow-kartu: 0 1px 2px rgb(0 0 0 / 0.35), 0 1px 3px rgb(0 0 0 / 0.3);
-  --shadow-pop: 0 12px 32px -8px rgb(0 0 0 / 0.65), 0 0 0 1px rgb(255 255 255 / 0.05);
-}
-:root[data-theme="gelap"] ::selection { background: #1e3a8a; color: #dbeafe; }
-
-/* Gelap + aksen: harus berada setelah blok gelap di atas agar menang. */
-:root[data-theme="gelap"][data-accent="zamrud"] { --color-pena: #4fd1a1; --color-pena-tua: #7fe0bb; --color-tombol: #1f8f6a; --color-tombol-tua: #28a47c; }
-:root[data-theme="gelap"][data-accent="indigo"] { --color-pena: #9aa5fb; --color-pena-tua: #b7c0fc; --color-tombol: #5b54e0; --color-tombol-tua: #6a64ea; }
-:root[data-theme="gelap"][data-accent="oranye"] { --color-pena: #fb9a4d; --color-pena-tua: #fdb27a; --color-tombol: #c2560c; --color-tombol-tua: #d4630f; }
-:root[data-theme="gelap"][data-accent="grafit"] { --color-pena: #cbd5e1; --color-pena-tua: #e2e8f0; --color-tombol: #475569; --color-tombol-tua: #566579; }
-:root[data-theme="gelap"][data-accent="maroon"] { --color-pena: #f08a9a; --color-pena-tua: #f5a7b3; --color-tombol: #b4304a; --color-tombol-tua: #c43c57; }
 
 /* Tema Kaca (glassmorphism, terang): latar gradasi mint ke biru lembut, kartu kaca buram, bola warna dekoratif.
    Jendela, menu pilihan, dan kolom isian tetap padat supaya mudah dibaca. Harus berada setelah blok aksen di atas agar menang. */
@@ -124,6 +95,7 @@
 :root[data-theme="kaca"][data-accent="oranye"] { --color-pena: #c2570c; --color-pena-tua: #9a4509; --color-tombol: #c25a1f; --color-tombol-tua: #a14814; }
 :root[data-theme="kaca"][data-accent="grafit"] { --color-pena: #3b4658; --color-pena-tua: #273041; --color-tombol: #4b5668; --color-tombol-tua: #374151; }
 :root[data-theme="kaca"][data-accent="maroon"] { --color-pena: #a42a42; --color-pena-tua: #7a1f31; --color-tombol: #a33048; --color-tombol-tua: #832439; }
+:root[data-theme="kaca"][data-accent="tosca"] { --color-pena: #0d6b64; --color-pena-tua: #0a5550; --color-tombol: #14827a; --color-tombol-tua: #0f6b64; }
 
 /* Latar gradasi dan dua bola warna di belakang kartu (kartu buram membuatnya tampak seperti kaca). */
 :root[data-theme="kaca"] body {
@@ -253,26 +225,20 @@
   .sales-history-table :is(th, td):nth-child(5) { width: 7.5rem; }
 }
 
-/* Menu samping desktop: gradasi warna aksen. Di tema gelap dibuat lebih gelap agar tidak menyilaukan. */
+/* Menu samping desktop: gradasi warna aksen. */
 :root {
   --sidebar-a: var(--color-tombol);
   --sidebar-b: var(--color-tombol-tua);
 }
-:root[data-theme="gelap"] {
-  --sidebar-a: color-mix(in srgb, var(--color-tombol) 42%, #0b1220);
-  --sidebar-b: color-mix(in srgb, var(--color-tombol) 24%, #0b1220);
-}
 .sidebar-aktif { background: #fff; color: var(--color-tombol); box-shadow: 0 1px 2px rgb(0 0 0 / 0.12); }
 .sidebar-avatar { background: #fff; color: var(--color-tombol); }
-:root[data-theme="gelap"] .sidebar-aktif { background: rgb(255 255 255 / 0.16); color: #fff; box-shadow: none; }
-:root[data-theme="gelap"] .sidebar-avatar { background: rgb(255 255 255 / 0.2); color: #fff; }
 
 /* ==========================================================================
    Tema Glass (gelap): zamrud tua ke hampir hitam, kaca buram di mana-mana, aksen oranye (acuan: tabung kaca).
    Mengubah tampilan tema ini cukup di bagian bawah ini:
    - Warna: blok :root[data-theme="glass"] (token), dan varian aksen di bawahnya.
    - Latar dan cahaya: "Latar Glass".
-   - Kartu, kolom isian (.ctl), tombol (.btn-primary, .btn-outline, .btn-danger), menu samping, header, jendela, grafik (.bar-col, .bar-fill), login (.login-panel).
+   - Kartu, kolom isian (.ctl), tombol (.btn-primary, .btn-outline, .btn-danger), menu samping, header, jendela, grafik (Recharts), login (.login-panel).
    Penanda kelas itu ada di komponen React; tema lain tidak terpengaruh.
    ========================================================================== */
 :root[data-theme="glass"] {
@@ -304,6 +270,7 @@
 :root[data-theme="glass"][data-accent="indigo"] { --color-pena: #a5b0ff; --color-pena-tua: #c0c8ff; --color-tombol: #5b54e0; --color-tombol-tua: #4a44c4; }
 :root[data-theme="glass"][data-accent="grafit"] { --color-pena: #d1d9e3; --color-pena-tua: #e6ebf1; --color-tombol: #475569; --color-tombol-tua: #364152; }
 :root[data-theme="glass"][data-accent="maroon"] { --color-pena: #ff9fb0; --color-pena-tua: #ffbac6; --color-tombol: #b4304a; --color-tombol-tua: #962640; }
+:root[data-theme="glass"][data-accent="tosca"] { --color-pena: #5eead4; --color-pena-tua: #99f6e4; --color-tombol: #0b7d72; --color-tombol-tua: #096b62; }
 
 /* Latar Glass: gradasi zamrud ke hitam, dengan cahaya oranye dan hijau yang lembut di belakang kartu. */
 :root[data-theme="glass"] body {
@@ -422,24 +389,22 @@
   backdrop-filter: blur(22px) saturate(1.4);
 }
 
-/* Grafik batang: tabung kaca dengan isi oranye (kelas dipasang di src/components/charts/bar-chart.jsx). */
-:root[data-theme="glass"] .bar-col { position: relative; }
-:root[data-theme="glass"] .bar-col::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  width: min(100%, 2.25rem);
-  transform: translateX(-50%);
-  border-radius: 8px;
-  border: 1px solid rgb(255 255 255 / 0.16);
-  background: linear-gradient(90deg, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0.03));
+/* Grafik batang (Recharts, src/components/charts/bar-chart.jsx): alur kaca berisi batang bercahaya. */
+:root[data-theme="glass"] [data-slot="chart"] .recharts-bar-background-rectangle { fill: rgb(255 255 255 / 0.08); stroke: rgb(255 255 255 / 0.16); stroke-width: 1px; }
+:root[data-theme="glass"] [data-slot="chart"] .recharts-bar-rectangle path { stroke: rgb(255 255 255 / 0.4); stroke-width: 1px; filter: drop-shadow(0 0 6px color-mix(in srgb, var(--color-pena) 45%, transparent)); }
+:root[data-theme="glass"] [data-slot="chart"] .recharts-tooltip-cursor { fill: rgb(255 255 255 / 0.08); }
+/* Tooltip grafik: kaca di semua tema kaca. */
+:root[data-theme="glass"] .recharts-tooltip-wrapper > div {
+  background: rgb(10 36 28 / 0.88);
+  border-color: rgb(255 255 255 / 0.16);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
 }
-:root[data-theme="glass"] .bar-fill {
-  position: relative;
-  background-image: linear-gradient(90deg, rgb(255 255 255 / 0.34) 0, rgb(255 255 255 / 0) 30%, rgb(0 0 0 / 0.18) 100%);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.4);
+:root[data-theme="kaca"] .recharts-tooltip-wrapper > div {
+  background: rgb(255 255 255 / 0.78);
+  border-color: rgb(255 255 255 / 0.8);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
 }
 
 /* Halaman login: panel kaca (tema lain tidak berubah). */
@@ -470,7 +435,7 @@
    - Warna dan kekuatan bayangan: blok :root[data-theme="neumorph"] (token --nm-*), varian aksen di bawahnya.
    - Tiap komponen punya bagian sendiri, diberi judul komentar.
    - Penanda kelas ada di komponen: .ctl (field.jsx), .btn-* (button.jsx), .sb dan .sb-logo (sidebar-nav.jsx),
-     .bottom-nav (bottom-nav.jsx), .bar-col dan .bar-fill (bar-chart.jsx), .login-panel (login-page.jsx).
+     .bottom-nav (bottom-nav.jsx), .login-panel (login-page.jsx).
    Aturan di sini tidak berlapis (unlayered), jadi selalu menang atas kelas Tailwind; tema lain tidak terpengaruh.
    ========================================================================== */
 :root[data-theme="neumorph"] {
@@ -513,6 +478,7 @@
 :root[data-theme="neumorph"][data-accent="oranye"] { --color-pena: #9a4509; --color-pena-tua: #7c370a; --color-tombol: #b45309; --color-tombol-tua: #92400e; }
 :root[data-theme="neumorph"][data-accent="grafit"] { --color-pena: #374151; --color-pena-tua: #1f2937; --color-tombol: #475569; --color-tombol-tua: #334155; }
 :root[data-theme="neumorph"][data-accent="maroon"] { --color-pena: #9b1c31; --color-pena-tua: #6e1626; --color-tombol: #9b1c31; --color-tombol-tua: #7a1b2d; }
+:root[data-theme="neumorph"][data-accent="tosca"] { --color-pena: #0d6b64; --color-pena-tua: #0a5550; --color-tombol: #0f7a72; --color-tombol-tua: #0c635c; }
 
 :root[data-theme="neumorph"] * { scrollbar-color: var(--color-garis) transparent; }
 
@@ -713,21 +679,23 @@
 :root[data-theme="neumorph"] .data-table :is(tr, li) { border-color: var(--color-garis-halus); }
 :root[data-theme="neumorph"] .data-table li.rounded-xl { border-color: transparent; }
 
-/* --- Grafik batang: tabung cekung berisi batang timbul ------------------------ */
-:root[data-theme="neumorph"] .bar-col { position: relative; }
-:root[data-theme="neumorph"] .bar-col::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  width: min(100%, 2.25rem);
-  transform: translateX(-50%);
-  border-radius: 8px;
+/* --- Grafik batang (Recharts): alur cekung berisi batang timbul ------------------- */
+:root[data-theme="neumorph"] [data-slot="chart"] .recharts-bar-background-rectangle { fill: var(--color-garis-halus); filter: drop-shadow(1px 1px 0 var(--nm-light)); }
+:root[data-theme="neumorph"] [data-slot="chart"] .recharts-bar-rectangle path { filter: drop-shadow(2px 2px 3px var(--nm-dark)) drop-shadow(-1px -1px 2px var(--nm-light)); }
+:root[data-theme="neumorph"] [data-slot="chart"] .recharts-tooltip-cursor { fill: var(--color-garis-halus); opacity: 0.5; }
+:root[data-theme="neumorph"] .recharts-tooltip-wrapper > div {
   background: var(--color-latar);
-  box-shadow: var(--nm-inset-xs);
+  border-color: transparent;
+  border-radius: 0.9rem;
+  box-shadow: var(--nm-raised);
 }
-:root[data-theme="neumorph"] .bar-fill { position: relative; box-shadow: 2px 2px 4px var(--nm-dark), -1px -1px 3px var(--nm-light); }
+
+/* --- Lencana status dan tag naik/turun: tinta berwarna di atas cekungan tipis ---------- */
+:root[data-theme="neumorph"] :is([class*="bg-sukses/1"], [class*="bg-info/10"], [class*="bg-peringatan/10"], [class*="bg-bahaya/10"], [class*="bg-pena/10"]) { box-shadow: var(--nm-inset-xs); }
+
+/* --- Kalender (pemilih tanggal): hari terpilih timbul, hari lain timbul saat disentuh ---- */
+:root[data-theme="neumorph"] [data-radix-popper-content-wrapper] button[aria-pressed="true"] { box-shadow: var(--nm-raised-xs); }
+:root[data-theme="neumorph"] [data-radix-popper-content-wrapper] button[aria-pressed="false"]:hover { background: var(--color-latar); box-shadow: var(--nm-raised-xs); }
 
 /* --- Notifikasi (Sonner) ------------------------------------------------------ */
 :root[data-theme="neumorph"] [data-sonner-toaster] {

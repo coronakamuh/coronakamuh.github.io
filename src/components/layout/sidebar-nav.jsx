@@ -1,6 +1,5 @@
 import { LogOut, Search } from 'lucide-react'
 import { LogoMark } from '@/components/brand/logo-mark'
-import { ThemeToggle } from '@/components/layout/theme-toggle'
 import { navItems } from '@/config/navigation'
 import { site } from '@/config/site'
 import { useAsync } from '@/hooks/use-async'
@@ -82,7 +81,6 @@ export function SidebarNav({ route, onSearch }) {
             <span className="block text-[11px] text-white/70">Admin</span>
           </span>
         </div>
-        <ThemeToggle variant="row" onDark />
         <button
           type="button"
           onClick={signOut}

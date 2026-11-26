@@ -52,7 +52,7 @@ function Gate() {
 
 function ThemedToaster() {
   const { resolvedTheme } = usePreferences()
-  return <Toaster theme={resolvedTheme === 'gelap' || resolvedTheme === 'glass' ? 'dark' : 'light'} position="top-center" closeButton duration={3000} />
+  return <Toaster theme={resolvedTheme === 'glass' ? 'dark' : 'light'} position="top-center" closeButton duration={3000} />
 }
 
 export default function App() {

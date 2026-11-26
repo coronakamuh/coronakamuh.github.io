@@ -4,7 +4,6 @@ import { LogoMark } from '@/components/brand/logo-mark'
 import { BottomNav } from '@/components/layout/bottom-nav'
 import { OfflineBanner } from '@/components/layout/offline-banner'
 import { SidebarNav } from '@/components/layout/sidebar-nav'
-import { ThemeToggle } from '@/components/layout/theme-toggle'
 import { Button } from '@/components/ui/button'
 import { PencarianGlobal } from '@/features/pencarian/pencarian-global'
 import { site } from '@/config/site'
@@ -55,7 +54,6 @@ export function AppShell({ route, children }) {
             <Button variant="ghost" size="icon" className="size-10 shrink-0" aria-label="Cari" onClick={() => setSearching(true)}>
               <Search className="size-[18px]" />
             </Button>
-            <ThemeToggle className="size-10 shrink-0" />
             <Button variant="ghost" size="icon" className="size-10 shrink-0" aria-label="Keluar" onClick={signOut}>
               <LogOut className="size-[18px]" />
             </Button>
